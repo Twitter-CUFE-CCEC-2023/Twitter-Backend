@@ -16,7 +16,8 @@
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
- *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx"
+ *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
+ *      "success": true
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
@@ -24,6 +25,6 @@
  * @apiErrorExample {json} Error-Response:
  * HTTP/1.1 401 Unauthorized
  * {
- *       message: "User not found"
+ *       message: "UserNotFound"
  * }
 **/
