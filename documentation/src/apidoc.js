@@ -310,7 +310,6 @@
  * }
  **/
 
-
 /**
  * @api {POST} /user/unblock Unblock user
  * @apiVersion 0.1.0
@@ -445,7 +444,6 @@
  * }
 **/
 
-
 /**
  * @api {GET} /user/following/list Following list
  * @apiVersion 0.1.0
@@ -481,9 +479,6 @@
  * }
  **/
 
-
-
-
 /**
  * @api {post} /status/retweet Retweet a tweet
  * @apiVersion 0.1.0
@@ -496,7 +491,7 @@
  * @apiParam {int} id The numerical ID of the desired status.
  * @apiParamExample {json} Request-Example:
  * {
- *      "id": 1001,
+ *      "id": 1001
  * }
  * @apiSuccess {Object} tweet tweet object carrying the retweeted tweet information
  * @apiSuccess {String} message Success message
@@ -504,7 +499,7 @@
  * HTTP/1.1 200 OK
  * {
  *      "tweet": {tweet-object},
- *      "message": "tweet has been Retweeted successfully"
+ *      "message": "Tweet has been Retweeted successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
@@ -532,26 +527,58 @@
  * @apiParam {list} [attachment_urls] urls attached to the meassage
  * @apiParamExample {json} Request-Example: 
  * {
- *      content: "this is a sample text of a tweet"
+ *      "content": "This is a sample text of a tweet"
  * }
  * @apiSuccess {String} tweet tweet object posted successfully
+ * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
  *      "tweet": {tweet-object},
- *      "message": tweet posted successfully
+ *      "message": "Tweet posted successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
  * @apiError (401) {String} UnAuthorized  user is not authenticated 
- * @apiError (404) {String} TweetPostingFailed  The enetered credentials are invalid
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 Unauthorized
+ * HTTP/1.1 400 BadRequest
  * {
- *       message: "tweet posting failed"
+ *       message: "Tweet posting failed"
  * }
 **/
 
+/**
+ * @api {post} status/tweet/delete Delete a tweet
+ * @apiVersion 0.1.0 
+ * @apiName DeleteTweet
+ * @apiGroup Tweets
+ * @apiDescription Delete a tweet that is posted by authenticated user
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} tweet_id The id of deleted tweet
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "id" : 1291
+ * }
+ * @apiSuccess {String} tweet tweet deleted tweet object
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "deleted_tweet": {tweet-object},
+ *      "message": Tweet has been deleted successfully
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} UnAuthorized  user is not authenticated 
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 NotFound
+ * {
+ *       message: "Invalid tweet Id"
+ * }
+**/
 
 /**
  * @api {post} /status/unretweet Unretweet a tweet
