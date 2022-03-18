@@ -38,7 +38,7 @@
 **/
 
 /**
- * @api {post} status/favourite/create Like a tweet
+ * @api {post} status/favourite/like Like a tweet
  * @apiVersion 0.1.0
  * @apiName LikeTweet
  * @apiGroup Likes
@@ -46,9 +46,11 @@
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
  * @apiParam {Number} id The id of the liked tweet
+ * @apiParam {Boolean} [notify=true] send notification to the user of the liked tweet
  * @apiParamExample {json} Request-Example: 
  * {
  *      "id": 1001,
+ *      "notify": true
  * }
  * @apiSuccess {String} tweet tweet object carrying liked tweet information
  * @apiSuccess {String} message Success message
@@ -57,6 +59,40 @@
  * {
  *      "tweet": {tweet-object},
  *      "message": "tweet has been liked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid tweet Id"
+ * }
+**/
+
+/**
+ * @api {post} status/favourite/unlike Unlike a tweet
+ * @apiVersion 0.1.0
+ * @apiName UnlikeTweet
+ * @apiGroup Likes
+ * @apiDescription Removes the tweet from liked tweets
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {Number} id The id of the unliked tweet
+ * @apiParam {Boolean} [notify=false] send notification to the user of the unliked tweet
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 1001,
+ *      "notify": false
+ * }
+ * @apiSuccess {String} tweet tweet object carrying unliked tweet information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweet": {tweet-object},
+ *      "message": "tweet has been unliked successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
