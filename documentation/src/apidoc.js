@@ -107,9 +107,9 @@
 
 
 /**
- * @api {get} status/tweet/RetriveTweet retrive a tweet by id
+ * @api {get} status/tweet/retrieve Retrive a tweet by id
  * @apiVersion 0.1.0 
- * @apiName getTweet
+ * @apiName GetTweet
  * @apiGroup Tweets
  * @apiDescription Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet. 
  * @apiSampleRequest off
@@ -120,7 +120,7 @@
  * {
  *      "id": 123456
  * }
- * @apiSuccess {Number} access_token JWT generated access token for the user
+ * @apiSuccess {String} access_token JWT generated access token for the user
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
@@ -129,7 +129,7 @@
  *      "text": "To make room for more expression, we will now count all emojis as equal—including those with gender‍‍‍ and skin t… https://t.co/MkGjXf9aXm",
  *      "user_mentions": [],
  *      "urls": [],
- *      "user": userObj
+ *      "user": {user-object}
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
