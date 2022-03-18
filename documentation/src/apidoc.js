@@ -183,6 +183,7 @@
  * @apiDescription Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet.
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
  * @apiParam {int} id id of the tweet
  * @apiParam {Boolean} [include_my_retweet] When set to either true , t or 1 , any Tweets returned that have been retweeted by the authenticating user will include an additional current_user_retweet node, containing the ID of the source status for the retweet.
  * @apiParamExample {json} Request-Example:
@@ -193,11 +194,7 @@
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
- *      "created_at": "Wed Oct 10 20:19:24 +0000 2018",
- *      "id": 1050118621198921728,
- *      "text": "To make room for more expression, we will now count all emojis as equal—including those with gender‍‍‍ and skin t… https://t.co/MkGjXf9aXm",
- *      "user_mentions": [],
- *      "urls": [],
+ *      "tweet": {tweet-object},
  *      "user": {user-object}
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
@@ -381,6 +378,73 @@
  * }
  **/
 
+/**
+ * @api {get} status/tweet/retrieve Retrieve a tweet by id
+ * @apiVersion 0.1.0
+ * @apiName GetTweet
+ * @apiGroup Tweets
+ * @apiDescription Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet.
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
+ * @apiParam {int} id id of the tweet
+ * @apiParam {Boolean} [include_my_retweet] When set to either true , t or 1 , any Tweets returned that have been retweeted by the authenticating user will include an additional current_user_retweet node, containing the ID of the source status for the retweet.
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 123456
+ * }
+ * @apiSuccess {String} access_token JWT generated access token for the user
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweet": {tweet-object},
+ *      "user": {user-object}
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} UnAuthorized  user is not authenticated
+ * @apiError (404) {String} TweetNotFound  The enetered credentials are invalid
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "tweet not found"
+ * }
+ **/
+
+/**
+ * @api {post} status/tweet/post Post a tweet
+ * @apiVersion 0.1.0 
+ * @apiName PostTweet
+ * @apiGroup Tweets
+ * @apiDescription post a tweet with the input data(strings) of the user choice
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {String} content content of the tweet
+ * @apiParam {int} [replying] id that this tweet is replied on
+ * @apiParam {list} [mentions] usernames of the mentioned people in the tweet
+ * @apiParam {list} [attachment_urls] urls attached to the meassage
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      content: "this is a sample text of a tweet"
+ * }
+ * @apiSuccess {String} tweet tweet object posted successfully
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweet": {tweet-object},
+ *      "message": tweet posted successfully
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} UnAuthorized  user is not authenticated 
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "tweet posting failed"
+ * }
+**/
+
 
 /**
  * @api {GET} /user/following/list Following list
@@ -452,3 +516,38 @@
  *       message: "Invalid tweet Id"
  * }
  **/
+
+/**
+ * @api {post} status/tweet/Post Post a tweet
+ * @apiVersion 0.1.0 
+ * @apiName PostTweet
+ * @apiGroup Tweets
+ * @apiDescription post a tweet with the input data(strings) of the user choice
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {String} content content of the tweet
+ * @apiParam {int} [replying] id that this tweet is replied on
+ * @apiParam {list} [mentions] usernames of the mentioned people in the tweet
+ * @apiParam {list} [attachment_urls] urls attached to the meassage
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      content: "this is a sample text of a tweet"
+ * }
+ * @apiSuccess {String} tweet tweet object posted successfully
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweet": {tweet-object},
+ *      "message": tweet posted successfully
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} UnAuthorized  user is not authenticated 
+ * @apiError (404) {String} TweetPostingFailed  The enetered credentials are invalid
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "tweet posting failed"
+ * }
+**/
