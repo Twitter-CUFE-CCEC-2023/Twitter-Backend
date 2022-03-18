@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "title": "Twitter API Doc",
   "description": "This is the api documentation for our twitter project",
-  "url" : "https://api.example.com",
   "sampleUrl": "https://apidoc.free.beeceptor.com",
   "output": "/tmp/apidoc-output",
   "input": [
