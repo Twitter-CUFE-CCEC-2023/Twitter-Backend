@@ -310,3 +310,38 @@
  *       message: "Invalid user Id"
  * }
  **/
+
+/**
+ * @api {GET} /user/followers Followers list
+ * @apiVersion 0.1.0
+ * @apiName FollowersList
+ * @apiGroup User
+ * @apiDescription Get list of followers
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} user_id the ID of the user for whom to return results
+ * @apiParam {int} count The number of followers users 
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ *      "count": 10,
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {list} followers_users list of followers IDs
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Followers list displayed successfully",
+ *      "followers_users": [10 20 25 36 40 40 23 58 95 45]
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+* @apiError (404) {String} UserNotFound Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
