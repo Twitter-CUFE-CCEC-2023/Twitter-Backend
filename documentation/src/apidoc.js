@@ -180,7 +180,7 @@
  * @apiVersion 0.1.0
  * @apiName UnFollowUser
  * @apiGroup User
- * @apiDescription Remove the user to the followers list
+ * @apiDescription Remove the user from the followers list
  * @apiSampleRequest off 
  * @apiPermission RequiresAuth
  * @apiParam {int} follower_userid user id of the follower user
