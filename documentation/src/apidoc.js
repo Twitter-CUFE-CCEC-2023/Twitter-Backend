@@ -174,3 +174,36 @@
  *       message: "Invalid user credentials"
  * }
  **/
+
+/**
+ * @api {POST} /user/unfollow Unfollow user
+ * @apiVersion 0.1.0
+ * @apiName UnFollowUser
+ * @apiGroup User
+ * @apiDescription Remove the user to the followers list
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {int} follower_userid user id of the follower user
+ * @apiParam {int} following_userid user id of the following user
+ * @apiParam {Boolean} [notify=false] send notification to the following user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "follower_userid": 20,
+ *      "following_userid": 25,
+ *      "notify": false
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User unfollowed successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 UserNotFound
+ * {
+ *       message: "Invalid user credentials"
+ * }
+ **/
