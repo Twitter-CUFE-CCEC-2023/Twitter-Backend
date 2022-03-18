@@ -114,6 +114,7 @@
  * @apiDescription Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet. 
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id id of the tweet
  * @apiParam {Booleans} [include_my_retweet] When set to either true , t or 1 , any Tweets returned that have been retweeted by the authenticating user will include an additional current_user_retweet node, containing the ID of the source status for the retweet.
  * @apiParamExample {json} Request-Example: 
@@ -146,6 +147,7 @@
  * @apiDescription post a tweet with the input data(strings) of the user choice
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {String} content content of the tweet
  * @apiParam {int} [replying] id that this tweet is replied on
  * @apiParam {list} [mentions] usernames of the mentioned people in the tweet
