@@ -11,16 +11,20 @@
  * @apiSampleRequest off
  * @apiParam {String} email_or_username Email or Username of the user
  * @apiParam {String} password Password of the user
+ * @apiParam {Boolean} [remember_me=false] Remember the logged in user
  * @apiParamExample {json} Request-Example: 
  * {
  *      "email_or_username": "amrzaki2000.az@gmail.com",
  *      "password": "myPassw@ord123",
  * }
  * @apiSuccess {String} access_token JWT generated access token for the user
+ * @apiSuccess {DateTime} token_expiration_date The date and time of token expiration
+ * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
  *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
+ *      "token_expiration_date": "2020-01-01T00:00:00.000Z",
  *      "message": "User logged in successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
