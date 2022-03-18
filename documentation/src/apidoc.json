@@ -9,9 +9,10 @@
     "apidoc"
   ],
   "order": [
+    "Authentication",
     "User",
-    "PostUser",
-    "GetUser",
+    "Tweets",
+    "Likes",
     "City",
     "Category (official)"
   ],
