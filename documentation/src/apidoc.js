@@ -68,3 +68,34 @@
  *       message: "Invalid tweet Id"
  * }
 **/
+
+/**
+ * @api {POST} /user/followuser user follow another user 
+ * @apiVersion 0.1.0
+ * @apiName FollowUser
+ * @apiGroup User
+ * @apiDescription connect userid of the follower by the userid of the following person
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {int} follower_userid user id of the follower user
+ * @apiParam {int} following_userid user id of the following user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "follower_userid": 10,
+ *      "following_userid": 11
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User followed successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 UserNotFound
+ * {
+ *       message: "Invalid user credentials"و
+ * }
+ **/
