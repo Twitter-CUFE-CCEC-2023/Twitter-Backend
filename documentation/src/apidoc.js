@@ -45,7 +45,7 @@
  * @apiDescription Adds the tweet to the user liked tweets
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
- * @apiParam {Number} id The id of the liked tweet
+ * @apiParam {int} id The id of the liked tweet
  * @apiParam {Boolean} [notify=true] send notification to the user of the liked tweet
  * @apiParamExample {json} Request-Example: 
  * {
@@ -79,7 +79,7 @@
  * @apiDescription Removes the tweet from liked tweets
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
- * @apiParam {Number} id The id of the unliked tweet
+ * @apiParam {int} id The id of the unliked tweet
  * @apiParam {Boolean} [notify=false] send notification to the user of the unliked tweet
  * @apiParamExample {json} Request-Example:
  * {
