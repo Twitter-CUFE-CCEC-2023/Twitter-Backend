@@ -245,3 +245,68 @@
  *       message: "Invalid user Id"
  * }
  **/
+
+/**
+ * @api {POST} /user/block Block user
+ * @apiVersion 0.1.0
+ * @apiName Block user
+ * @apiGroup User
+ * @apiDescription Blocks the specified user from following the authenticating user. In addition the blocked user will not show in the authenticating users mentions or timeline (unless retweeted by another user). If a follow or friend relationship exists it is destroyed
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} [user_id] The ID of the potentially blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Blocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} UserNotFound  Invalid user Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+
+/**
+ * @api {POST} /user/unblock Unblock user
+ * @apiVersion 0.1.0
+ * @apiName Unblock user
+ * @apiGroup User
+ * @apiDescription Un-blocks the user specified in the ID parameter for the authenticating user. Returns the un-blocked user when successful. If relationships existed before the block was instantiated, they will not be restored.
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} [user_id] The ID of the  blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Unblocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} UserNotFound  Invalid user Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
