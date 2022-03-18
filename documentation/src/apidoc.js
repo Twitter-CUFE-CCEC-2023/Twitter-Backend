@@ -52,7 +52,7 @@
  *      "id": 1001,
  *      "notify": true
  * }
- * @apiSuccess {String} tweet tweet object carrying liked tweet information
+ * @apiSuccess {Object} tweet tweet object carrying liked tweet information
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
@@ -86,7 +86,7 @@
  *      "id": 1001,
  *      "notify": false
  * }
- * @apiSuccess {String} tweet tweet object carrying unliked tweet information
+ * @apiSuccess {Object} tweet tweet object carrying unliked tweet information
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
