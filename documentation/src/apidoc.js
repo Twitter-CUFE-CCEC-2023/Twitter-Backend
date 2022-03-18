@@ -414,37 +414,4 @@
  * }
  **/
 
-/**
- * @api {post} status/tweet/Post Post a tweet
- * @apiVersion 0.1.0 
- * @apiName PostTweet
- * @apiGroup Tweets
- * @apiDescription post a tweet with the input data(strings) of the user choice
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {String} content content of the tweet
- * @apiParam {int} [replying] id that this tweet is replied on
- * @apiParam {list} [mentions] usernames of the mentioned people in the tweet
- * @apiParam {list} [attachment_urls] urls attached to the meassage
- * @apiParamExample {json} Request-Example: 
- * {
- *      content: "this is a sample text of a tweet"
- * }
- * @apiSuccess {String} tweet tweet object posted successfully
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "tweet": {tweet-object},
- *      "message": tweet posted successfully
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} UnAuthorized  user is not authenticated 
- * @apiError (404) {String} TweetPostingFailed  The enetered credentials are invalid
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 Unauthorized
- * {
- *       message: "tweet posting failed"
- * }
-**/
+
