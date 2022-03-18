@@ -15,7 +15,7 @@
  * @apiParamExample {json} Request-Example:
  * {
  *      "email_or_username": "amrzaki2000.az@gmail.com",
- *      "password": "myPassw@ord123",
+ *      "password": "myPassw@ord123"
  * }
  * @apiSuccess {String} access_token JWT generated access token for the user
  * @apiSuccess {DateTime} token_expiration_date The date and time of token expiration
@@ -35,7 +35,7 @@
  * @apiErrorExample {json} Error-Response:
  * HTTP/1.1 401 UserNotFound
  * {
- *       message: "Invalid user credentials"و
+ *       message: "Invalid user credentials"
  * }
  **/
 
@@ -584,7 +584,7 @@
 /**
  * @api {post} /status/unretweet Unretweet a tweet
  * @apiVersion 0.1.0
- * @apiName Unretweet a Tweet
+ * @apiName Unretweet
  * @apiGroup Tweets
  * @apiDescription Untweets a retweeted status. Returns the original Tweet with Retweet details embedded, The untweeted retweet status ID must be authored by the user backing the authentication token.
  * @apiSampleRequest off
@@ -611,5 +611,49 @@
  * HTTP/1.1 404 NotFound
  * {
  *       message: "Invalid tweet Id"
+ * }
+ **/
+
+/**
+ * @api {post} /user/update-profile Update user profile
+ * @apiVersion 0.1.0
+ * @apiName UpdateProfile
+ * @apiGroup User
+ * @apiDescription Updates authenticated user profile.
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {String} name Full name associated with profile.
+ * @apiParam {String} location The location of the user.
+ * @apiParam {String} website The website of the user.
+ * @apiParam {String} bio The user bio.
+ * @apiParam {DateTime} birth_date The user birth date.
+ * @apiParam {String{public-your_followers-people_you_follow-you_follow_each_other-only_you}} month_day_access Determines who has access to see user birth month and day.
+ * @apiParam {String{public-your_followers-people_you_follow-you_follow_each_other-only_you}} year_access Determines who has access to see user birth year.
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "name": "John Doe",
+ *      "location": "New York",
+ *      "website": "http://www.example.com",
+ *      "bio": "I am a web developer",
+ *      "birth_date": "1990-01-01",
+ *      "month_day_access": "only_you",
+ *      "year_access": "only_you"
+ * }
+ * @apiSuccess {Object} user user object carrying user after updating information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User profile has been update successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "User not found"
  * }
  **/
