@@ -24,6 +24,7 @@
  * HTTP/1.1 200 OK
  * {
  *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
+ *      "user" : {user-object},
  *      "role": "user",
  *      "token_expiration_date": "2020-01-01T00:00:00.000Z",
  *      "message": "User logged in successfully"
