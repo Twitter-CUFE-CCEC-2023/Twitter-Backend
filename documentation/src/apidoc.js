@@ -143,7 +143,7 @@
 **/
 
 /**
- * @api {POST} /user/followuser Follow user
+ * @api {POST} /user/follow Follow user
  * @apiVersion 0.1.0
  * @apiName FollowUser
  * @apiGroup User
