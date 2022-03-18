@@ -26,5 +26,4 @@
  * {
  *       message: "User not found"
  * }
-
 **/
