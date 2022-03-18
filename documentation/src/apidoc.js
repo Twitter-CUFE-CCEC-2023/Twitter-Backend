@@ -142,6 +142,40 @@
  **/
 
 /**
+ * @api {get} /status/tweet/retweeters Get tweet retweeters
+ * @apiVersion 0.1.0
+ * @apiName GetTweetRetweeters
+ * @apiGroup Tweets
+ * @apiDescription Get list carrying the users who retweeted a specific tweet
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} [tweet_id] The id of the tweet
+ * @apiParam {int{1-100}} [count=20] Number of retrieved tweets
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "tweet_id": 1202,
+ *      "count": 40
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "retweeters": [{user-object},{user-object},{user-object}],
+ *      "message": "Retweeters have been retrieved successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 TweetNotFound
+ * {
+ *       message: "Tweet is not found"
+ * }
+ **/
+
+/**
  * @api {get} status/tweet/retrieve Retrieve a tweet by id
  * @apiVersion 0.1.0
  * @apiName GetTweet
