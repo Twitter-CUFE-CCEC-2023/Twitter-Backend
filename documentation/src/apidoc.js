@@ -205,7 +205,7 @@
  * @apiError (401) {String} Unauthorized  User is not authenticated
  * @apiError (404) {String} UserNotFound Invalid user Id
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 UserNotFound
+ * HTTP/1.1 404 UserNotFound
  * {
  *       message: "Invalid user Id"
  * }
@@ -240,7 +240,7 @@
  * @apiError (401) {String} Unauthorized  User is not authenticated
  * @apiError (404) {String} UserNotFound Invalid user Id
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 UserNotFound
+ * HTTP/1.1 404 UserNotFound
  * {
  *       message: "Invalid user Id"
  * }
