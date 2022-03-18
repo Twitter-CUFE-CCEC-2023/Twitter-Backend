@@ -312,7 +312,7 @@
  **/
 
 /**
- * @api {GET} /user/followers Followers list
+ * @api {GET} /user/followers/list Followers list
  * @apiVersion 0.1.0
  * @apiName FollowersList
  * @apiGroup User
@@ -348,7 +348,7 @@
 
 
 /**
- * @api {GET} /user/following Following list
+ * @api {GET} /user/following/list Following list
  * @apiVersion 0.1.0
  * @apiName FollowingList
  * @apiGroup User
