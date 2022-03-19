@@ -1,5 +1,6 @@
 /**
  * @apiDefine RequiresAuth Authentication is required
+ * @apiDefine Admin Admin access is required
  **/
 
 /**
@@ -835,8 +836,8 @@
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} user_id The ID of the potentially blocked user
  * @apiParam {String} reason reason of banning the specified user
- * @apiParem {DateTime} [end_date] date of ban ending
- * @apiParem {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
+ * @apiParam {DateTime} [end_date] date of ban ending
+ * @apiParam {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
  * @apiParamExample {json} Request-Example:
  * {
  *      "user_id": 20,
@@ -928,7 +929,7 @@
 **/
 
 /**
- * @api {get} /dashboard/getusers get users
+ * @api {get} /dashboard/users get users
  * @apiVersion 0.1.0
  * @apiName get users
  * @apiGroup Admin
@@ -963,3 +964,273 @@
  * }
 **/
 
+/**
+ * @api {get} /dashbaord/average-tweets Average number of tweets per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of tweets per day
+ * @apiGroup Admin
+ * @apiDescription Gets the average number of tweets per day in the specified date interval
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Number} tweets_per_day Average number of tweets per day in the specified period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashbaord/average-likes Average number of likes per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of likes per day
+ * @apiGroup Admin
+ * @apiDescription Gets the average number of likes per day in the specified date interval
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Number} likes_per_day Average number of likes per day in the specified period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "likes_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashbaord/average-retweets Average number of retweets per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of retweets per day
+ * @apiGroup Admin
+ * @apiDescription Gets the average number of retweets per day in the specified date interval
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Number} retweets_per_day Average number of retweets per day in the specified period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "retweets_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashboard/get_number_of_tweets get number of tweets
+ * @apiVersion 0.1.0
+ * @apiName get number of tweets
+ * @apiGroup Admin
+ * @apiDescription get the number of tweets in a specific period of time
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {DateTime} [st-date] date of starting to count the tweets, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the tweets, if not specified count untill today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "st-date": "2000-01-01T00:00:00.000Z",,
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {int} count count of tweets in that perion
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "tweets counted successfully",
+ *      "users_list": 8641513
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashboard/get_number_of_likes get number of likes
+ * @apiVersion 0.1.0
+ * @apiName get number of likes
+ * @apiGroup Admin
+ * @apiDescription get the number of likes in a specific period of time
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {DateTime} [st-date] date of starting to count the likes, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the likes, if not specified count untill today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "st-date": "2000-01-01T00:00:00.000Z",,
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {int} count count of likes in that perion
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "likes counted successfully",
+ *      "users_list": 12565885465
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashboard/get_number_of_retweets get number of retweets
+ * @apiVersion 0.1.0
+ * @apiName get number of retweets
+ * @apiGroup Admin
+ * @apiDescription get the number of retweets in a specific period of time
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {DateTime} [st-date] date of starting to count the retweets, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the retweets, if not specified count untill today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "st-date": "2000-01-01T00:00:00.000Z",,
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {int} count count of retweets in that perion
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "retweets counted successfully",
+ *      "users_list": 3456656
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashboard/get_number_of_tweets_per_region get number of tweets per region
+ * @apiVersion 0.1.0
+ * @apiName get number of tweets per region
+ * @apiGroup Admin
+ * @apiDescription get the number of tweets per region in a specific period of time
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {DateTime} [st-date] date of starting to count the tweets per region, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the tweets per region, if not specified count untill today
+ * @apiParam {String} location location of the searched region
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "st-date": "2000-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "location": "Cairo"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {int} count count of tweets per region in that period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "tweets per region counted successfully",
+ *      "users_list": 3456656
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashboard/get_number_of_tweets_per_gender get number of tweets per gender
+ * @apiVersion 0.1.0
+ * @apiName get number of tweets per gender
+ * @apiGroup Admin
+ * @apiDescription get the number of tweets per gender in a specific period of time
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {DateTime} [st-date] date of starting to count the tweets per gender, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the tweets per gender, if not specified count untill today
+ * @apiParam {String} gender gender of the users to get the the number of tweets of.
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "st-date": "2000-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "gender": "male"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {int} count count of tweets per gender in that perion
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "tweets per gender counted successfully",
+ *      "users_list": 3456656
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
