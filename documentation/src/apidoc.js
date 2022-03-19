@@ -1,5 +1,6 @@
 /**
  * @apiDefine RequiresAuth Authentication is required
+ * @apiDefine Admin Admin access is required
  **/
 
 /**
