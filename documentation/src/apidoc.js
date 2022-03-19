@@ -1248,6 +1248,7 @@
  * @apiSuccess {int} media_id The id of the uploaded media
  * @apiSuccess {String} media type
  * @apiSuccess {String} path The url of the uploaded media
+ * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
@@ -1264,5 +1265,40 @@
  * HTTP/1.1 400 BadRequest
  * {
  *       "message": "Could not Upload data"
+ * }
+**/
+
+/**
+ * @api {get} /timeline/home Home timeline
+ * @apiVersion 0.1.0
+ * @apiName GetTimeline
+ * @apiGroup Timeline
+ * @apiDescription Retireves the timeline containing following tweets and user tweets.
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int{1-200}} [count=20] count of retrieved ids
+ * @apiParam {int} [since_id] Returns results with an ID greater than (that is, more recent than) the specified ID. 
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "count": "20",
+ *      "since_id": "1324",
+ * }
+ * @apiSuccess {list} tweets list of retrieved tweets
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets": [{tweet-object}, {tweet-object}, ...],
+ *      "message" : "Tweets have been uploaded successfully"
+ *    
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       "message": "Could not retrieve data"
  * }
 **/
