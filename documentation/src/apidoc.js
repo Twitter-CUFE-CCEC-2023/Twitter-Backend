@@ -610,7 +610,7 @@
 //#region Tweets
 
 /**
- * @api {post} /status/replies/:id get a specific tweet replies
+ * @api {post} /status/replies/:id Get a specific tweet replies
  * @apiVersion 0.1.0
  * @apiName GetTweetReplies
  * @apiGroup Tweets
