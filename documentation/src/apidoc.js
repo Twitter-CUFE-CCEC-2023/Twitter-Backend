@@ -835,8 +835,8 @@
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} user_id The ID of the potentially blocked user
  * @apiParam {String} reason reason of banning the specified user
- * @apiParem {DateTime} [end_date] date of ban ending
- * @apiParem {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
+ * @apiParam {DateTime} [end_date] date of ban ending
+ * @apiParam {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
  * @apiParamExample {json} Request-Example:
  * {
  *      "user_id": 20,
@@ -928,7 +928,7 @@
 **/
 
 /**
- * @api {get} /user/getusers get users
+ * @api {get} /dashboard/users get users
  * @apiVersion 0.1.0
  * @apiName get users
  * @apiGroup Admin
@@ -952,6 +952,40 @@
  * {
  *      "message": "users retrived successfully",
  *      "users_list": []
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
+
+/**
+ * @api {get} /dashbaord/average-tweets Average number of tweets per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of tweets per day
+ * @apiGroup Admin
+ * @apiDescription Gets the average number of tweets per day in the specified date interval
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Number} tweets_per_day Average number of tweets per day in the specified period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
