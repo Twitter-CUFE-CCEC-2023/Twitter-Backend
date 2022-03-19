@@ -931,7 +931,7 @@
  * {
  *      "id": 1001,
  * }
- * @apiSuccess {Object} original tweet object carrying original tweet information
+ * @apiSuccess {Object} tweet tweet object carrying original tweet information
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
@@ -1233,7 +1233,7 @@
  **/
 
 /**
- * @api {GET} /notifications/list Notifications list
+ * @api {GET} /user/notifications/list Notifications list
  * @apiVersion 0.1.0
  * @apiName NotificationsList
  * @apiGroup User
@@ -1262,6 +1262,39 @@
  * HTTP/1.1 401 Unauthorized
  * {
  *       message: "Invalid or expired token"
+ * }
+ **/
+
+/**
+ * @api {GET} /user/info/:userid Get specific user information
+ * @apiVersion 0.1.0
+ * @apiName GetUserInformation
+ * @apiGroup User
+ * @apiDescription Get the information of specific user
+ * @apiSampleRequest off 
+ * @apiPermission Default
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid The id of the user that we want his/her information
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "userid": 2451246,
+ * }
+ * @apiSuccess {object} user object carrying user information 
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User information has been retrieved successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid user id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user id"
  * }
  **/
 
