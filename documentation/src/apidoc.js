@@ -963,12 +963,11 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {int} id user id of the following user
  * @apiParam {Boolean} [notify=true] send notification to the following user
  * @apiParamExample {json} Request-Example:
  * {
- *      "follower_userid": 10,
  *      "following_userid": 11,
  *      "notify": true
  * }
@@ -1000,12 +999,11 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {int} id user id of the following user
  * @apiParam {Boolean} [notify=false] send notification to the following user
  * @apiParamExample {json} Request-Example:
  * {
- *      "follower_userid": 20,
  *      "following_userid": 25,
  *      "notify": false
  * }
@@ -1037,11 +1035,10 @@
  * @apiSampleRequest off 
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {int} id The ID of the potentially blocked user
  * @apiParamExample {json} Request-Example: 
  * {
- *      "userid": 20,
  *      "id": 25
  * }
  * @apiSuccess {object} user object carrying authenticated user information
@@ -1073,11 +1070,10 @@
  * @apiSampleRequest off 
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {int} id The ID of the blocked user
  * @apiParamExample {json} Request-Example: 
  * {
- *      "user_id": 20,
  *      "id": 25
  * }
  * @apiSuccess {object} user object carrying authenticated user information
@@ -1109,11 +1105,7 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} id the ID of the user for whom to return results
- * @apiParamExample {json} Request-Example:
- * {
- *      "id": 20,
- * }
+ * @apiParam {int} userid the ID of the user for whom to return results. It is sent in header
  * @apiSuccess {list} followers_users list of followers users objects
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
@@ -1142,11 +1134,7 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} id the ID of the user for whom to return results
- * @apiParamExample {json} Request-Example:
- * {
- *      "id": 20,
- * }
+ * @apiParam {int} userid the ID of the user for whom to return results. It is sent in header
  * @apiSuccess {list} following_users list of following user objects
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
@@ -1175,6 +1163,7 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {String} name Full name associated with profile.
  * @apiParam {String} location The location of the user.
  * @apiParam {String} website The website of the user.
@@ -1219,6 +1208,7 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {Boolean} [include_replies] Determines if replies and their tweets should be included in the response.
  * @apiParamExample {json} Request-Example:
  * {
@@ -1251,11 +1241,10 @@
  * @apiSampleRequest off 
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid the ID of the user for whom to return results
+ * @apiParam {int} userid the ID of the user for whom to return results. It is sent in header
  * @apiParam {int{1-200}} [count=20] The number of notifications 
  * @apiParamExample {json} Request-Example: 
  * {
- *      "user_id": 20,
  *      "count": 12,
  * }
  * @apiSuccess {list} list of objects carrying the notifications information 
