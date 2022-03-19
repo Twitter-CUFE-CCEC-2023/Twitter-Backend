@@ -615,7 +615,7 @@
  **/
 
 /**
- * @api {post} /user/update-profile Update user profile
+ * @api {put} /user/update-profile Update user profile
  * @apiVersion 0.1.0
  * @apiName UpdateProfile
  * @apiGroup User
@@ -659,7 +659,7 @@
 **/
 
 /**
- * @api {post} /auth/signUp signUp user
+ * @api {post} /auth/signUp SignUp user
  * @apiVersion 0.1.0
  * @apiName SignUp
  * @apiGroup Authentication
@@ -727,7 +727,6 @@
  * HTTP/1.1 200 OK
  * {
  *      "user": {user-object},
- *      "message": "User has been verified successfully"
  *      "message": "User Email has been verified successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
@@ -737,5 +736,37 @@
  * HTTP/1.1 401 Unauthorized
  * {
  *       message: "Invalid verification code"
+ * }
+ **/
+
+/**
+ * @api {get} /status/tweets/list Get authenticated user tweets 
+ * @apiVersion 0.1.0
+ * @apiName GetTweets
+ * @apiGroup Tweets
+ * @apiDescription Retrieve user tweets, tweets may be including replies or not.
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {Boolean} [include_replies] Determines if replies and their tweets should be included in the response.
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "include_replies": true
+ * }
+ * @apiSuccess {list} tweets list carrying tweets objects
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets": [{tweet-object},{tweet-object}],
+ *      "message": "User has been verified successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid or expired token"
  * }
  **/
