@@ -288,7 +288,7 @@
  * @apiSampleRequest off 
  * @apiPermission RequiresAuth
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} [user_id] The ID of the potentially blocked user
+ * @apiParam {int} user_id The ID of the potentially blocked user
  * @apiParamExample {json} Request-Example: 
  * {
  *      "user_id": 20,
@@ -320,7 +320,7 @@
  * @apiSampleRequest off 
  * @apiPermission RequiresAuth
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} [user_id] The ID of the  blocked user
+ * @apiParam {int} user_id The ID of the  blocked user
  * @apiParamExample {json} Request-Example: 
  * {
  *      "user_id": 20,
@@ -704,5 +704,74 @@
  * HTTP/1.1 400 SignUpFailed
  * {
  *       message: "sign up failed"
+ * }
+**/
+
+/**
+ * @api {post} /user/ban Ban User
+ * @apiVersion 0.1.0
+ * @apiName ban user
+ * @apiGroup Admin
+ * @apiDescription ban the specified user from the services of twitter
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} user_id The ID of the potentially blocked user
+ * @apiParam {String} reason reason of banning the specified user
+ * @apiParem {DateTime} [end_date] date of ban ending
+ * @apiParem {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ *      "reason": "using offensive language",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "forever_banned": false
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Banned successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} UserNotFound  Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+**/
+
+/**
+ * @api {POST} /user/unban Unban user
+ * @apiVersion 0.1.0
+ * @apiName Unban user
+ * @apiGroup Admin
+ * @apiDescription Un-bans the user specified in the ID parameter for the authenticating user. the banned user will regain access to his account
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} user_id The ID of the  blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Unblocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} UserNotFound  Invalid user Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
  * }
 **/
