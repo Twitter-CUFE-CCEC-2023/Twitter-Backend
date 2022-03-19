@@ -610,6 +610,39 @@
 //#region Tweets
 
 /**
+ * @api {post} /status/replies/:id get a specific tweet replies
+ * @apiVersion 0.1.0
+ * @apiName GetTweetReplies
+ * @apiGroup Tweets
+ * @apiDescription Retrives a list of a specific tweet replies
+ * @apiSampleRequest off
+ * @apiPermission Default
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} id The id of the tweet that is being replied to
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 1001,
+ * }
+ * @apiSuccess {list} tweets list of tweets objects carrying replies to a specific tweet
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets": [{tweet-object},{tweet-object}, ..],
+ *      "message": "tweets has been retrieved successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid tweet Id"
+ * }
+ **/
+
+/**
  * @api {post} /status/like/:id Like a tweet
  * @apiVersion 0.1.0
  * @apiName LikeTweet
