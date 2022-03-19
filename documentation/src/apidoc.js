@@ -997,3 +997,37 @@
  *       message: "Could not retrieve data"
  * }
 **/
+
+/**
+ * @api {get} /dashbaord/average-likes Average number of likes per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of likes per day
+ * @apiGroup Admin
+ * @apiDescription Gets the average number of likes per day in the specified date interval
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Number} likes_per_day Average number of likes per day in the specified period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "likes_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+**/
