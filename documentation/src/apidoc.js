@@ -926,38 +926,3 @@
  * }
 **/
 
-/**
- * @api {get} /user/getusers get users
- * @apiVersion 0.1.0
- * @apiName get users
- * @apiGroup Admin
- * @apiDescription get users by specifying some data on a filter, example: the location or a gender, a count for the number of users data recived can also be specified
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {Boolean} [location_filter] if true used to fillter the users by their location
- * @apiParam {Boolean} [gender_filter] if true used to fillter the users by their gender
- * @apiParam {String} filter_data specifies the data that will filter the users
- * @apiParam {int} [count] specifies the number of users that I want to recive
- * @apiParamExample {json} Request-Example: 
- * {
- *      "location_filter": true,
- *      "gender_filter": false,
- *      "filter_data": "Cairo"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {list} users_list list of retrived users
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "users retrived successfully",
- *      "users_list": []
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 UserNotFound
- * {
- *       message: "Invalid data"
- * }
-**/
