@@ -706,3 +706,36 @@
  *       message: "sign up failed"
  * }
 **/
+
+/**
+ * @api {post} /user/verify-credentials Verify signed up user credentials 
+ * @apiVersion 0.1.0
+ * @apiName VerifyEmail
+ * @apiGroup Authenication
+ * @apiDescription Verifies newly created user.
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} verification_code Verification code that is sent by email
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "verification_code: "123456"
+ * }
+ * @apiSuccess {Object} user user object carrying user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User has been verified successfully"
+ *      "message": "User Email has been verified successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid verification code"
+ * }
+ **/
