@@ -3,8 +3,59 @@
  * @apiDefine Admin Admin access is required
  **/
 
+//#region Authentication
+
 /**
- * @api {post} /auth/login Login user
+ * @api {post} /auth/signup Sign up
+ * @apiVersion 0.1.0
+ * @apiName SignUp
+ * @apiGroup Authentication
+ * @apiDescription Creates an account for the user, user can sign-up using his email or creating a username and creating a password.
+ * A verification email is sent if the user is successfully created. Returns the user object in case it is created but not verified.
+ * @apiSampleRequest off
+ * @apiParam {String} email Email of the user
+ * @apiParam {String} username Username of the user
+ * @apiParam {String} password password of the user
+ * @apiParam {String{1-50}} name The name of the user
+ * @apiParam {String} gender gender of the user
+ * @apiParam {DateTime} birth_date birth date of the user
+ * @apiParam {String} phone_number phone number of the user
+ * @apiParam {int} [profile_picture] Id of the uploaded profile picture
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "email": "amrzaki2000.az@gmail.com",
+ *      "username": "amrZaki123"
+ *      "password": "myPassw@ord123",
+ *      "name": "Amr Zaki",
+ *      "gender": "male",
+ *      "birth_date": "2000-01-01T00:00:00.000Z",
+ *      "phone_number": "0105267436",
+ *      "profile_picture" : "162178"
+ * }
+ * @apiSuccess {String} access_token JWT generated access token for the user
+ * @apiSuccess {user-object} user of the sign up operation
+ * @apiSuccess {DateTime} token_expiration_date The date and time of token expiration
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
+ *      "user" : {user-object},
+ *      "token_expiration_date": "2020-01-01T00:00:00.000Z",
+ *      "message": "User Signed up successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (409) {String} Conflict  Indicates that the request could not be processed because of conflict in the current state of the resource
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 409 Conflict
+ * {
+ *       message: "Email already exists"
+ * }
+ **/
+
+/**
+ * @api {post} /auth/login Login
  * @apiVersion 0.1.0
  * @apiName LoginUser
  * @apiGroup Authentication
@@ -26,25 +77,536 @@
  * {
  *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
  *      "user" : {user-object},
- *      "role": "user",
  *      "token_expiration_date": "2020-01-01T00:00:00.000Z",
  *      "message": "User logged in successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} UserNotFound  The enetered credentials are invalid
+ * @apiError (401) {String} NotFound  The enetered credentials are invalid
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 UserNotFound
+ * HTTP/1.1 401 NotFound
  * {
  *       message: "Invalid user credentials"
  * }
  **/
 
 /**
- * @api {post} /status/favourite/like Like a tweet
+ * @api {put} /user/verify-credentials/:id Verify user
+ * @apiVersion 0.1.0
+ * @apiName VerifyEmail
+ * @apiGroup Authentication
+ * @apiDescription Verifies newly created user.
+ * @apiSampleRequest off
+ * @apiParam {int} id Id of the user to be verified
+ * @apiParam {int} verification_code Verification code that is sent by email
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 32543216216,
+ *      "verification_code: "123456",
+ * }
+ * @apiSuccess {Object} user user object carrying user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User Email has been verified successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid or expired verification code"
+ * }
+ **/
+
+/**
+ * @api {post} /auth/send-reset-password Reset password email
+ * @apiVersion 0.1.0
+ * @apiName SendResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Sends an email with reset password code to the user.
+ * @apiSampleRequest off
+ * @apiParam {String} email_or_username The email or the username of the user that needs to reset his/her password
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "email_or_username": "amrzaki2000.az@gmail.com"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Reset password email has been sent successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiError (404) {String} NotFound  User email and username are not found
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid email or username"
+ * }
+ **/
+
+/**
+ * @api {put} /auth/verify-reset-password/:id Verify reset password
+ * @apiVersion 0.1.0
+ * @apiName VerifyResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Verifies the reset password request with the code sent to the user email.
+ * @apiSampleRequest off
+ * @apiParam {int} id Id of the user that needes reset password request to be verified
+ * @apiParam {int} verification_code The code that is used to verify reset password request
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 32543216216,
+ *      "verification_code": "123456"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Request has been verified"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiError (404) {String} NotFound  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid or expired verification code"
+ * }
+ **/
+
+/**
+ * @api {put} /auth/reset-password/:id Update password
+ * @apiVersion 0.1.0
+ * @apiName ResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Updates user's password.
+ * @apiSampleRequest off
+ * @apiParam {int} id Id of the user that needs to reset his/her password
+ * @apiParam {String} password The new password of the user
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 32543216216,
+ *      "password": "myNewPassw@rd"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Password has been updated successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not update user password due to server problem"
+ * }
+ **/
+
+//#endregion Authentication
+
+//#region Admin Dashboard
+
+/**
+ * @api {get} /dashboard/users Get users
+ * @apiVersion 0.1.0
+ * @apiName GetUsers
+ * @apiGroup Admin Dashboard
+ * @apiDescription Get users by specifying some data on a filter, example: the location or a gender, a count for the number of users data recived can also be specified
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
+ * @apiParam {String} [location_filter=all] Get users from specific location
+ * @apiParam {String} [gender=all] Get users of specific gender
+ * @apiParam {int{1-200}} [count=20] Specifies the number of retrieved users
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "location_filter": "Egypt",
+ *      "gender_filter": "male",
+ * }
+ * @apiSuccess {list} users_list list of retrived users
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Users have been retrived successfully",
+ *      "users_list": []
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashbaord/average-tweets Average number of tweets per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of tweets per day
+ * @apiGroup Admin Dashboard
+ * @apiDescription Gets the average number of tweets per day in the specified date interval
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {Number} tweets_per_day Average number of tweets per day in the specified period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashbaord/average-likes Average number of likes per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of likes per day
+ * @apiGroup Admin Dashboard
+ * @apiDescription Gets the average number of likes per day in the specified date interval
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {Number} likes_per_day Average number of likes per day in the specified period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "likes_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashbaord/average-retweets Average number of retweets per day
+ * @apiVersion 0.1.0
+ * @apiName Average number of retweets per day
+ * @apiGroup Admin Dashboard
+ * @apiDescription Gets the average number of retweets per day in the specified date interval
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
+ * @apiParam {DateTime} [end_date] if not specified, the end date is today
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start_date": "2020-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-09T00:00:00.000Z"
+ * }
+ * @apiSuccess {Number} retweets_per_day Average number of retweets per day in the specified period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "retweets_per_day": 204252.562, ,
+ *      "message": "Data has been retrived successfully",
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashboard/tweets Number of tweets
+ * @apiVersion 0.1.0
+ * @apiName get number of tweets
+ * @apiGroup Admin Dashboard
+ * @apiDescription Get the number of tweets in a specific period of time
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {DateTime} [start-date] date of starting to count the tweets, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the tweets, if not specified count untill today
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start-date": "2000-01-01T00:00:00.000Z",,
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ * }
+ * @apiSuccess {int} [count] count of tweets in that period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Tweets counted successfully",
+ *      "count": 8641513
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashboard/likes Get number of likes
+ * @apiVersion 0.1.0
+ * @apiName get number of likes
+ * @apiGroup Admin Dashboard
+ * @apiDescription Get the number of likes in a specific period of time
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
+ * @apiParam {DateTime} [start-date] date of starting to count the likes, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the likes, if not specified count untill today
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start-date": "2000-01-01T00:00:00.000Z",,
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ * }
+ * @apiSuccess {int} count count of likes in that period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Likes counted successfully",
+ *      "count": 12565885465
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashboard/retweets Get number of retweets
+ * @apiVersion 0.1.0
+ * @apiName get number of retweets
+ * @apiGroup Admin Dashboard
+ * @apiDescription Get the number of retweets in a specific period of time
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
+ * @apiParam {DateTime} [start-date] date of starting to count the retweets, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the retweets, if not specified count untill today
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start-date": "2000-01-01T00:00:00.000Z",,
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {int} count count of retweets in that period
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Retweets counted successfully",
+ *      "count": 3456656
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashboard/tweets-per-region Get number of tweets per region
+ * @apiVersion 0.1.0
+ * @apiName get number of tweets per region
+ * @apiGroup Admin Dashboard
+ * @apiDescription Get the number of tweets per region in a specific period of time
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
+ * @apiParam {DateTime} [start-date] date of starting to count the tweets per region, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the tweets per region, if not specified count untill today
+ * @apiParam {String} location location of the searched region
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start-date": "2000-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "location": "Cairo"
+ * }
+ * @apiSuccess {int} count count of tweets per region in that period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "tweets per region counted successfully",
+ *      "count": 3456656
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+
+/**
+ * @api {get} /dashboard/tweets-per-gender Number of tweets per gender
+ * @apiVersion 0.1.0
+ * @apiName get number of tweets per gender
+ * @apiGroup Admin Dashboard
+ * @apiDescription Get the number of tweets per gender in a specific period of time
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header 
+ * @apiParam {DateTime} [start-date] date of starting to count the tweets per gender, if not specified start counting from the past 7 days
+ * @apiParam {DateTime} [end_date] date of ending of counting the tweets per gender, if not specified count untill today
+ * @apiParam {String} gender gender of the users to get the the number of tweets of.
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "start-date": "2000-01-01T00:00:00.000Z",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "gender": "male"
+ * }
+ * @apiSuccess {int} count count of tweets per gender in that period
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "tweets per gender counted successfully",
+ *      "count": 3456656
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not retrieve data"
+ * }
+ **/
+//#endregion Admin Dashboard
+
+//#region Account Suspension
+
+/**
+ * @api {put} /dashboard/ban/:userid Ban User
+ * @apiVersion 0.1.0
+ * @apiName BanUser
+ * @apiGroup Account Suspension
+ * @apiDescription Ban the specified user from the services of twitter for a period of time
+ * @apiSampleRequest off
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid The ID of the potentially blocked user
+ * @apiParam {String} reason reason of banning the specified user
+ * @apiParam {DateTime} [end_date] date of ban ending
+ * @apiParam {Boolean} [forever_banned=false] if true specifies that the user account will be banned forever, in that case the end_date is ignored
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "userid": 20,
+ *      "reason": "using offensive language",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "forever_banned": false
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Banned successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+/**
+ * @api {put} /dashboard/unban/:userid Unban user
+ * @apiVersion 0.1.0
+ * @apiName Unban user
+ * @apiGroup Account Suspension
+ * @apiDescription Un-bans the user specified in the ID parameter for the authenticating user. the banned user will regain access to his account
+ * @apiSampleRequest off 
+ * @apiPermission Admin
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid The ID of the  blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "userid": 20,
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Unblocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+**/
+
+//#endregion Account Suspension
+
+//#region Tweets
+
+/**
+ * @api {post} /status/like/:id Like a tweet
  * @apiVersion 0.1.0
  * @apiName LikeTweet
- * @apiGroup Likes
+ * @apiGroup Tweets
  * @apiDescription Adds the tweet to the user liked tweets
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
@@ -76,10 +638,10 @@
  **/
 
 /**
- * @api {post} status/favourite/unlike Unlike a tweet
+ * @api {delete} /status/unlike/:id Unlike a tweet
  * @apiVersion 0.1.0
  * @apiName UnlikeTweet
- * @apiGroup Likes
+ * @apiGroup Tweets
  * @apiDescription Removes the tweet from liked tweets
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
@@ -111,7 +673,7 @@
  **/
 
 /**
- * @api {get} /status/favourite/list Get liked tweets
+ * @api {get} /status/liked/list Get liked tweets
  * @apiVersion 0.1.0
  * @apiName GetLikedTweets
  * @apiGroup Tweets
@@ -137,217 +699,14 @@
  * @apiError (401) {String} Unauthorized  User is not authenticated
  * @apiError (404) {String} NotFound  Invalid user Id
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 UserNotFound
+ * HTTP/1.1 404 NotFound
  * {
- *       message: "User is not authenticated"
+ *       message: "Could not find any tweets"
  * }
  **/
 
 /**
- * @api {get} /status/tweet/retweeters Get tweet retweeters
- * @apiVersion 0.1.0
- * @apiName GetTweetRetweeters
- * @apiGroup Tweets
- * @apiDescription Get list carrying the users who retweeted a specific tweet
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} [tweet_id] The id of the tweet
- * @apiParam {int{1-100}} [count=20] Number of retrieved tweets
- * @apiParamExample {json} Request-Example:
- * {
- *      "tweet_id": 1202,
- *      "count": 40
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "retweeters": [{user-object},{user-object},{user-object}],
- *      "message": "Retweeters have been retrieved successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} NotFound  Invalid tweet Id
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 TweetNotFound
- * {
- *       message: "Tweet is not found"
- * }
- **/
-
-/**
- * @api {POST} /user/follow Follow user
- * @apiVersion 0.1.0
- * @apiName FollowUser
- * @apiGroup User
- * @apiDescription Add the user to the followers list
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} [follower_userid] user id of the follower user
- * @apiParam {int} following_userid user id of the following user
- * @apiParam {Boolean} [notify=true] send notification to the following user
- * @apiParamExample {json} Request-Example:
- * {
- *      "follower_userid": 10,
- *      "following_userid": 11,
- *      "notify": true
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "User followed successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound Invalid user Id
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
- **/
-
-/**
- * @api {POST} /user/unfollow Unfollow user
- * @apiVersion 0.1.0
- * @apiName UnFollowUser
- * @apiGroup User
- * @apiDescription Remove the user from the followers list
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} [follower_userid] user id of the follower user
- * @apiParam {int} following_userid user id of the following user
- * @apiParam {Boolean} [notify=false] send notification to the following user
- * @apiParamExample {json} Request-Example:
- * {
- *      "follower_userid": 20,
- *      "following_userid": 25,
- *      "notify": false
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "User unfollowed successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound Invalid user Id
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
- **/
-
-/**
- * @api {POST} /user/block Block user
- * @apiVersion 0.1.0
- * @apiName Block user
- * @apiGroup User
- * @apiDescription Blocks the specified user from following the authenticating user. In addition the blocked user will not show in the authenticating users mentions or timeline (unless retweeted by another user). If a follow or friend relationship exists it is destroyed
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} user_id The ID of the potentially blocked user
- * @apiParamExample {json} Request-Example: 
- * {
- *      "user_id": 20,
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "User Blocked successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound  Invalid user Id
-
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
- **/
-
-/**
- * @api {POST} /user/unblock Unblock user
- * @apiVersion 0.1.0
- * @apiName Unblock user
- * @apiGroup User
- * @apiDescription Un-blocks the user specified in the ID parameter for the authenticating user. Returns the un-blocked user when successful. If relationships existed before the block was instantiated, they will not be restored.
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} user_id The ID of the  blocked user
- * @apiParamExample {json} Request-Example: 
- * {
- *      "user_id": 20,
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "User Unblocked successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound  Invalid user Id
-
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
- **/
-
-/**
- * @api {GET} /user/followers/list Followers list
- * @apiVersion 0.1.0
- * @apiName FollowersList
- * @apiGroup User
- * @apiDescription Get list of followers
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} user_id the ID of the user for whom to return results
- * @apiParam {int} count The number of followers users
- * @apiParamExample {json} Request-Example:
- * {
- *      "user_id": 20,
- *      "count": 10,
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {list} followers_users list of followers IDs
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "Followers list displayed successfully",
- *      "followers_users": [10 20 25 36 40 40 23 58 95 45]
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound Invalid user Id
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
- **/
-
-/**
- * @api {get} status/tweet/retrieve Retrieve a tweet by id
+ * @api {get} status/tweet/:id Retrieve a tweet by id
  * @apiVersion 0.1.0
  * @apiName GetTweet
  * @apiGroup Tweets
@@ -384,72 +743,141 @@
  * @apiVersion 0.1.0
  * @apiName PostTweet
  * @apiGroup Tweets
- * @apiDescription post a tweet with the input data(strings) of the user choice
+ * @apiDescription Post a tweet with the input data(strings) of the user choice
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {String} content content of the tweet
+ * @apiParam {String{1-280}} content content of the tweet
  * @apiParam {int} [replying] id that this tweet is replied on
  * @apiParam {list} [mentions] usernames of the mentioned people in the tweet
  * @apiParam {list} [attachment_urls] urls attached to the meassage
+ * @apiParam {list} [media_ids] media ids attached to the meassage
+ * @apiParam {Boolean} [notify=true] notifies user's followers when a tweet is posted
  * @apiParamExample {json} Request-Example:
  * {
- *      content: "this is a sample text of a tweet"
+ *      content: "This is a sample text of a tweet"
  * }
- * @apiSuccess {String} tweet tweet object posted successfully
+ * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
  *      "tweet": {tweet-object},
- *      "message": tweet posted successfully
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} UnAuthorized  user is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 Unauthorized
- * {
- *       message: "tweet posting failed"
- * }
- **/
-
-/**
- * @api {GET} /user/following/list Following list
- * @apiVersion 0.1.0
- * @apiName FollowingList
- * @apiGroup User
- * @apiDescription Get list of following
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} user_id the ID of the user for whom to return results
- * @apiParam {int} count The number of following users
- * @apiParamExample {json} Request-Example:
- * {
- *      "user_id": 20,
- *      "count": 12,
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {list} following_users list of following IDs
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "Following list displayed successfully",
- *      "following_users": [23 45 68 95 45 24 69 87 56 23 14 58]
+ *      "message": "Tweet posted successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
  * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound Invalid user Id
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
+ * HTTP/1.1 401 Unauthorized
  * {
- *       message: "Invalid user Id"
+ *       message: "Tweet posting failed"
  * }
  **/
 
 /**
- * @api {post} /status/retweet Retweet a tweet
+ * @api {get} /status/retweeters/:id Get tweet retweeters
+ * @apiVersion 0.1.0
+ * @apiName GetTweetRetweeters
+ * @apiGroup Tweets
+ * @apiDescription Get list carrying the users who retweeted a specific tweet
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} [id] The id of the tweet
+ * @apiParam {int{1-100}} [count=20] Number of retrieved tweets
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 1202,
+ *      "count": 40
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "retweeters": [{user-object},{user-object},{user-object}],
+ *      "message": "Retweeters have been retrieved successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Tweet is not found"
+ * }
+ **/
+
+
+/**
+ * @api {delete} status/tweet/delete/:id Delete a tweet
+ * @apiVersion 0.1.0
+ * @apiName DeleteTweet
+ * @apiGroup Tweets
+ * @apiDescription Delete a tweet that is posted by authenticated user
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} id The id of deleted tweet
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id" : 1291
+ * }
+ * @apiSuccess {String} tweet Deleted tweet object
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweet": {tweet-object},
+ *      "message": Tweet has been deleted successfully
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} UnAuthorized  user is not authenticated
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 NotFound
+ * {
+ *       message: "Invalid tweet Id"
+ * }
+ **/
+
+/**
+ * @api {get} /status/tweet/quote-tweets/:id Get tweet quote tweets
+ * @apiVersion 0.1.0
+ * @apiName GetQuoteTweets
+ * @apiGroup Tweets
+ * @apiDescription Get list of quote tweets of specified tweet
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} id The ID of the quoted tweet
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "id": 20,
+ * }
+ * @apiSuccess {list} quote_tweets List of quote tweets objects
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *     "quote_tweets": [{tweet-object}, {tweet-object}, {tweet-object}, ....],
+ *     "message": "Quote tweets have been retrieved successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid tweet Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid tweet Id"
+ * }
+**/
+
+/**
+ * @api {post} /status/retweet/:id Retweet a tweet
  * @apiVersion 0.1.0
  * @apiName Retweet a Tweet
  * @apiGroup Tweets
@@ -458,6 +886,7 @@
  * @apiPermission RequiresAuth
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The numerical ID of the desired status.
+ * @apiParam {String{1-280}} quote_comment Optional. A comment to be embedded with the tweet in case of quote tweet only.
  * @apiParamExample {json} Request-Example:
  * {
  *      "id": 1001
@@ -482,75 +911,7 @@
  **/
 
 /**
- * @api {post} status/tweet/Post Post a tweet
- * @apiVersion 0.1.0
- * @apiName PostTweet
- * @apiGroup Tweets
- * @apiDescription post a tweet with the input data(strings) of the user choice
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {String} content content of the tweet
- * @apiParam {int} [replying] id that this tweet is replied on
- * @apiParam {list} [mentions] usernames of the mentioned people in the tweet
- * @apiParam {list} [attachment_urls] urls attached to the meassage
- * @apiParamExample {json} Request-Example:
- * {
- *      "content": "This is a sample text of a tweet"
- * }
- * @apiSuccess {String} tweet tweet object posted successfully
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "tweet": {tweet-object},
- *      "message": "Tweet posted successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} UnAuthorized  user is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Tweet posting failed"
- * }
- **/
-
-/**
- * @api {post} status/tweet/delete Delete a tweet
- * @apiVersion 0.1.0
- * @apiName DeleteTweet
- * @apiGroup Tweets
- * @apiDescription Delete a tweet that is posted by authenticated user
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} tweet_id The id of deleted tweet
- * @apiParamExample {json} Request-Example:
- * {
- *      "id" : 1291
- * }
- * @apiSuccess {String} tweet tweet deleted tweet object
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "deleted_tweet": {tweet-object},
- *      "message": Tweet has been deleted successfully
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} UnAuthorized  user is not authenticated
- * @apiError (404) {String} NotFound  Invalid tweet Id
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 NotFound
- * {
- *       message: "Invalid tweet Id"
- * }
- **/
-
-/**
- * @api {post} /status/unretweet Unretweet a tweet
+ * @api {delete} /status/unretweet/:id Unretweet a tweet
  * @apiVersion 0.1.0
  * @apiName Unretweet
  * @apiGroup Tweets
@@ -579,6 +940,222 @@
  * HTTP/1.1 404 NotFound
  * {
  *       message: "Invalid tweet Id"
+ * }
+ **/
+
+//#endregion Tweets
+
+//#region Users
+
+/**
+ * @api {POST} /user/follow/:id Follow user
+ * @apiVersion 0.1.0
+ * @apiName FollowUser
+ * @apiGroup User
+ * @apiDescription Add the user to the followers list
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} id user id of the following user
+ * @apiParam {Boolean} [notify=true] send notification to the following user
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "follower_userid": 10,
+ *      "following_userid": 11,
+ *      "notify": true
+ * }
+ * @apiSuccess {object} user object carrying authenticated user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User followed successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+/**
+ * @api {delete} /user/unfollow/:id Unfollow user
+ * @apiVersion 0.1.0
+ * @apiName UnFollowUser
+ * @apiGroup User
+ * @apiDescription Remove the user from the followers list
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} id user id of the following user
+ * @apiParam {Boolean} [notify=false] send notification to the following user
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "follower_userid": 20,
+ *      "following_userid": 25,
+ *      "notify": false
+ * }
+ * @apiSuccess {object} user object carrying authenticated user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User unfollowed successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+/**
+ * @api {POST} /user/block/:id Block user
+ * @apiVersion 0.1.0
+ * @apiName Block user
+ * @apiGroup User
+ * @apiDescription Blocks the specified user from following the authenticating user. In addition the blocked user will not show in the authenticating users mentions or timeline (unless retweeted by another user). If a follow or friend relationship exists it is destroyed
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} id The ID of the potentially blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "userid": 20,
+ *      "id": 25
+ * }
+ * @apiSuccess {object} user object carrying authenticated user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User Blocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid user Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+/**
+ * @api {delete} /user/unblock/:id Unblock user
+ * @apiVersion 0.1.0
+ * @apiName Unblock user
+ * @apiGroup User
+ * @apiDescription Un-blocks the user specified in the ID parameter for the authenticating user. Returns the un-blocked user when successful. If relationships existed before the block was instantiated, they will not be restored.
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid user id of the authenticated user
+ * @apiParam {int} id The ID of the blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ *      "id": 25
+ * }
+ * @apiSuccess {object} user object carrying authenticated user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user" : {user-object},
+ *      "message": "User Unblocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound  Invalid user Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+/**
+ * @api {GET} /user/followers/list Followers list
+ * @apiVersion 0.1.0
+ * @apiName FollowersList
+ * @apiGroup User
+ * @apiDescription Get list of followers
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} id the ID of the user for whom to return results
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 20,
+ * }
+ * @apiSuccess {list} followers_users list of followers users objects
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "followers_users": [{user-object},{user-object}, ..],
+ *      "message": "Followers list displayed successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+ **/
+
+/**
+ * @api {GET} /user/following/list Following list
+ * @apiVersion 0.1.0
+ * @apiName FollowingList
+ * @apiGroup User
+ * @apiDescription Get list of following
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} id the ID of the user for whom to return results
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "id": 20,
+ * }
+ * @apiSuccess {list} following_users list of following user objects
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "following_users": [{user-object},{user-object}, ..],
+ *      "message": "Following list displayed successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} NotFound Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid user Id"
  * }
  **/
 
@@ -627,87 +1204,6 @@
  **/
 
 /**
- * @api {post} /auth/signUp SignUp user
- * @apiVersion 0.1.0
- * @apiName SignUp
- * @apiGroup Authentication
- * @apiDescription creates an account for the user, user can sign-up using his email or creating a username and creating a password
- * @apiSampleRequest off
- * @apiParam {String} email Email of the user
- * @apiParam {String} username Username of the user
- * @apiParam {String} password password of the user
- * @apiParam {String} first_name first name of the user
- * @apiParam {String} second_name second name of the user
- * @apiParam {String} gender gender of the user
- * @apiParam {DateTime} birth_date birth date of the user
- * @apiParam {int} phone_number phone number of the user
- * @apiParamExample {json} Request-Example:
- * {
- *      "email": "amrzaki2000.az@gmail.com",
- *      "username": "amrZaki123"
- *      "password": "myPassw@ord123",
- *      "first_name": "Amr",
- *      "second_name": "Zaki",
- *      "gender": "male",
- *      "birth_date": "2000-01-01T00:00:00.000Z",
- *      "phone_number": "0105267436"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {String} access_token JWT generated access token for the user
- * @apiSuccess {user-object} user of the sign up operation
- * @apiSuccess {String} role role of the user
- * @apiSuccess {DateTime} token_expiration_date The date and time of token expiration
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
- *      "user" : {user-object},
- *      "role": "user",
- *      "token_expiration_date": "2020-01-01T00:00:00.000Z",
- *      "message": "User Signed up successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 SignUpFailed
- * {
- *       message: "sign up failed"
- * }
- **/
-
-/**
- * @api {post} /user/verify-credentials Verify signed up user credentials
- * @apiVersion 0.1.0
- * @apiName VerifyEmail
- * @apiGroup Authentication
- * @apiDescription Verifies newly created user.
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} verification_code Verification code that is sent by email
- * @apiParamExample {json} Request-Example:
- * {
- *      "verification_code: "123456"
- * }
- * @apiSuccess {Object} user user object carrying user information
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "user": {user-object},
- *      "message": "User Email has been verified successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  Invalid verification code
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 Unauthorized
- * {
- *       message: "Invalid verification code"
- * }
- **/
-
-/**
  * @api {get} /status/tweets/list Get authenticated user tweets
  * @apiVersion 0.1.0
  * @apiName GetTweets
@@ -740,500 +1236,42 @@
  **/
 
 /**
- * @api {post} /auth/send-reset-password Reset password email
+ * @api {GET} /notifications/list Notifications list
  * @apiVersion 0.1.0
- * @apiName SendResetPassword
- * @apiGroup Authentication
- * @apiDescription Sends an email with reset password code to the user.
- * @apiSampleRequest off
- * @apiParam {String} email_or_username The email or the username of the user that needs to reset his/her password
- * @apiParamExample {json} Request-Example:
+ * @apiName NotificationsList
+ * @apiGroup User
+ * @apiDescription Get list of user notifications
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} userid the ID of the user for whom to return results
+ * @apiParam {int{1-200}} [count=20] The number of notifications 
+ * @apiParamExample {json} Request-Example: 
  * {
- *      "email_or_username": "amrzaki2000.az@gmail.com"
+ *      "user_id": 20,
+ *      "count": 12,
  * }
+ * @apiSuccess {list} list of objects carrying the notifications information 
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
- *      "message": "Reset password email has been sent successfully"
+ *      "notifications": [{notification-object}, {notification-object}, ..],
+ *      "message": "Notifications list displayed successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  Invalid verification code
- * @apiError (404) {String} NotFound  User email and username are not found
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 NotFound
- * {
- *       message: "Invalid email or username"
- * }
- **/
-
-/**
- * @api {post} /auth/verify-reset-password Verify reset password
- * @apiVersion 0.1.0
- * @apiName VerifyResetPassword
- * @apiGroup Authentication
- * @apiDescription Verifies the reset password request with the code sent to the user email.
- * @apiSampleRequest off
- * @apiParam {int} verification_code The code that is used to veridy reset password request
- * @apiParamExample {json} Request-Example:
- * {
- *      "verification_code": "123456"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "Request has been verified"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  Invalid verification code
- * @apiError (404) {String} NotFound  Invalid verification code
+ * @apiError (401) {String} Unauthorized  User is not authenticated
  * @apiErrorExample {json} Error-Response:
  * HTTP/1.1 401 Unauthorized
  * {
- *       message: "Invalid verification code"
+ *       message: "Invalid or expired token"
  * }
  **/
 
-/**
- * @api {put} /auth/reset-password Update user password
- * @apiVersion 0.1.0
- * @apiName ResetPassword
- * @apiGroup Authentication
- * @apiDescription Updates user's password.
- * @apiSampleRequest off
- * @apiParam {String} password The new password of the user
- * @apiParamExample {json} Request-Example:
- * {
- *      "password": "myNewPassw@rd"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "Password has been updated successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  Invalid verification code
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not update user password due to server problem"
- * }
- **/
+//#endregion Users
 
-/**
- * @api {post} /dashboard/ban Ban User
- * @apiVersion 0.1.0
- * @apiName ban user
- * @apiGroup Admin
- * @apiDescription ban the specified user from the services of twitter
- * @apiSampleRequest off
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} user_id The ID of the potentially blocked user
- * @apiParam {String} reason reason of banning the specified user
- * @apiParam {DateTime} [end_date] date of ban ending
- * @apiParam {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
- * @apiParamExample {json} Request-Example:
- * {
- *      "user_id": 20,
- *      "reason": "using offensive language",
- *      "end_date": "2020-01-01T00:00:00.000Z",
- *      "forever_banned": false
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "User Banned successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound  Invalid user Id
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
- **/
-
-/**
- * @api {POST} /dashboard/unban Unban user
- * @apiVersion 0.1.0
- * @apiName Unban user
- * @apiGroup Admin
- * @apiDescription Un-bans the user specified in the ID parameter for the authenticating user. the banned user will regain access to his account
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} user_id The ID of the  blocked user
- * @apiParamExample {json} Request-Example: 
- * {
- *      "user_id": 20,
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "User Unblocked successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} UserNotFound  Invalid user Id
-
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 UserNotFound
- * {
- *       message: "Invalid user Id"
- * }
-**/
-
-/**
- * @api {get} /status/tweet/quote-tweets Get tweet quote tweets
- * @apiVersion 0.1.0
- * @apiName GetQuoteTweets
- * @apiGroup Tweets
- * @apiDescription Get list of quote tweets of specified tweet
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} tweet_id The ID of the quoted tweet
- * @apiParamExample {json} Request-Example: 
- * {
- *      "tweet_id": 20,
- * }
- * @apiSuccess {list} quote_tweets List of quote tweets objects
- * @apiSuccess {String} message Success message
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *     "quote_tweets": [{tweet-object}, {tweet-object}, {tweet-object}, ....],
- *     "message": "Quote tweets have been retrieved successfully"
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiError (404) {String} NotFound  Invalid tweet Id
-
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 NotFound
- * {
- *       message: "Invalid tweet Id"
- * }
-**/
-
-/**
- * @api {get} /dashboard/users get users
- * @apiVersion 0.1.0
- * @apiName get users
- * @apiGroup Admin
- * @apiDescription get users by specifying some data on a filter, example: the location or a gender, a count for the number of users data recived can also be specified
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {Boolean} [location_filter] if true used to fillter the users by their location
- * @apiParam {Boolean} [gender_filter] if true used to fillter the users by their gender
- * @apiParam {String} filter_data specifies the data that will filter the users
- * @apiParam {int} [count] specifies the number of users that I want to recive
- * @apiParamExample {json} Request-Example: 
- * {
- *      "location_filter": true,
- *      "gender_filter": false,
- *      "filter_data": "Cairo"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {list} users_list list of retrived users
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "users retrived successfully",
- *      "users_list": []
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashbaord/average-tweets Average number of tweets per day
- * @apiVersion 0.1.0
- * @apiName Average number of tweets per day
- * @apiGroup Admin
- * @apiDescription Gets the average number of tweets per day in the specified date interval
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
- * @apiParam {DateTime} [end_date] if not specified, the end date is today
- * @apiParamExample {json} Request-Example: 
- * {
- *      "start_date": "2020-01-01T00:00:00.000Z",
- *      "end_date": "2020-01-09T00:00:00.000Z"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {Number} tweets_per_day Average number of tweets per day in the specified period
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "tweets_per_day": 204252.562, ,
- *      "message": "Data has been retrived successfully",
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashbaord/average-likes Average number of likes per day
- * @apiVersion 0.1.0
- * @apiName Average number of likes per day
- * @apiGroup Admin
- * @apiDescription Gets the average number of likes per day in the specified date interval
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
- * @apiParam {DateTime} [end_date] if not specified, the end date is today
- * @apiParamExample {json} Request-Example: 
- * {
- *      "start_date": "2020-01-01T00:00:00.000Z",
- *      "end_date": "2020-01-09T00:00:00.000Z"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {Number} likes_per_day Average number of likes per day in the specified period
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "likes_per_day": 204252.562, ,
- *      "message": "Data has been retrived successfully",
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashbaord/average-retweets Average number of retweets per day
- * @apiVersion 0.1.0
- * @apiName Average number of retweets per day
- * @apiGroup Admin
- * @apiDescription Gets the average number of retweets per day in the specified date interval
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {DateTime} [start_date] if not specified, the start date is 7 days before end_date
- * @apiParam {DateTime} [end_date] if not specified, the end date is today
- * @apiParamExample {json} Request-Example: 
- * {
- *      "start_date": "2020-01-01T00:00:00.000Z",
- *      "end_date": "2020-01-09T00:00:00.000Z"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {Number} retweets_per_day Average number of retweets per day in the specified period
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "retweets_per_day": 204252.562, ,
- *      "message": "Data has been retrived successfully",
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashboard/get_number_of_tweets get number of tweets
- * @apiVersion 0.1.0
- * @apiName get number of tweets
- * @apiGroup Admin
- * @apiDescription get the number of tweets in a specific period of time
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {DateTime} [st-date] date of starting to count the tweets, if not specified start counting from the past 7 days
- * @apiParam {DateTime} [end_date] date of ending of counting the tweets, if not specified count untill today
- * @apiParamExample {json} Request-Example: 
- * {
- *      "st-date": "2000-01-01T00:00:00.000Z",,
- *      "end_date": "2020-01-01T00:00:00.000Z",
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {int} count count of tweets in that perion
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "tweets counted successfully",
- *      "users_list": 8641513
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashboard/get_number_of_likes get number of likes
- * @apiVersion 0.1.0
- * @apiName get number of likes
- * @apiGroup Admin
- * @apiDescription get the number of likes in a specific period of time
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {DateTime} [st-date] date of starting to count the likes, if not specified start counting from the past 7 days
- * @apiParam {DateTime} [end_date] date of ending of counting the likes, if not specified count untill today
- * @apiParamExample {json} Request-Example: 
- * {
- *      "st-date": "2000-01-01T00:00:00.000Z",,
- *      "end_date": "2020-01-01T00:00:00.000Z",
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {int} count count of likes in that perion
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "likes counted successfully",
- *      "users_list": 12565885465
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashboard/get_number_of_retweets get number of retweets
- * @apiVersion 0.1.0
- * @apiName get number of retweets
- * @apiGroup Admin
- * @apiDescription get the number of retweets in a specific period of time
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {DateTime} [st-date] date of starting to count the retweets, if not specified start counting from the past 7 days
- * @apiParam {DateTime} [end_date] date of ending of counting the retweets, if not specified count untill today
- * @apiParamExample {json} Request-Example: 
- * {
- *      "st-date": "2000-01-01T00:00:00.000Z",,
- *      "end_date": "2020-01-01T00:00:00.000Z",
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {int} count count of retweets in that perion
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "retweets counted successfully",
- *      "users_list": 3456656
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashboard/get_number_of_tweets_per_region get number of tweets per region
- * @apiVersion 0.1.0
- * @apiName get number of tweets per region
- * @apiGroup Admin
- * @apiDescription get the number of tweets per region in a specific period of time
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {DateTime} [st-date] date of starting to count the tweets per region, if not specified start counting from the past 7 days
- * @apiParam {DateTime} [end_date] date of ending of counting the tweets per region, if not specified count untill today
- * @apiParam {String} location location of the searched region
- * @apiParamExample {json} Request-Example: 
- * {
- *      "st-date": "2000-01-01T00:00:00.000Z",
- *      "end_date": "2020-01-01T00:00:00.000Z",
- *      "location": "Cairo"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {int} count count of tweets per region in that period
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "tweets per region counted successfully",
- *      "users_list": 3456656
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
-
-/**
- * @api {get} /dashboard/get_number_of_tweets_per_gender get number of tweets per gender
- * @apiVersion 0.1.0
- * @apiName get number of tweets per gender
- * @apiGroup Admin
- * @apiDescription get the number of tweets per gender in a specific period of time
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {DateTime} [st-date] date of starting to count the tweets per gender, if not specified start counting from the past 7 days
- * @apiParam {DateTime} [end_date] date of ending of counting the tweets per gender, if not specified count untill today
- * @apiParam {String} gender gender of the users to get the the number of tweets of.
- * @apiParamExample {json} Request-Example: 
- * {
- *      "st-date": "2000-01-01T00:00:00.000Z",
- *      "end_date": "2020-01-01T00:00:00.000Z",
- *      "gender": "male"
- * }
- * @apiSuccess {String} message Success message
- * @apiSuccess {int} count count of tweets per gender in that perion
- * @apiSuccessExample {json} Success-Response:
- * HTTP/1.1 200 OK
- * {
- *      "message": "tweets per gender counted successfully",
- *      "users_list": 3456656
- * }
- * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
- * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
- * @apiError (401) {String} Unauthorized  User is not authenticated
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 BadRequest
- * {
- *       message: "Could not retrieve data"
- * }
-**/
+//#region Media
 
 /**
  * @api {post} /media/upload Upload media
@@ -1241,9 +1279,7 @@
  * @apiName UploadMedia
  * @apiGroup Media
  * @apiDescription Uploads media like pictures, videos, gifs, etc.
- * @apiSampleRequest off 
- * @apiPermission RequiresAuth
- * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiSampleRequest off
  * @apiParam {String} [media_type] type of the media to upload. It can be image, video, gif, etc.
  * @apiSuccess {int} media_id The id of the uploaded media
  * @apiSuccess {String} media type
@@ -1256,7 +1292,7 @@
  *      "media_type": ".jpg",
  *      "path": "http://localhost:3000/media/1.jpg",
  *      "message" : "Media has been uploaded successfully"
- *    
+ *
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
@@ -1266,7 +1302,11 @@
  * {
  *       "message": "Could not Upload data"
  * }
-**/
+ **/
+
+//#endregion Media
+
+//#region Timeline
 
 /**
  * @api {get} /timeline/home Home timeline
@@ -1274,12 +1314,12 @@
  * @apiName GetTimeline
  * @apiGroup Timeline
  * @apiDescription Retireves the timeline containing following tweets and user tweets.
- * @apiSampleRequest off 
+ * @apiSampleRequest off
  * @apiPermission RequiresAuth
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int{1-200}} [count=20] count of retrieved ids
- * @apiParam {int} [since_id] Returns results with an ID greater than (that is, more recent than) the specified ID. 
- * @apiParamExample {json} Request-Example: 
+ * @apiParam {int} [since_id] Returns results with an ID greater than (that is, more recent than) the specified ID.
+ * @apiParamExample {json} Request-Example:
  * {
  *      "count": "20",
  *      "since_id": "1324",
@@ -1291,7 +1331,7 @@
  * {
  *      "tweets": [{tweet-object}, {tweet-object}, ...],
  *      "message" : "Tweets have been uploaded successfully"
- *    
+ *
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
@@ -1301,4 +1341,6 @@
  * {
  *       "message": "Could not retrieve data"
  * }
-**/
+ **/
+
+//#endregion Timeline
