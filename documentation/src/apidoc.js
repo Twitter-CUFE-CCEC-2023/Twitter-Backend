@@ -711,7 +711,7 @@
  * @api {post} /user/verify-credentials Verify signed up user credentials 
  * @apiVersion 0.1.0
  * @apiName VerifyEmail
- * @apiGroup Authenication
+ * @apiGroup Authentication
  * @apiDescription Verifies newly created user.
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
@@ -768,5 +768,91 @@
  * HTTP/1.1 401 Unauthorized
  * {
  *       message: "Invalid or expired token"
+ * }
+ **/
+
+/**
+ * @api {post} /auth/send-reset-password Reset password email 
+ * @apiVersion 0.1.0
+ * @apiName SendResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Sends an email with reset password code to the user.
+ * @apiSampleRequest off
+ * @apiParam {String} email_or_username The email or the username of the user that needs to reset his/her password
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "email_or_username": "amrzaki2000.az@gmail.com"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Reset password email has been sent successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiError (404) {String} NotFound  User email and username are not found
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid email or username"
+ * }
+ **/
+
+/**
+ * @api {post} /auth/verify-reset-password Verify reset password 
+ * @apiVersion 0.1.0
+ * @apiName VerifyResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Verifies the reset password request with the code sent to the user email.
+ * @apiSampleRequest off
+ * @apiParam {int} verification_code The code that is used to veridy reset password request
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "verification_code": "123456"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Request has been verified"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiError (404) {String} NotFound  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid verification code"
+ * }
+ **/
+
+/**
+ * @api {put} /auth/reset-password Update user password 
+ * @apiVersion 0.1.0
+ * @apiName ResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Updates user's password.
+ * @apiSampleRequest off
+ * @apiParam {String} password The new password of the user
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "password": "myNewPassw@rd"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Password has been updated successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not update user password due to server problem"
  * }
  **/
