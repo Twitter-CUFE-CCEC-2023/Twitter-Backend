@@ -767,6 +767,7 @@
  * {
  *      content: "This is a sample text of a tweet"
  * }
+ * @apiSuccess {object} tweet tweet object carrying the tweet information
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
