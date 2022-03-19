@@ -1,7 +1,14 @@
+
+//#region Permissions
 /**
- * @apiDefine RequiresAuth Authentication is required
+ * @apiDefine Default Authentication is required
+ **/
+
+/**
  * @apiDefine Admin Admin access is required
  **/
+
+//#endregion Permissions
 
 //#region Authentication
 
@@ -609,7 +616,7 @@
  * @apiGroup Tweets
  * @apiDescription Adds the tweet to the user liked tweets
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The id of the liked tweet
  * @apiParam {Boolean} [notify=true] send notification to the user of the liked tweet
@@ -644,7 +651,7 @@
  * @apiGroup Tweets
  * @apiDescription Removes the tweet from liked tweets
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The id of the unliked tweet
  * @apiParam {Boolean} [notify=false] send notification to the user of the unliked tweet
@@ -679,7 +686,7 @@
  * @apiGroup Tweets
  * @apiDescription Get list carrying the user liked tweets
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} [user_id] The id of user to whom results are returned
  * @apiParam {int{1-200}} [count=20] Number of retrieved tweets
@@ -712,7 +719,7 @@
  * @apiGroup Tweets
  * @apiDescription Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet.
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id id of the tweet
  * @apiParam {Boolean} [include_my_retweet] When set to either true , t or 1 , any Tweets returned that have been retweeted by the authenticating user will include an additional current_user_retweet node, containing the ID of the source status for the retweet.
@@ -745,7 +752,7 @@
  * @apiGroup Tweets
  * @apiDescription Post a tweet with the input data(strings) of the user choice
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {String{1-280}} content content of the tweet
  * @apiParam {int} [replying] id that this tweet is replied on
@@ -781,7 +788,7 @@
  * @apiGroup Tweets
  * @apiDescription Get list carrying the users who retweeted a specific tweet
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} [id] The id of the tweet
  * @apiParam {int{1-100}} [count=20] Number of retrieved tweets
@@ -816,7 +823,7 @@
  * @apiGroup Tweets
  * @apiDescription Delete a tweet that is posted by authenticated user
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The id of deleted tweet
  * @apiParamExample {json} Request-Example:
@@ -849,7 +856,7 @@
  * @apiGroup Tweets
  * @apiDescription Get list of quote tweets of specified tweet
  * @apiSampleRequest off 
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The ID of the quoted tweet
  * @apiParamExample {json} Request-Example: 
@@ -883,7 +890,7 @@
  * @apiGroup Tweets
  * @apiDescription Retweets a tweet. Returns the original Tweet with Retweet details embedded.
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The numerical ID of the desired status.
  * @apiParam {String{1-280}} quote_comment Optional. A comment to be embedded with the tweet in case of quote tweet only.
@@ -917,7 +924,7 @@
  * @apiGroup Tweets
  * @apiDescription Untweets a retweeted status. Returns the original Tweet with Retweet details embedded, The untweeted retweet status ID must be authored by the user backing the authentication token.
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id The numerical ID of the desired status.
  * @apiParamExample {json} Request-Example:
@@ -954,7 +961,7 @@
  * @apiGroup User
  * @apiDescription Add the user to the followers list
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} userid user id of the authenticated user
  * @apiParam {int} id user id of the following user
@@ -991,7 +998,7 @@
  * @apiGroup User
  * @apiDescription Remove the user from the followers list
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} userid user id of the authenticated user
  * @apiParam {int} id user id of the following user
@@ -1028,7 +1035,7 @@
  * @apiGroup User
  * @apiDescription Blocks the specified user from following the authenticating user. In addition the blocked user will not show in the authenticating users mentions or timeline (unless retweeted by another user). If a follow or friend relationship exists it is destroyed
  * @apiSampleRequest off 
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} userid user id of the authenticated user
  * @apiParam {int} id The ID of the potentially blocked user
@@ -1064,7 +1071,7 @@
  * @apiGroup User
  * @apiDescription Un-blocks the user specified in the ID parameter for the authenticating user. Returns the un-blocked user when successful. If relationships existed before the block was instantiated, they will not be restored.
  * @apiSampleRequest off 
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} userid user id of the authenticated user
  * @apiParam {int} id The ID of the blocked user
@@ -1100,7 +1107,7 @@
  * @apiGroup User
  * @apiDescription Get list of followers
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id the ID of the user for whom to return results
  * @apiParamExample {json} Request-Example:
@@ -1133,7 +1140,7 @@
  * @apiGroup User
  * @apiDescription Get list of following
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} id the ID of the user for whom to return results
  * @apiParamExample {json} Request-Example:
@@ -1166,7 +1173,7 @@
  * @apiGroup User
  * @apiDescription Updates authenticated user profile.
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {String} name Full name associated with profile.
  * @apiParam {String} location The location of the user.
@@ -1210,7 +1217,7 @@
  * @apiGroup Tweets
  * @apiDescription Retrieve user tweets, tweets may be including replies or not.
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {Boolean} [include_replies] Determines if replies and their tweets should be included in the response.
  * @apiParamExample {json} Request-Example:
@@ -1242,7 +1249,7 @@
  * @apiGroup User
  * @apiDescription Get list of user notifications
  * @apiSampleRequest off 
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int} userid the ID of the user for whom to return results
  * @apiParam {int{1-200}} [count=20] The number of notifications 
@@ -1315,7 +1322,7 @@
  * @apiGroup Timeline
  * @apiDescription Retireves the timeline containing following tweets and user tweets.
  * @apiSampleRequest off
- * @apiPermission RequiresAuth
+ * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {int{1-200}} [count=20] count of retrieved ids
  * @apiParam {int} [since_id] Returns results with an ID greater than (that is, more recent than) the specified ID.
