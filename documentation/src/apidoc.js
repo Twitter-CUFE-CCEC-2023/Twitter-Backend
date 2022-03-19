@@ -1234,3 +1234,35 @@
  *       message: "Could not retrieve data"
  * }
 **/
+
+/**
+ * @api {post} /media/upload Upload media
+ * @apiVersion 0.1.0
+ * @apiName UploadMedia
+ * @apiGroup Media
+ * @apiDescription Uploads media like pictures, videos, gifs, etc.
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {String} [media_type] type of the media to upload. It can be image, video, gif, etc.
+ * @apiSuccess {int} media_id The id of the uploaded media
+ * @apiSuccess {String} media type
+ * @apiSuccess {String} path The url of the uploaded media
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "media_id": 1,
+ *      "media_type": ".jpg",
+ *      "path": "http://localhost:3000/media/1.jpg",
+ *      "message" : "Media has been uploaded successfully"
+ *    
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       "message": "Could not Upload data"
+ * }
+**/
