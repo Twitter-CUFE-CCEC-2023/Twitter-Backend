@@ -1340,3 +1340,80 @@
  **/
 
 //#endregion Timeline
+
+//#region Objects information
+
+/**
+ * @api {get} / User Object
+ * @apiName user-object
+ * @apiVersion 0.1.0
+ * @apiGroup Objects information
+ * @apiDescription An object carrying user information.
+ * @apiSampleRequest off
+ * @apiParam {String} name Represents the name of the user
+ * @apiParam {String} username Represents the username of the user
+ * @apiParam {String} email Represents the email of the user
+ * @apiParam {String} phone Represents the phone number of the user
+ * @apiParam {String} profile_image_url Represents the profile image url of the user
+ * @apiParam {String} cover_image_url Represents the cover image url of the user
+ * @apiParam {String} bio Represents the bio of the user
+ * @apiParam {String} website Represents the website of the user
+ * @apiParam {String} location Represents the location of the user
+ * @apiParam {DateTime} created_at Represents the date when the user was created
+ * @apiParam {Boolean} isVerified determines if the user is verified
+ * @apiParam {String} role The role of the user (admin or regular user).
+ * @apiParam {int} followers_count Represents the number of followers of the user
+ * @apiParam {int} following_count Represents the number of users the user is following
+ * @apiParam {int} tweets_count Represents the number of tweets the user has posted
+ * @apiParam {int} likes_count Represents the number of likes the user has received
+ * @apiParam {Boolean} isBanned Represents the number of media the user has uploaded
+ * @apiParam {DateTime} banDuration Represents the duration of the ban
+ * @apiParam {Boolean} permanentBan Represents if the user is banned forever 
+ **/
+
+/**
+ * @api {get} / Tweet Object
+ * @apiName tweet-object
+ * @apiVersion 0.1.0
+ * @apiGroup Objects information
+ * @apiDescription An object carrying tweet information.
+ * @apiSampleRequest off
+ * @apiParam {String} content Contains the tweet content
+ * @apiParam {int} user_id Represents the id of the user who posted the tweet
+ * @apiParam {int} likes_count Represents the number of likes the tweet has received
+ * @apiParam {int} retweets_count Represents the number of retweets the tweet has received
+ * @apiParam {int} quote_tweets_count Represents the number of quote tweets the tweet has received
+ * @apiParam {int} replies_count Represents the number of replies the tweet has received
+ * @apiParam {DateTime} created_at Represents the date when the tweet was created
+ * @apiParam {Boolean} isLiked Represents if the user has liked the tweet
+ * @apiParam {Boolean} isRetweeted Represents if the user has retweeted the tweet
+ * @apiParam {Boolean} isQuoted Represents if the user has quoted the tweet
+ * @apiParam {String} quote_comment Represents the caption of the quote tweet in case it is quoted
+ * @apiParam {list} parent_tweets_id Represents list of ids of tweets that are replied to. (contains single element if the tweet is not a reply)
+ * @apiParam {Boolean} isReply Represents if the tweet is a reply
+ * @apiParam {Boolean} isQuotedTweet Represents if the tweet is a quote tweet
+ * @apiParam {Boolean} isRetweetedTweet Represents if the tweet is a retweet
+ * @apiParam {list} mentions Represents list of users that are mentioned in the tweet
+ * @apiParam {list} hashtags Represents list of hashtags that are mentioned in the tweet
+ * @apiParam {list} urls Represents list of urls that are mentioned in the tweet
+ * @apiParam {list} media Represents list of media that are attached to the tweet
+ **/
+
+/**
+ * @api {get} / Notification Object
+ * @apiName notification-object
+ * @apiVersion 0.1.0
+ * @apiGroup Objects information
+ * @apiDescription An object carrying notification information.
+ * @apiSampleRequest off
+ * @apiParam {String} content Contains the notification content
+ * @apiParam {int} user_id Represents the id of the user who posted the notification
+ * @apiParam {int} related_user_id Represents the id of the user who recieved the notification
+ * @apiParam {int} tweet_id Represents the id of the tweet that the notification is about
+ * @apiParam {String} notification_type Represents the type of notification
+ * @apiParam {DateTime} created_at Represents the date when the notification was created
+ * @apiParam {Boolean} isRead Represents if the notification has been read
+ * 
+ **/
+
+//#endregion Objects information
