@@ -957,8 +957,8 @@
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
  * @apiError (401) {String} Unauthorized  User is not authenticated
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 400 UserNotFound
+ * HTTP/1.1 400 BadRequest
  * {
- *       message: "Invalid data"
+ *       message: "Could not retrieve data"
  * }
 **/
