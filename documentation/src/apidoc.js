@@ -615,7 +615,7 @@
  **/
 
 /**
- * @api {post} /user/update-profile Update user profile
+ * @api {put} /user/update-profile Update user profile
  * @apiVersion 0.1.0
  * @apiName UpdateProfile
  * @apiGroup User
@@ -739,3 +739,4 @@
  *       message: "Invalid verification code"
  * }
  **/
+
