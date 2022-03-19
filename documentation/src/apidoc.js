@@ -615,7 +615,7 @@
  **/
 
 /**
- * @api {post} /user/update-profile Update user profile
+ * @api {put} /user/update-profile Update user profile
  * @apiVersion 0.1.0
  * @apiName UpdateProfile
  * @apiGroup User
@@ -659,7 +659,7 @@
 **/
 
 /**
- * @api {post} /auth/signUp signUp user
+ * @api {post} /auth/signUp SignUp user
  * @apiVersion 0.1.0
  * @apiName SignUp
  * @apiGroup Authentication
@@ -707,3 +707,221 @@
  * }
 **/
 
+/**
+ * @api {post} /user/verify-credentials Verify signed up user credentials 
+ * @apiVersion 0.1.0
+ * @apiName VerifyEmail
+ * @apiGroup Authentication
+ * @apiDescription Verifies newly created user.
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} verification_code Verification code that is sent by email
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "verification_code: "123456"
+ * }
+ * @apiSuccess {Object} user user object carrying user information
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "user": {user-object},
+ *      "message": "User Email has been verified successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid verification code"
+ * }
+ **/
+
+/**
+ * @api {get} /status/tweets/list Get authenticated user tweets 
+ * @apiVersion 0.1.0
+ * @apiName GetTweets
+ * @apiGroup Tweets
+ * @apiDescription Retrieve user tweets, tweets may be including replies or not.
+ * @apiSampleRequest off
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {Boolean} [include_replies] Determines if replies and their tweets should be included in the response.
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "include_replies": true
+ * }
+ * @apiSuccess {list} tweets list carrying tweets objects
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "tweets": [{tweet-object},{tweet-object}],
+ *      "message": "User has been verified successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid or expired token"
+ * }
+ **/
+
+/**
+ * @api {post} /auth/send-reset-password Reset password email 
+ * @apiVersion 0.1.0
+ * @apiName SendResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Sends an email with reset password code to the user.
+ * @apiSampleRequest off
+ * @apiParam {String} email_or_username The email or the username of the user that needs to reset his/her password
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "email_or_username": "amrzaki2000.az@gmail.com"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Reset password email has been sent successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiError (404) {String} NotFound  User email and username are not found
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 NotFound
+ * {
+ *       message: "Invalid email or username"
+ * }
+ **/
+
+/**
+ * @api {post} /auth/verify-reset-password Verify reset password 
+ * @apiVersion 0.1.0
+ * @apiName VerifyResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Verifies the reset password request with the code sent to the user email.
+ * @apiSampleRequest off
+ * @apiParam {int} verification_code The code that is used to veridy reset password request
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "verification_code": "123456"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Request has been verified"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiError (404) {String} NotFound  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 401 Unauthorized
+ * {
+ *       message: "Invalid verification code"
+ * }
+ **/
+
+/**
+ * @api {put} /auth/reset-password Update user password 
+ * @apiVersion 0.1.0
+ * @apiName ResetPassword
+ * @apiGroup Authentication
+ * @apiDescription Updates user's password.
+ * @apiSampleRequest off
+ * @apiParam {String} password The new password of the user
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "password": "myNewPassw@rd"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "Password has been updated successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  Invalid verification code
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 BadRequest
+ * {
+ *       message: "Could not update user password due to server problem"
+ * }
+ **/
+
+/**
+ * @api {post} /user/ban Ban User
+ * @apiVersion 0.1.0
+ * @apiName ban user
+ * @apiGroup Admin
+ * @apiDescription ban the specified user from the services of twitter
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} user_id The ID of the potentially blocked user
+ * @apiParam {String} reason reason of banning the specified user
+ * @apiParem {DateTime} [end_date] date of ban ending
+ * @apiParem {Boolean} [forever_banned] if true specifies that the user account will be banned forever, in that case the end_date is ignored
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ *      "reason": "using offensive language",
+ *      "end_date": "2020-01-01T00:00:00.000Z",
+ *      "forever_banned": false
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Banned successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} UserNotFound  Invalid user Id
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+**/
+
+/**
+ * @api {POST} /user/unban Unban user
+ * @apiVersion 0.1.0
+ * @apiName Unban user
+ * @apiGroup Admin
+ * @apiDescription Un-bans the user specified in the ID parameter for the authenticating user. the banned user will regain access to his account
+ * @apiSampleRequest off 
+ * @apiPermission RequiresAuth
+ * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
+ * @apiParam {int} user_id The ID of the  blocked user
+ * @apiParamExample {json} Request-Example: 
+ * {
+ *      "user_id": 20,
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "message": "User Unblocked successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiError (401) {String} Unauthorized  User is not authenticated
+ * @apiError (404) {String} UserNotFound  Invalid user Id
+
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 404 UserNotFound
+ * {
+ *       message: "Invalid user Id"
+ * }
+**/
