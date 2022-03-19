@@ -10,11 +10,12 @@
   ],
   "order": [
     "Authentication",
+    "Admin Dashboard",
+    "Account Suspension",
     "User",
     "Tweets",
-    "Likes",
-    "City",
-    "Category (official)"
+    "Timeline",
+    "Media"
   ],
   "template": {
     "showRequiredLabels": false,
