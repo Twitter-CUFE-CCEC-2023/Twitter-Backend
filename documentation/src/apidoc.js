@@ -656,4 +656,53 @@
  * {
  *       message: "User not found"
  * }
- **/
+**/
+
+/**
+ * @api {post} /auth/signUp signUp user
+ * @apiVersion 0.1.0
+ * @apiName SignUp
+ * @apiGroup Authentication
+ * @apiDescription creates an account for the user, user can sign-up using his email or creating a username and creating a password  
+ * @apiSampleRequest off
+ * @apiParam {String} email Email of the user
+ * @apiParam {String} username Username of the user
+ * @apiParam {String} password password of the user
+ * @apiParam {String} first_name first name of the user
+ * @apiParam {String} second_name second name of the user
+ * @apiParam {String} gender gender of the user
+ * @apiParam {DateTime} birth_date birth date of the user
+ * @apiParam {int} phone_number phone number of the user
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "email": "amrzaki2000.az@gmail.com",
+ *      "username": "amrZaki123"
+ *      "password": "myPassw@ord123",
+ *      "first_name": "Amr",
+ *      "second_name": "Zaki",
+ *      "gender": "male",
+ *      "birth_date": "2000-01-01T00:00:00.000Z",
+ *      "phone_number": "0105267436"
+ * }
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {String} access_token JWT generated access token for the user
+ * @apiSuccess {user-object} user of the sign up operation
+ * @apiSuccess {String} role role of the user 
+ * @apiSuccess {DateTime} token_expiration_date The date and time of token expiration
+ * @apiSuccessExample {json} Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *      "access_token": "AAAA%2FAAA%3DAAAAAAAAxxxxxx",
+ *      "user" : {user-object},
+ *      "role": "user",
+ *      "token_expiration_date": "2020-01-01T00:00:00.000Z",
+ *      "message": "User Signed up successfully"
+ * }
+ * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
+ * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 400 SignUpFailed
+ * {
+ *       message: "sign up failed"
+ * }
+**/
