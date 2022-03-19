@@ -687,6 +687,7 @@
  * @apiSuccess {String} message Success message
  * @apiSuccess {String} access_token JWT generated access token for the user
  * @apiSuccess {user-object} user of the sign up operation
+ * @apiSuccess {String} role role of the user 
  * @apiSuccess {DateTime} token_expiration_date The date and time of token expiration
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
