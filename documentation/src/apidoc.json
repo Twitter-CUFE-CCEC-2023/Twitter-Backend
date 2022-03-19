@@ -1,0 +1,26 @@
+{
+  "name": "Twitter API Documentation",
+  "version": "0.1.0",
+  "title": "Twitter API Doc",
+  "description": "This is the api documentation for our twitter project",
+  "sampleUrl": "https://apidoc.free.beeceptor.com",
+  "output": "/tmp/apidoc-output",
+  "input": [
+    "apidoc"
+  ],
+  "order": [
+    "Authentication",
+    "Admin Dashboard",
+    "Account Suspension",
+    "User",
+    "Tweets",
+    "Timeline",
+    "Media"
+  ],
+  "template": {
+    "showRequiredLabels": false,
+    "withCompare": true,
+    "withGenerator": true,
+    "aloneDisplay": false
+  }
+}
