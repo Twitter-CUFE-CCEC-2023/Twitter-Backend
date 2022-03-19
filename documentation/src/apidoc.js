@@ -1407,7 +1407,8 @@
  * @apiParam {Boolean} isBanned Represents the number of media the user has uploaded
  * @apiParam {DateTime} banDuration Represents the duration of the ban
  * @apiParam {Boolean} permanentBan Represents if the user is banned forever
- * @apiParam {string} birth_date_info_access Represents the access level of the user to the birth date information
+ * @apiParam month_day_access Determines who has access to see user birth month and day.
+ * @apiParam year_access Determines who has access to see user birth year.
  **/
 
 /**
