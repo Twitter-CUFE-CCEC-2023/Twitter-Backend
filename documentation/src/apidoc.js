@@ -727,19 +727,22 @@
  * {
  *      "id": 123456
  * }
- * @apiSuccess {String} access_token JWT generated access token for the user
+ * @apiSuccess {object} tweet tweet object carrying the tweet information
+ * @apiSuccess {object} user user object carrying the user, who posted the tweet, information
+ * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
  *      "tweet": {tweet-object},
- *      "user": {user-object}
+ *      "user": {user-object},
+ *      "message": "tweet has been retrieved successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
  * @apiError (401) {String} UnAuthorized  user is not authenticated
- * @apiError (404) {String} TweetNotFound  The enetered credentials are invalid
+ * @apiError (404) {String} NotFound  Invalid tweet id
  * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 401 Unauthorized
+ * HTTP/1.1 404 NotFound
  * {
  *       message: "tweet not found"
  * }
