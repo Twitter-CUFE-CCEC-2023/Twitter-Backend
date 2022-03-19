@@ -801,6 +801,7 @@
  *      "id": 1202,
  *      "count": 40
  * }
+ * @apiSuccess {list} retweeters list of user objects who retweeted the tweet
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
