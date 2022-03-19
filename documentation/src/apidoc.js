@@ -711,7 +711,7 @@
  * @api {post} /user/verify-credentials Verify signed up user credentials 
  * @apiVersion 0.1.0
  * @apiName VerifyEmail
- * @apiGroup Authenication
+ * @apiGroup Authentication
  * @apiDescription Verifies newly created user.
  * @apiSampleRequest off
  * @apiPermission RequiresAuth
