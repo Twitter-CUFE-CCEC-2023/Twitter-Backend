@@ -936,7 +936,7 @@
  * @apiPermission RequiresAuth
  * @apiParam {Boolean} [location_filter] if true used to fillter the users by their location
  * @apiParam {Boolean} [gender_filter] if true used to fillter the users by their gender
- * @apiParam {string} filter_data specifies the data that will filter the users
+ * @apiParam {String} filter_data specifies the data that will filter the users
  * @apiParam {int} [count] specifies the number of users that I want to recive
  * @apiParamExample {json} Request-Example: 
  * {
