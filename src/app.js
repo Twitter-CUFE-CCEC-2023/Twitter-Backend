@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const config = require('./config');
 
 const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
@@ -8,8 +9,7 @@ const timelineRoutes = require("./routes/timeline");
 
 const app = express();
 const port = process.env.Port || 3000;
-
-const connectionurl = "mongodb://localhost:27017/twitter-clone";
+const connectionurl = config.devConnectionSting;
 
 app.use(express.json());
 app.use(adminRoutes);
