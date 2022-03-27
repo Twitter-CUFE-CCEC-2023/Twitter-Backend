@@ -14,13 +14,13 @@ const User = mongoose.model("user", {
     trim: true,
     minLength: 5,
     maxLength: 14,
-    unique: true
+    unique: true,
   },
   email: {
     type: String,
     required: true,
     trim: true,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
@@ -48,7 +48,18 @@ const User = mongoose.model("user", {
     maxLength: 100,
   },
   verificationCode: {
-    type: Number
+    type: Number,
+    required: true,
+  },
+  verificationCodeExpiration: {
+    type: Date,
+    required: true,
+  },
+  resetPasswordCode: {
+    type: Number,
+  },
+  resetPasswordCodeExpiration: {
+    type: Date,
   },
   isVerified: {
     type: Boolean,
@@ -65,7 +76,7 @@ const User = mongoose.model("user", {
   roleId: {
     type: Schema.Types.ObjectId,
     ref: "userRole",
-    index: true
+    index: true,
   },
   isBanned: {
     type: Boolean,
