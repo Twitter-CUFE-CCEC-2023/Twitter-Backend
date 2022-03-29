@@ -1,26 +1,26 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const LikeSchema = Schema(
+const UserAttachmentSchema = new Schema(
   {
-    likerId: {
+    userId: {
       type: Schema.Types.ObjectId,
       required: true,
       index: true,
       ref: "user",
     },
-    tweetId: {
+    attachmentId: {
       type: Schema.Types.ObjectId,
       required: true,
       index: true,
-      ref: "tweet",
+      ref: "attachment",
     },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-const Like = mongoose.model("like", LikeSchema);
+const UserAttachment = mongoose.model("userAttachment", UserAttachmentSchema);
 
-module.exports = Like;
+module.exports = UserAttachment;
