@@ -13,9 +13,9 @@ const users = [
   },
   {
     _id: "624a4fbf3f392aefdb4dd1c8",
-    name: "Ahmed Ibrahim",
+    name: "Ahmed Elgarf",
     username: "ahmedElgarf",
-    email: "ahmedelgarf@gmail.com",
+    email: "ahmedelgarf94@gmail.com",
     password: "12345678",
     dateOfBirth: "1999-4-10",
     roleId: userRole.adminRole._id,
