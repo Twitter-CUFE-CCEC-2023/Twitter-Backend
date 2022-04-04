@@ -1,13 +1,19 @@
 const mongoose = require("mongoose");
 const config = require("./src/config");
 const userRoleSeeder = require("./seeders/user-role.seeder");
+const notificationTypeSeeder = require("./seeders/notification-type.seeder");
+const birthInformationAccessSeeder = require("./seeders/birth-information-access.seeder");
 
 /**
  * Seeders List
  * order is important
  * @type {Object}
  */
-module.exports.seedersList = { userRoleSeeder };
+module.exports.seedersList = {
+  userRoleSeeder,
+  notificationTypeSeeder,
+  birthInformationAccessSeeder,
+};
 /**
  * Connect to mongodb implementation
  * @return {Promise}
