@@ -16,7 +16,6 @@ const NotificationSchema = new Schema(
     },
     content: {
       type: String,
-      required: true,
       trim: true,
     },
     notificationTypeId: {

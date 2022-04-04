@@ -13,6 +13,7 @@ const TweetSchema = new Schema(
       type: Schema.Types.ObjectId,
       index: true,
       ref: "tweet",
+      default: null,
     },
     content: {
       type: String,
@@ -28,12 +29,12 @@ const TweetSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    attachments: {
-      type: [Schema.Types.ObjectId],
+    attachments: [{
+      type: Schema.Types.ObjectId,
       default: [],
       ref: "attachment",
       index: true,
-    },
+    }],
   },
   {
     timestamps: true,

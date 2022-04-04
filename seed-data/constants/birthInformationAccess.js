@@ -26,4 +26,9 @@ const accessTypes = [
   onlyYouAccess,
 ];
 
-module.exports = accessTypes;
+exports.data = accessTypes;
+exports.publicAccess = publicAccess;
+exports.followersAccess = followersAccess;
+exports.peopleYouFollow = peopleYouFollow;
+exports.youFollowEachOtherAccess = youFollowEachOtherAccess;
+exports.onlyYouAccess = onlyYouAccess;

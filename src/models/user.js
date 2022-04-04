@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Schema = mongoose.Schema;
+const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
 
 const UserSchema = new Schema(
   {
@@ -55,17 +56,14 @@ const UserSchema = new Schema(
     },
     verificationCode: {
       type: Number,
-      required: true,
       default: -1,
     },
     verificationCodeExpiration: {
       type: Date,
-      required: true,
       default: new Date(new Date().setHours(new Date().getHours() + 1)),
     },
     resetPasswordCode: {
       type: Number,
-      required: true,
       default: -1,
     },
     resetPasswordCodeExpiration: {
@@ -106,10 +104,12 @@ const UserSchema = new Schema(
     monthDayBirthAccessId: {
       type: Schema.Types.ObjectId,
       ref: "birthInformationAccess",
+      default: birthInformationAccess.followersAccess._id,
     },
     yearBirthAccessId: {
       type: Schema.Types.ObjectId,
       ref: "birthInformationAccess",
+      default: birthInformationAccess.followersAccess._id,
     },
   },
   {
