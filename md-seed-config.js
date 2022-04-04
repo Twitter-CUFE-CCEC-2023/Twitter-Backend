@@ -4,6 +4,7 @@ const userRoleSeeder = require("./seeders/user-role.seeder");
 const notificationTypeSeeder = require("./seeders/notification-type.seeder");
 const birthInformationAccessSeeder = require("./seeders/birth-information-access.seeder");
 const userSeeder = require("./seeders/user.seeder");
+const tweetSeeder = require("./seeders/tweet.seeder");
 
 /**
  * Seeders List
@@ -15,6 +16,7 @@ module.exports.seedersList = {
   notificationTypeSeeder,
   birthInformationAccessSeeder,
   userSeeder,
+  tweetSeeder
 };
 /**
  * Connect to mongodb implementation

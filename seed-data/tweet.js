@@ -50,4 +50,4 @@ const tweets = [
         content: "Practice makes perfect.",
     },
 ]
-module.exports = tweets;
+exports.data = tweets;
