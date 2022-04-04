@@ -74,6 +74,14 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     profilePicture: {
       type: String,
       trim: true,
