@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Schema = mongoose.Schema;
 const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
 
@@ -58,7 +60,7 @@ const UserSchema = new Schema(
     },
     verificationCodeExpiration: {
       type: Date,
-      default: Date.now,
+      default: new Date(new Date().setHours(new Date().getHours() + 1)),
     },
     resetPasswordCode: {
       type: Number,
@@ -66,7 +68,7 @@ const UserSchema = new Schema(
     },
     resetPasswordCodeExpiration: {
       type: Date,
-      default: Date.now,
+      default: new Date(new Date().setHours(new Date().getHours() + 1)),
     },
     isVerified: {
       type: Boolean,
@@ -114,6 +116,35 @@ const UserSchema = new Schema(
     timestamps: true,
   }
 );
+
+UserSchema.pre("save", async function (next) {
+  const user = this;
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 12);
+  }
+  next();
+});
+
+UserSchema.statics.checkConflict = async function (email) {
+  const user = await User.findOne({ email });
+  if (user) {
+    return true;
+  }
+  return false;
+};
+
+UserSchema.methods.generateAuthToken = async function () {
+  user = this;
+  const token = jwt.sign(
+    {
+      _id: user._id,
+      username: user.username
+    },
+    "CCEC-23-Twitter-Clone-CUFE-CHS"
+  );
+  await user.save();
+  return token;
+};
 
 const User = mongoose.model("user", UserSchema);
 
