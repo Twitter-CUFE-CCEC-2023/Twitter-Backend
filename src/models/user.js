@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const birthInformationAccess = require("./constants/birthInformationAccess");
 
 const UserSchema = new Schema(
   {
@@ -53,17 +54,14 @@ const UserSchema = new Schema(
     },
     verificationCode: {
       type: Number,
-      required: true,
       default: -1,
     },
     verificationCodeExpiration: {
       type: Date,
-      required: true,
       default: Date.now + 1,
     },
     resetPasswordCode: {
       type: Number,
-      required: true,
       default: -1,
     },
     resetPasswordCodeExpiration: {
@@ -104,10 +102,12 @@ const UserSchema = new Schema(
     monthDayBirthAccessId: {
       type: Schema.Types.ObjectId,
       ref: "birthInformationAccess",
+      default: birthInformationAccess.followersAccess._id,
     },
     yearBirthAccessId: {
       type: Schema.Types.ObjectId,
       ref: "birthInformationAccess",
+      default: birthInformationAccess.followersAccess._id,
     },
   },
   {
