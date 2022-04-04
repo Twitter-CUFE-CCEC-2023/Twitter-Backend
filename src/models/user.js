@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
@@ -114,6 +116,36 @@ const UserSchema = new Schema(
     timestamps: true,
   }
 );
+
+UserSchema.pre("save", async function (next) {
+  const user = this;
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 12);
+  }
+  next();
+});
+
+UserSchema.statics.checkConflict = async function (email) {
+  const user = await User.findOne({ email });
+  if (user) {
+    return true;
+  }
+  return false;
+};
+
+UserSchema.methods.generateAuthToken = async function () {
+  user = this;
+  const token = jwt.sign(
+    {
+      _id: user._id,
+      username: user.username,
+      password: user.password,
+    },
+    "CCEC-23-Twitter-Clone-CUFE-CHS"
+  );
+  await user.save();
+  return token;
+};
 
 const User = mongoose.model("user", UserSchema);
 
