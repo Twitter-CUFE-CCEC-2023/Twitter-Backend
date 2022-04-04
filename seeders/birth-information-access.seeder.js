@@ -1,7 +1,7 @@
 const Seeder = require("mongoose-data-seed").Seeder;
 const birthInformationModel = require("./../src/models/constants/birthInformationAccess");
 
-const data = require("./../seed-data/constants/birthInformationAccess");
+const { data } = require("./../seed-data/constants/birthInformationAccess");
 
 class BirthInformationAccessSeeder extends Seeder {
   async shouldRun() {
