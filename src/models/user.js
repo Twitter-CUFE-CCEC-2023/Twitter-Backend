@@ -138,8 +138,7 @@ UserSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign(
     {
       _id: user._id,
-      username: user.username,
-      password: user.password,
+      username: user.username
     },
     "CCEC-23-Twitter-Clone-CUFE-CHS"
   );
