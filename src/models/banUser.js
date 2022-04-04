@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const BanUserSchema = Schema(
+const BanUserSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,

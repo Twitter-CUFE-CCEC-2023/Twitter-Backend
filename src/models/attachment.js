@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const AttachmentSchema = Schema(
+const AttachmentSchema = new Schema(
   {
     fileName: {
       type: String,
