@@ -23,4 +23,4 @@ const users = [
   },
 ];
 
-module.exports = accessTypes;
+exports.data = users;
