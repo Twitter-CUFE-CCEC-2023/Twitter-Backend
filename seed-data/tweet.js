@@ -1,6 +1,3 @@
-const Tweet = require("../src/models/tweet");
-const mongoose = require("mongoose");
-
 const tweets = [
     {
         _id: "624a4052e28fb9d9c024671a",
