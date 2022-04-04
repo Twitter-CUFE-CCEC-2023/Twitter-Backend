@@ -1,6 +1,16 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "",
+    pass: "",
+  },
+});
+
 const Schema = mongoose.Schema;
 const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
 
@@ -122,6 +132,7 @@ UserSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 12);
   }
+  user.verificationCode = await User.getVerificationCode();
   next();
 });
 
@@ -144,6 +155,32 @@ UserSchema.methods.generateAuthToken = async function () {
   );
   await user.save();
   return token;
+};
+
+UserSchema.statics.getVerificationCode = async function () {
+  var verification_code = "";
+  for (var iteration = 0; iteration < 6; iteration++) {
+    verification_code += Math.floor(Math.random() * 10);
+  }
+  return verification_code;
+};
+
+UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
+  const mailOptions = {
+    from: process.env.verification_email,
+    to: email,
+    subject: "Verification email",
+    text: "Thank you for singing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" + verification_code + "\nBest Regards.",
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+    return verification_code;
+  });
 };
 
 const User = mongoose.model("user", UserSchema);
