@@ -37,4 +37,10 @@ const notificationTypes = [
   accountUpdate,
 ];
 
-module.exports = notificationTypes;
+exports.data = notificationTypes;
+exports.like = like;
+exports.follow = follow;
+exports.reply = reply;
+exports.followingTweet = followingTweet;
+exports.retweet = retweet;
+exports.accountUpdate = accountUpdate;

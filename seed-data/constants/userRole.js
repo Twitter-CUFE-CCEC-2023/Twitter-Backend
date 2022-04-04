@@ -10,4 +10,6 @@ const adminRole = {
 
 const roles = [defaultRole, adminRole];
 
-module.exports = roles;
+exports.data = roles;
+exports.defaultRole = defaultRole;
+exports.adminRole = adminRole;
