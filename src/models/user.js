@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const birthInformationAccess = require("./constants/birthInformationAccess");
+const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
 
 const UserSchema = new Schema(
   {
@@ -58,7 +58,7 @@ const UserSchema = new Schema(
     },
     verificationCodeExpiration: {
       type: Date,
-      default: Date.now + 1,
+      default: Date.now,
     },
     resetPasswordCode: {
       type: Number,
@@ -66,7 +66,7 @@ const UserSchema = new Schema(
     },
     resetPasswordCodeExpiration: {
       type: Date,
-      default: Date.now + 1,
+      default: Date.now,
     },
     isVerified: {
       type: Boolean,
