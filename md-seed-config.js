@@ -3,6 +3,7 @@ const config = require("./src/config");
 const userRoleSeeder = require("./seeders/user-role.seeder");
 const notificationTypeSeeder = require("./seeders/notification-type.seeder");
 const birthInformationAccessSeeder = require("./seeders/birth-information-access.seeder");
+const userSeeder = require("./seeders/user.seeder");
 
 /**
  * Seeders List
@@ -13,6 +14,7 @@ module.exports.seedersList = {
   userRoleSeeder,
   notificationTypeSeeder,
   birthInformationAccessSeeder,
+  userSeeder,
 };
 /**
  * Connect to mongodb implementation
