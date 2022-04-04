@@ -60,7 +60,7 @@ const UserSchema = new Schema(
     },
     verificationCodeExpiration: {
       type: Date,
-      default: new Date(new Date().setHours(new Date().getHours() + 1)),
+      default: new Date(new Date().setHours(new Date().getHours() + 24)),
     },
     resetPasswordCode: {
       type: Number,
@@ -68,7 +68,7 @@ const UserSchema = new Schema(
     },
     resetPasswordCodeExpiration: {
       type: Date,
-      default: new Date(new Date().setHours(new Date().getHours() + 1)),
+      default: new Date(new Date().setHours(new Date().getHours() + 24)),
     },
     isVerified: {
       type: Boolean,
