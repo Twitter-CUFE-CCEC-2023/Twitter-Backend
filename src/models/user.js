@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const config = require("../config");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "",
-    pass: "",
+    user: config.verificationEmail,
+    pass: config.verificationPassword,
   },
 });
 
@@ -149,7 +150,7 @@ UserSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign(
     {
       _id: user._id,
-      username: user.username
+      username: user.username,
     },
     "CCEC-23-Twitter-Clone-CUFE-CHS"
   );
@@ -160,9 +161,9 @@ UserSchema.methods.generateAuthToken = async function () {
 UserSchema.statics.getVerificationCode = async function () {
   var verification_code = "";
   for (var iteration = 0; iteration < 6; iteration++) {
-    verification_code += Math.floor(Math.random() * 10);
+    verification_code += "" + Math.floor(Math.random() * 10);
   }
-  return verification_code;
+  return verification_code.toString(10);
 };
 
 UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
@@ -170,17 +171,19 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
     from: process.env.verification_email,
     to: email,
     subject: "Verification email",
-    text: "Thank you for singing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" + verification_code + "\nBest Regards.",
+    text:
+      "Thank you for singing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
+      verification_code +
+      "\n\nBest Regards.",
   };
 
-  transporter.sendMail(mailOptions, function (error, info) {
+  await transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent: " + info.response);
+      // console.log(error);
+      throw error;
     }
-    return verification_code;
   });
+  return verification_code;
 };
 
 const User = mongoose.model("user", UserSchema);
