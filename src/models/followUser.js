@@ -3,14 +3,14 @@ const Schema = mongoose.Schema;
 
 const FollowUserSchema = new Schema(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
+    username: {
+      type: String,
       required: true,
       index: true,
       ref: "user",
     },
-    followingUserId: {
-      type: Schema.Types.ObjectId,
+    followingUsername: {
+      type: String,
       required: true,
       index: true,
       ref: "user",
