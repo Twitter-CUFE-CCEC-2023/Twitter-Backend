@@ -41,10 +41,64 @@ router.get("/notifications/list", async (req, res) => {
 });
 
 
+router.get('/followers/list/:username', async (req, res) => {
+    const _username = req.params.username
+    const count = 10;
 
+    try {
+        const _id = await User.findOne({
+            username: _username
+        }).select('_id')
+        if(!_id) {
+            return res.status(404).send({ error_message: "User not found" });
+        }
+        console.log(_id)
+        const users = await fellowUserModel.find({
+            followingUserId:_id
+        }).sort({
+            createdAt: -1
+        }).skip(
+            count * (req.body.page - 1)
+        ).limit(
+            count
+        ).populate({
+            path: "userId",
+            select: "username name bio profilePicture -_id",
+        });
 
+        if (!users) {
+            return res.status(404).send({ error_message: "Followers not found" })
+        }
+        res.send(users)
+    } catch (error) {
+        res.status(500).send(error.toString())
+    }
+})
 
-
-
+router.get('/following/list/:username', async (req, res) => {
+    const _username = req.params.username
+    const count = 10;
+    try {
+        const users = await fellowUserModel.find({
+            username: _username
+        }).sort({
+            createdAt: -1
+        }).skip(
+            count * (req.body.page - 1)
+        ).limit(
+            count
+        ).populate({
+            path: "username",
+            select: "username name bio -_id",
+        });
+        if (!users) {
+            return res.status(404).send({ error_message: "Following not found" })
+        }
+        res.send(users)
+        console.log(users)
+    } catch (error) {
+        res.status(500).send(error.toString())
+    }
+})
 
 module.exports = router;
