@@ -3,10 +3,13 @@
     "nodemon": "^2.0.15"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.17.3",
     "install": "^0.13.0",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.4.1",
-    "mongoose": "^6.2.8",
+    "mongoose": "^6.2.9",
+    "mongoose-data-seed": "^2.1.6",
     "npm": "^8.5.5",
     "validator": "^13.7.0"
   },
@@ -15,7 +18,7 @@
   "version": "0.1.0",
   "main": "app.js",
   "scripts": {
-    "dev" : "nodemon src/app.js",
+    "dev": "nodemon src/app.js",
     "start": "node src/app.js"
   },
   "repository": {
@@ -27,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/Twitter-CUFE-CCEC-2023/Twitter-Backend/issues"
   },
-  "homepage": "https://github.com/Twitter-CUFE-CCEC-2023/Twitter-Backend#readme"
+  "homepage": "https://github.com/Twitter-CUFE-CCEC-2023/Twitter-Backend#readme",
+  "mdSeed": {
+    "seedersFolder": "seeders"
+  }
 }
