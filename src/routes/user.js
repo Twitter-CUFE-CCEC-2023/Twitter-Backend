@@ -1,6 +1,6 @@
 const express = require("express");
 const User = require("../models/user");
-const fellowUserModel = require("../models/followUser");
+const followUserModel = require("../models/followUser");
 const router = express.Router();
 const notificationModel = require("./../models/notification");
 require("./../models/constants/notificationType");
@@ -53,7 +53,7 @@ router.get('/followers/list/:username', async (req, res) => {
             return res.status(404).send({ error_message: "User not found" });
         }
         console.log(_id)
-        const users = await fellowUserModel.find({
+        const users = await followUserModel.find({
             followingUserId:_id
         }).sort({
             createdAt: -1
@@ -79,8 +79,14 @@ router.get('/following/list/:username', async (req, res) => {
     const _username = req.params.username
     const count = 10;
     try {
-        const users = await fellowUserModel.find({
+        const _id = await User.findOne({
             username: _username
+        }).select('_id')
+        if(!_id) {
+            return res.status(404).send({ error_message: "User not found" });
+        }
+        const users = await followUserModel.find({
+            userId: _id
         }).sort({
             createdAt: -1
         }).skip(
@@ -88,8 +94,8 @@ router.get('/following/list/:username', async (req, res) => {
         ).limit(
             count
         ).populate({
-            path: "username",
-            select: "username name bio -_id",
+            path: "userId",
+            select: "username name bio profilePicture -_id",
         });
         if (!users) {
             return res.status(404).send({ error_message: "Following not found" })
