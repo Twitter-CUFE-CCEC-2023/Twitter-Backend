@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const TweetSchema = new Schema(
   {
-    userId: {
+    username: {
       type: Schema.Types.ObjectId,
       required: true,
       index: true,
