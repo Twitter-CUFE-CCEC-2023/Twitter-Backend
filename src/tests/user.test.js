@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const config = require("../config");
 const User = require("../models/user");
 const followUserModel = require("../models/followUser");
-const connectionurl = config.testConnectionSting;
+const connectionurl = config.testConnectionString;
 
 const userOneId= new mongoose.Types.ObjectId();
 const userTwoId= new mongoose.Types.ObjectId();
@@ -36,13 +36,6 @@ const followUserTwo={
     userId: userTwoId,
     followingUserId: userOneId,
 }
-beforeEach(async () => {
-    await User.deleteMany({});
-    await new User(userOne).save();
-    await new User(userTwo).save();
-    await new followUserModel(followUserOne).save();
-    await new followUserModel(followUserTwo).save();
-  });
 
 beforeAll(() => {
     mongoose.connect(
@@ -63,6 +56,16 @@ beforeAll(() => {
 afterAll(() => {
     mongoose.connection.close();
 });
+
+beforeEach(async () => {
+    await User.deleteMany({});
+    await new User(userOne).save();
+    await new User(userTwo).save();
+    await new followUserModel(followUserOne).save();
+    await new followUserModel(followUserTwo).save();
+  });
+
+
 
 
 test("Should get following list", async () => {
