@@ -11,6 +11,7 @@ router.delete('/status/tweet/delete', async (req, res)=>{
         if(!tweet){
             return res.status(404).send()
         }
+
         res.status(200).send({
             tweet: tweet,
             message: 'tweet deleted successfully'
@@ -29,16 +30,15 @@ router.get('/status/tweets/list/:username', async (req, res)=>{
         tweets = undefined
         if(req.query.include_replies == "true")
         {
-            tweets = await Tweet.find({ username: req.params.username})    
+            tweets = await Tweet.find({ username: req.params.username}).sort({ createdAt: -1 })  
         }
         else
         {
-            tweets = await Tweet.find({ username: req.params.username, parentId: null})
+            tweets = await Tweet.find({ username: req.params.username, parentId: null}).sort({ createdAt: -1 })
         }
         if(!tweets){
             return res.status(404).send()
         }
-
         res.status(200).send({
             tweets: tweets,
             message: 'tweets retrieved successfully'
