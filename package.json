@@ -23,7 +23,10 @@
   "scripts": {
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
-    "test": "jest --watch --detectOpenHandles"
+    "test": "jest --detectOpenHandles"
+  },
+  "jest": {
+    "testingEnvironment": "node"
   },
   "repository": {
     "type": "git",
