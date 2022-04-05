@@ -4,6 +4,23 @@ const fellowUser = require("../models/followUser");
 const router = express.Router();
 
 
+router.get('/followers/list/:username', async (req, res) => {
+    const _username = req.params.username
+    console.log(_username)
+    try {
+        const users = await fellowUser.find({
+            followingUsername:  _username
+        })
+        if (!users) {
+            return res.status(404).send()
+        }
+        res.send(users)
+        console.log(users)
+    } catch (error) {
+        res.status(500).send()
+    }
+})
+
 
 
 
