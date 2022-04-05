@@ -133,7 +133,12 @@ UserSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 12);
   }
-  user.verificationCode = await User.getVerificationCode();
+  var verificationCode = await User.getVerificationCode();
+  var lengthDiff = 6 - verificationCode.toString().length;
+  for (var i = 0; i < lengthDiff; i++) {
+    verificationCode = "0" + verificationCode;
+  }
+  user.verificationCode = verificationCode;
   next();
 });
 
@@ -163,7 +168,7 @@ UserSchema.statics.getVerificationCode = async function () {
   for (var iteration = 0; iteration < 6; iteration++) {
     verification_code += "" + Math.floor(Math.random() * 10);
   }
-  return verification_code.toString(10);
+  return verification_code;
 };
 
 UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
