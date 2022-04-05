@@ -1,20 +1,20 @@
 const express = require("express");
 const User = require("../models/user.js");
-const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
 module.exports = router;
-
-const app = express();
 
 router.post("/auth/signup", async (req, res) => {
   try {
     const user = new User(req.body);
 
     if (!(await User.checkConflict(user.email, user.username))) {
+      
       await user.save();
       const token = await user.generateAuthToken();
+      await user.sendVerifyEmail(user.email, user.verificationCode);
+      
 
       res.status(200).send({
         access_token: token,
@@ -26,7 +26,7 @@ router.post("/auth/signup", async (req, res) => {
       res.status(409).send({ error_message: "User already exists" });
     }
   } catch (err) {
-    if ((err.name == "ValidationError")) {
+    if (err.name == "ValidationError") {
       res.status(400).send(err.toString());
     } else {
       res.status(500).send(err.toString() + "\n" + typeof err);
