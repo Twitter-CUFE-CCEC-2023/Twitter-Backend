@@ -13,10 +13,12 @@ const NotificationSchema = new Schema(
       type: Schema.Types.ObjectId,
       index: true,
       ref: "tweet",
+      default: null,
     },
     content: {
       type: String,
       trim: true,
+      default: "",
     },
     notificationTypeId: {
       type: Schema.Types.ObjectId,
@@ -28,6 +30,7 @@ const NotificationSchema = new Schema(
       type: Schema.Types.ObjectId,
       index: true,
       ref: "user",
+      default: null,
     },
     isRead: {
       type: Boolean,

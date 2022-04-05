@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const notificationTypechema = new Schema({
+const notificationTypeSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -10,7 +10,7 @@ const notificationTypechema = new Schema({
 
 const NotificationType = mongoose.model(
   "notificationType",
-  notificationTypechema
+  notificationTypeSchema
 );
 
 module.exports = NotificationType;

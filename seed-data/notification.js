@@ -41,6 +41,14 @@ const notifications = [
     relatedUserId: "624a52d75ff69df002d25035",
     isRead: false,
   },
+  {
+    _id: "624b88a4b51501b30d71386e",
+    userId: "624a4a94c66738f13854b474",
+    tweetId: "624a4914062642bd2fa6e586",
+    notificationTypeId: notificationType.followingTweet._id,
+    relatedUserId: "624a52d75ff69df002d25035",
+    isRead: false,
+  },
 ];
 
 exports.data = notifications;
