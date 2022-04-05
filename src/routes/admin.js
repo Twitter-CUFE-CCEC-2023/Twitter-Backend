@@ -56,4 +56,67 @@ router.post('/dashboard/unban', async (req, res) => {
     }
 })
 
+
+
+
+
+router.get('/dashboard/users', async (req, res) => {
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['location','gender']
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+    if (!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid filters!' })
+    }
+    let user=null
+    const count=10
+    const page =1
+    try {
+
+        if(req.body.location!="" && req.body.gender!="" && req.body.location && req.body.gender){
+            user = await User.find({
+            location:req.body.location,
+            gender:req.body.gender
+            })
+            .sort({ createdAt: -1 })
+            .skip(count * (page - 1))
+            .limit(count)
+        }
+        else if(req.body.location!="" &&req.body.location)
+        {
+            user = await User.find({
+            location:req.body.location,
+            })
+            .sort({ createdAt: -1 })
+            .skip(count * (page - 1))
+            .limit(count)
+        }
+        else if(req.body.gender!=""&& req.body.gender)
+        {
+            user = await User.find({
+            gender:req.body.gender
+            })
+            .sort({ createdAt: -1 })
+            .skip(count * (page - 1))
+            .limit(count)
+        }
+        else
+        {
+            user = await User.find({})
+            .sort({ createdAt: -1 })
+            .skip(count * (page - 1))
+            .limit(count)
+
+        }
+        res.status(200).send(
+            {
+                user:user,
+                message:"Users have been retrived successfully"
+            })
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+
+
 module.exports = router;
