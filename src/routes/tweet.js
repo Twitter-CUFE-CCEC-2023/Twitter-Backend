@@ -23,12 +23,12 @@ router.delete('/status/tweet/delete', async (req, res)=>{
 })
 
 router.get('/status/tweets/list/:username?include_replies=true', async (req, res)=>{
-    try{
-
+    /*try{
+        const tweets = await Tweet.find(req.params.user )
     }
     catch{
         res.status(500).send()
-    }
+    }*/
 })
 
 
