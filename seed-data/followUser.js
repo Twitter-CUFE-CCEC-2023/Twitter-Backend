@@ -1,11 +1,11 @@
 const users = [
   {
-    username: "YoussMokh",
-    followingUsername: "amrzaki",
+    userId: "624a52d75ff69df002d25035",
+    followingUserId: "624a4a94c66738f13854b474",
   },
   {
-    username: "amrzaki",
-    followingUsername: "YoussMokh",
+    userId: "624a4a94c66738f13854b474",
+    followingUserId: "624a52d75ff69df002d25035",
   },
 ];
 
