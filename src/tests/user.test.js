@@ -71,3 +71,24 @@ test("Should get following list", async () => {
         .send()
         .expect(200);
 });
+
+test("Testing that no user is found with this username", async () => {
+    const response = await request(app)
+        .get("/following/list/me5aaaaa")
+        .send()
+        .expect(404);
+});
+
+test("Should get followers list", async () => {
+    const response = await request(app)
+        .get("/following/list/elgarf")
+        .send()
+        .expect(200);
+});
+
+test("Testing that no user is found with this username", async () => {
+    const response = await request(app)
+        .get("/following/list/drammar")
+        .send()
+        .expect(404);
+});
