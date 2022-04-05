@@ -10,7 +10,7 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 const port = process.env.Port || 3000;
-const connectionurl = config.testConnectionSting;
+const connectionurl = config.devConnectionSting;
 
 app.use(express.json());
 app.use(adminRoutes);
