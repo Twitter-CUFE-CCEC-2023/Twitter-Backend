@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const LikeSchema = new Schema(
   {
-    likerId: {
-      type: Schema.Types.ObjectId,
+    likerUsername: {
+      type: String,
       required: true,
       index: true,
       ref: "user",
