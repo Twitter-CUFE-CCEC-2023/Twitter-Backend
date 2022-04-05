@@ -1,16 +1,19 @@
 {
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "jest": "^27.5.1",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.2"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.17.3",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^4.4.1",
-    "mongoose": "^6.2.9",
+    "mongodb": "^4.5.0",
+    "mongoose": "^6.2.10",
     "mongoose-data-seed": "^2.1.6",
-    "npm": "^8.5.5",
+    "nodemailer": "^6.7.3",
+    "npm": "^8.6.0",
     "validator": "^13.7.0"
   },
   "name": "twitter-backend",
@@ -19,7 +22,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "test": "jest --watch --detectOpenHandles"
   },
   "repository": {
     "type": "git",
