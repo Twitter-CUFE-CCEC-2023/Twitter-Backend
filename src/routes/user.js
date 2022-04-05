@@ -8,18 +8,17 @@ require("./../models/user.js");
 router.get("/notifications/list", async (req, res) => {
   try {
     const id = req.body.userId;
-    const count = 1;
-
+    const count = 2;
     if (isNaN(req.body.page)) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    page = parseInt(req.body.page);
+    const page = parseInt(req.body.page);
     const result = await notificationModel
       .find({ userId: id })
       .sort({ createdAt: -1 })
+      .skip(count * (page-1) )
       .limit(count)
-      .skip((page - 1) * count)
       .populate({
         path: "relatedUserId",
         select: "username name profilePicture -_id",
