@@ -13,7 +13,7 @@ const userTwoId= new mongoose.Types.ObjectId();
 const userOne = {
     _id: userOneId,
     name:"Amr Zaki",
-    username: "zika",
+    username: "zikaaaaa",
     dateOfBirth: "2000-01-01T00:00:00.000Z",
     email: "zika@gmail.com",
     password: "myPassw@ord123",
@@ -67,7 +67,7 @@ afterAll(() => {
 
 test("Should get following list", async () => {
     const response = await request(app)
-        .get("/following/list/:zika")
+        .get("/following/list/zikaaaaa")
         .send()
         .expect(200);
 });
