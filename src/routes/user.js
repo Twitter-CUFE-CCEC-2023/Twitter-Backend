@@ -55,7 +55,7 @@ router.get('/followers/list/:username', async (req, res) => {
         ).limit(
             count
         ).populate({
-            path: "followerId",
+            path: "username",
             select: "username name bio -_id",
         });
 
@@ -81,7 +81,7 @@ router.get('/following/list/:username', async (req, res) => {
         ).limit(
             count
         ).populate({
-            path: "followingId",
+            path: "username",
             select: "username name bio -_id",
         });
         if (!users) {
