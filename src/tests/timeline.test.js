@@ -58,6 +58,7 @@ afterAll(() => {
 
 beforeEach(async () => {
     await User.deleteMany({});
+    await tweetModel.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
     await new tweetModel(tweetOne).save();
