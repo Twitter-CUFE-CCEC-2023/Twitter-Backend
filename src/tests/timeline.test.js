@@ -7,6 +7,8 @@ const User = require("../models/user");
 const followUserModel = require("../models/followUser");
 const notificationModel = require("./../models/notification.js");
 const tweetModel = require("./../models/tweet");
+const connectionurl = config.testConnectionString;
+
 
 const userOneId= new mongoose.Types.ObjectId();
 const userTwoId= new mongoose.Types.ObjectId();
