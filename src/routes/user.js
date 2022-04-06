@@ -12,7 +12,7 @@ router.get("/notifications/list", async (req, res) => {
     const id = req.body.userId;
     const user = await userModel.findOne({ _id: id }).select("username -_id");
     const username = user["username"];
-    const count = 2;
+    const count = 10;
 
     if (isNaN(req.body.page) && req.body.page != "" && req.body.page != null) {
       return res.status(400).send({ message: "Invalid page number" });
@@ -40,17 +40,30 @@ router.get("/notifications/list", async (req, res) => {
             res.status(404).send({ error_message: "Notifications not found" });
         }
 
-    // for (let i = 0; i < result.length; i++) {
-    //   const tweet = result[i]["tweetId"];
-    //   tweetModel.getTweetInfobyId(tweet["_id"], username).then((tweetInfo) => {
-    //     result[i]["tweetInfo"] = tweetInfo;
-    //   });
-    // }
+    const getNotifications = result.map(async (item) => {
+      if (!item.tweetId) {
+        return item;
+      }
+      const tweetInfo = await tweetModel.getTweetInfobyId(
+        item.tweetId,
+        username
+      );
+      if (tweetInfo.error) {
+        return item;
+      }
+      item.tweetId.tweetInfo = tweetInfo;
+      return item;
+    });
 
-    res.status(200).send(result);
+    Promise.all(getNotifications)
+      .then((result) => {
+        res.status(200).send(result);
+      })
+      .catch((error) => {
+        throw error;
+      });
   } catch (err) {
-    //res.status(500).send({ message: "Error in getting notifications" });
-    res.status(500).send(err);
+    res.status(500).send({ message: "Error in getting notifications" });
   }
 });
 
