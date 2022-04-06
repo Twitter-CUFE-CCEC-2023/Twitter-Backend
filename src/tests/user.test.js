@@ -44,8 +44,8 @@ const notificationOne={
     notificationTypeId:"6240cd218b70b6ccc7a22cdf",
 }
 const notificationTwo={
-    userId: userTwoId,
-    notificationTypeId:"6240cd218b70b6ccc7a22cdf",
+    userId: userOneId,
+    notificationTypeId:"6240cd6b3516844208b542d4",
 }
     
 
@@ -71,6 +71,8 @@ afterAll(() => {
 
 beforeEach(async () => {
     await User.deleteMany({});
+    await followUserModel.deleteMany({});
+    await notificationModel.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
     await new followUserModel(followUserOne).save();
@@ -84,7 +86,7 @@ beforeEach(async () => {
 
 test("Should get following list", async () => {
     const response = await request(app)
-        .get("/following/list/zikaaaaa")
+        .get("/following/list/"+userOne.username)
         .send()
         .expect(200);
 });
@@ -98,7 +100,7 @@ test("Testing that no user is found with this username", async () => {
 
 test("Should get followers list", async () => {
     const response = await request(app)
-        .get("/following/list/elgarf")
+        .get("/following/list/"+userTwo.username)
         .send()
         .expect(200);
 });
@@ -119,11 +121,20 @@ test("Should get notifications list", async () => {
         .expect(200);
 });
 
-test("Testing that no user is found with this ID", async () => {
+test("Testing when sending Invalid ID", async () => {
     const response = await request(app)
         .get("/notifications/list")
         .send({
             userId: "5e9f8f9f8b70b6ccc7a22cdf",
         })
         .expect(500);
+});
+
+test("Testing when sending Invalid ID", async () => {
+    const response = await request(app)
+        .get("/notifications/list")
+        .send({
+            userId: userTwoId,
+        })
+        .expect(404);
 });
