@@ -5,7 +5,7 @@ const config = require("../config");
 const banUser = require("../models/banUser")
 const User = require("../models/user");
 
-const connectionurl = config.testConnectionSting;
+const connectionurl = config.testConnectionString;
 
 beforeAll(() => {
     mongoose.connect(
