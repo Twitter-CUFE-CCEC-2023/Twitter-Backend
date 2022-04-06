@@ -130,7 +130,9 @@ test("Testing when sending Invalid ID", async () => {
         .expect(500);
 });
 
-test("Testing when sending Invalid ID", async () => {
+
+test("Testing that no notification is found", async () => {
+    await notificationModel.deleteMany({});
     const response = await request(app)
         .get("/notifications/list")
         .send({
