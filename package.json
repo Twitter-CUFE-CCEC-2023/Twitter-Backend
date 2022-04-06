@@ -25,9 +25,6 @@
     "start": "node src/app.js",
     "test": "jest --detectOpenHandles"
   },
-  "jest": {
-    "testingEnvironment": "node"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Twitter-CUFE-CCEC-2023/Twitter-Backend.git"
