@@ -14,6 +14,7 @@
     "mongoose-data-seed": "^2.1.6",
     "nodemailer": "^6.7.3",
     "npm": "^8.6.0",
+    "test": "^0.6.0",
     "validator": "^13.7.0"
   },
   "name": "twitter-backend",
@@ -24,9 +25,6 @@
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
     "test": "jest --detectOpenHandles"
-  },
-  "jest": {
-    "testingEnvironment": "node"
   },
   "repository": {
     "type": "git",

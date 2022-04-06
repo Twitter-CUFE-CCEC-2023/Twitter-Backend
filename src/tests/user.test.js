@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const config = require("../config");
 const User = require("../models/user");
 const followUserModel = require("../models/followUser");
+const notificationModel = require("./../models/notification.js");
+
 const connectionurl = config.testConnectionString;
 
 const userOneId= new mongoose.Types.ObjectId();
@@ -37,6 +39,16 @@ const followUserTwo={
     followingUserId: userOneId,
 }
 
+const notificationOne={
+    userId: userOneId,
+    notificationTypeId:"6240cd218b70b6ccc7a22cdf",
+}
+const notificationTwo={
+    userId: userOneId,
+    notificationTypeId:"6240cd6b3516844208b542d4",
+}
+    
+
 beforeAll(() => {
     mongoose.connect(
         connectionurl,
@@ -59,10 +71,14 @@ afterAll(() => {
 
 beforeEach(async () => {
     await User.deleteMany({});
+    await followUserModel.deleteMany({});
+    await notificationModel.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
     await new followUserModel(followUserOne).save();
     await new followUserModel(followUserTwo).save();
+    await new notificationModel(notificationOne).save();
+    await new notificationModel(notificationTwo).save();
   });
 
 
@@ -70,7 +86,7 @@ beforeEach(async () => {
 
 test("Should get following list", async () => {
     const response = await request(app)
-        .get("/following/list/zikaaaaa")
+        .get("/following/list/"+userOne.username)
         .send()
         .expect(200);
 });
@@ -84,7 +100,7 @@ test("Testing that no user is found with this username", async () => {
 
 test("Should get followers list", async () => {
     const response = await request(app)
-        .get("/following/list/elgarf")
+        .get("/following/list/"+userTwo.username)
         .send()
         .expect(200);
 });
@@ -94,4 +110,22 @@ test("Testing that no user is found with this username", async () => {
         .get("/following/list/drammar")
         .send()
         .expect(404);
+});
+
+test("Should get notifications list", async () => {
+    const response = await request(app)
+        .get("/notifications/list")
+        .send({
+            userId: userOneId,
+        })
+        .expect(200);
+});
+
+test("Testing when sending Invalid ID", async () => {
+    const response = await request(app)
+        .get("/notifications/list")
+        .send({
+            userId: "5e9f8f9f8b70b6ccc7a22cdf",
+        })
+        .expect(500);
 });
