@@ -8,6 +8,9 @@ const followUserModel = require("../models/followUser");
 const notificationModel = require("./../models/notification.js");
 const tweetModel = require("./../models/tweet");
 
+const userOneId= new mongoose.Types.ObjectId();
+const userTwoId= new mongoose.Types.ObjectId();
+
 const userOne = {
     _id: userOneId,
     name:"Amr Zaki",
