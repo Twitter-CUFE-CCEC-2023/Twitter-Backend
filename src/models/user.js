@@ -184,7 +184,6 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
 
   await transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
-      // console.log(error);
       throw error;
     }
   });
