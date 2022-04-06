@@ -38,7 +38,7 @@ const tweetOne={
 }
 const tweetTwo={
     username: "zikaaaaa",
-    userId: userTwoId,
+    userId: userOneId,
     content:"this is my second tweet",
 }    
 
