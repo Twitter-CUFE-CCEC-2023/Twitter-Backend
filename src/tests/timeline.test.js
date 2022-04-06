@@ -37,8 +37,9 @@ const tweetOne={
     content:"this is my first tweet",
 }
 const tweetTwo={
+    username: "zikaaaaa",
     userId: userTwoId,
-    tweet:"this is my second tweet",
+    content:"this is my second tweet",
 }    
 
 beforeAll(() => {
