@@ -29,8 +29,7 @@ router.get("/home", async (req, res) => {
     const usernames = await (
       await userModel.find({ _id: { $in: usersIds } }).select("username -_id")
     ).map((item) => item.username);
-
-    const tweets = await tweetModel
+    const result = await tweetModel
       .find({ username: { $in: usernames } })
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
@@ -40,7 +39,27 @@ router.get("/home", async (req, res) => {
         select: "username name profilePicture -_id",
       });
 
-    res.status(200).send(tweets);
+    const getTweets = result.map(async (item) => {
+      const tweetInfo = await tweetModel.getTweetInfobyId(
+        item._id,
+        usernames[0]
+      );
+      if (tweetInfo.error) {
+        return item;
+      }
+      console.log(tweetInfo);
+      item.tweetInfo = tweetInfo;
+      return item;
+    });
+
+    Promise.all(getTweets)
+      .then((tweets) => {
+        res.status(200).send(tweets);
+      })
+      .catch((error) => {
+        throw error;
+      });
+
   } catch (error) {
     res.status(500).send(error);
   }

@@ -36,6 +36,7 @@ const TweetSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    tweetInfo: {},
     attachments: [
       {
         type: Schema.Types.ObjectId,
