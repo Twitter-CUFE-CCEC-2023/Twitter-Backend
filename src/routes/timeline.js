@@ -47,7 +47,6 @@ router.get("/home", async (req, res) => {
       if (tweetInfo.error) {
         return item;
       }
-      console.log(tweetInfo);
       item.tweetInfo = tweetInfo;
       return item;
     });
