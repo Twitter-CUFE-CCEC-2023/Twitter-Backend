@@ -125,5 +125,5 @@ test("Testing that no user is found with this ID", async () => {
         .send({
             userId: "5e9f8f9f8b70b6ccc7a22cdf",
         })
-        .expect(404);
+        .expect(500);
 });
