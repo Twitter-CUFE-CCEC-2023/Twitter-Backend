@@ -5,7 +5,7 @@ const config = require("../config");
 const Tweets = require("../models/tweet");
 const User = require("../models/user");
 
-const connectionurl = config.testConnectionSting;
+const connectionurl = config.testConnectionString;
 
 beforeAll(() => {
     mongoose.connect(
@@ -29,21 +29,25 @@ afterAll(() => {
 
 
 id = new mongoose.Types.ObjectId()
+id2 = new mongoose.Types.ObjectId()
 
 const tweet1 = {
     _id: id,
+    userId:id2,
     username: "zikaaaaaa",
     content: "I am the first tweet"
 }
 
 const tweet2 = {
     username: "zikaaaaaa",
+    userId: id2,
     parentId: id,
     isRetweeted: true,
     content: "I am the second tweet"
 }
 
 const userOne = {
+    _id: id2,
     name:"Amr Zaki",
     username: "zikaaaaaa",
     dateOfBirth: "2000-01-01T00:00:00.000Z",

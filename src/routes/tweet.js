@@ -25,8 +25,6 @@ router.delete('/status/tweet/delete', async (req, res)=>{
 
 router.get('/status/tweets/list/:username', async (req, res)=>{
     try{
-        //console.log(req.params.username)
-        //console.log(req.query.include_replies)
         tweets = undefined
         if(req.query.include_replies == "true")
         {
@@ -52,24 +50,19 @@ router.get('/status/tweets/list/:username', async (req, res)=>{
 router.get('/status/tweet/:id', async(req, res)=>{
     try{
         tweet = undefined
-        if(req.query.include_my_retweet	== "true")
-        {
-            tweet = await Tweet.findById(req.params.id)
-        }
-        else
-        {
-            tweet = await Tweet.findOne({_id:req.params.id,isRetweeted:false})
-        }
+        tweet = await Tweet.findById(req.params.id).populate({path:"userId",select:"username name profile_picture -_id"})
+
         if(!tweet){
-            return res.status(404).send()
+            return res.status(400).send("invalid input")
         }
-        user = await User.findOne({username: tweet.username})  
-        if(!user){
-            return res.status(404).send()
+        const answer = await Tweet.getTweetInfobyId(tweet._id,tweet.username)
+        
+        if(answer.error){
+            throw answer.error
         }
+
         res.status(200).send({
-            tweet: tweet,
-            user: user,
+            tweet: answer,
             message: 'tweets and user retrieved successfully'
         })
     }
