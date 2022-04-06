@@ -80,11 +80,11 @@ beforeEach(async () => {
         .expect(200);
 });
 
-test("Testing that no user is found with this ID", async () => {
+test("Testing that user ID is required", async () => {
     const response = await request(app)
         .get("/home")
         .send({
-            userId: "5e9f8f9f8b70b6ccc7a22cdf",
+            userId: "",
         })
-        .expect(500);
+        .expect(400);
 });
