@@ -29,7 +29,7 @@
       "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "430017309159.dkr.ecr.us-east-1.amazonaws.com/backend",
+      "image": "430017309159.dkr.ecr.us-east-1.amazonaws.com/backend:0d732c4da14749de9e485371a27b8008b0992b1a",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -56,7 +56,7 @@
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:430017309159:task-definition/DeploymentContainerBackend:1",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:430017309159:task-definition/DeploymentContainerBackend:4",
   "family": "DeploymentContainerBackend",
   "requiresAttributes": [
     {
@@ -73,7 +73,7 @@
   "networkMode": null,
   "runtimePlatform": null,
   "cpu": "1024",
-  "revision": 1,
+  "revision": 4,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
