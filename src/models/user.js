@@ -150,6 +150,23 @@ UserSchema.statics.checkConflict = async function (email) {
   return false;
 };
 
+// Verify user creds and check if username and password both are correct or if only the password is wrong.
+UserSchema.statics.verifyCreds = async function (username_email, password) {
+  const user = await User.find({
+    $or: [{ "email": username_email }, { "username": username_email }],
+  });
+  if (user[0]) {
+    const isMatch = await bcrypt.compare(password, user[0].password);
+    if (isMatch) {
+      return new User(user[0]);
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
 UserSchema.methods.generateAuthToken = async function () {
   user = this;
   const token = jwt.sign(

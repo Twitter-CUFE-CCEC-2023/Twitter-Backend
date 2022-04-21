@@ -33,3 +33,26 @@ router.post("/auth/signup", async (req, res) => {
     }
   }
 });
+
+
+// login route
+router.post("/auth/login", async (req, res) => {
+  const user = await User.verifyCreds(req.body.email_or_username, req.body.password);
+  try {
+    if (user) {
+      const token = await user.generateAuthToken();
+      res.status(200).send({
+        access_token: token,
+        user: user,
+        role: user.role,
+        token_expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        message: "User logged in successfully"
+      });
+    }
+    else {
+      res.status(401).send({ message: "The enetered credentials are invalid." });
+    }
+  } catch (err) {
+    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request.\n" + err.toString() });
+  }
+});
