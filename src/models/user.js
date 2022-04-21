@@ -177,7 +177,7 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
     to: email,
     subject: "Verification email",
     text:
-      "Thank you for singing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
+      "Thank you for signing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
       verification_code +
       "\n\nBest Regards.",
   };
