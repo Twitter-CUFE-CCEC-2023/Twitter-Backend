@@ -159,7 +159,7 @@ UserSchema.methods.generateAuthToken = async function () {
     },
     "CCEC-23-Twitter-Clone-CUFE-CHS"
   );
-  await user.save();
+  // await user.save();
   return token;
 };
 
