@@ -42,7 +42,7 @@ test("Testing normal user signup", async () => {
     .expect(200);
 });
 
-test("Testing conflcit user signup", async () => {
+test("Testing conflict user signup", async () => {
   await request(app)
     .post("/auth/signup")
     .send({
@@ -135,7 +135,7 @@ test("Testing user login with wrong passwrod", async () => {
     .expect(401);
 });
 
-test("Testing user password update", async () => {
+test("Testing user password update.", async () => {
 const signup = await request(app).post("/auth/signup").send({
   email: "mostafa.abdelbrr@hotmail.com",
   username: "MostafaA",
@@ -155,7 +155,7 @@ const signup = await request(app).post("/auth/signup").send({
     .expect(200);
 });
 
-test("Testing user password update with wrong verification code", async () => {
+test("Testing user password update with wrong verification code.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -175,7 +175,7 @@ test("Testing user password update with wrong verification code", async () => {
     .expect(401);
 });
 
-test("Testing user password update with missing credentials", async () => {
+test("Testing user password update with missing credentials.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
