@@ -56,3 +56,25 @@ router.post("/auth/login", async (req, res) => {
     res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request.\n" + err.toString() });
   }
 });
+
+// Reset password
+router.post("/auth/reset-password", async (req, res) => {
+  try {
+    const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
+    if (user) {
+      if (user.verificationCode == req.body.verificationCode) {
+        user.password = req.body.password;
+        await user.save();
+        res.status(200).send({ message: "Password has been updated successfully." });
+      }
+      else {
+        res.status(401).send({ message: "The verification code is invalid." });
+      }
+    }
+    else {
+      res.status(400).send({ message: "The server cannot or will not process the request due to something that is perceived to be a client error." });
+    }
+  } catch (err) {
+    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request.\n" + err.toString() });
+  }
+});

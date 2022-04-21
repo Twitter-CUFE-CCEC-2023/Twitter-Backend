@@ -167,6 +167,20 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
   }
 };
 
+UserSchema.statics.getUserByUsernameOrEmail = async function (
+  username_email,
+  password
+) {
+  const user = await User.find({
+    $or: [{ email: username_email }, { username: username_email }],
+  });
+  if (user[0]) {
+    return new User(user[0]);
+  } else {
+    return null;
+  }
+};
+
 UserSchema.methods.generateAuthToken = async function () {
   user = this;
   const token = jwt.sign(

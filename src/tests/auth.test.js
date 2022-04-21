@@ -134,3 +134,63 @@ test("Testing user login with wrong passwrod", async () => {
     .send({ email_or_username: "MostafaA", password: "yPassw@ord123" })
     .expect(401);
 });
+
+test("Testing user password update", async () => {
+const signup = await request(app).post("/auth/signup").send({
+  email: "mostafa.abdelbrr@hotmail.com",
+  username: "MostafaA",
+  password: "myPassw@ord123",
+  name: "Mostafa Abdelbrr",
+  dateOfBirth: "2000-01-01T00:00:00.000Z",
+});
+  const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
+  const token = user.verificationCode;
+  const response = await request(app)
+    .post("/auth/reset-password")
+    .send({
+      email_or_username: "MostafaA",
+      password: "myPassw@ord123456",
+      verificationCode: token,
+    })
+    .expect(200);
+});
+
+test("Testing user password update with wrong verification code", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
+  const token = user.verificationCode;
+  const response = await request(app)
+    .post("/auth/reset-password")
+    .send({
+      email_or_username: "MostafaA",
+      password: "myPassw@ord123456",
+      verificationCode: "-1",
+    })
+    .expect(401);
+});
+
+test("Testing user password update with missing credentials", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
+  const token = user.verificationCode;
+  const response = await request(app)
+    .post("/auth/reset-password")
+    .send({
+      email_or_username: "",
+      password: "myPassw@ord123456",
+      verificationCode: "-1",
+    })
+    .expect(400);
+});
