@@ -214,3 +214,75 @@ test("Testing user password reset with missing credentials.", async () => {
     })
     .expect(400);
 });
+
+test("Testing user password update with email.", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const response = await request(app)
+    .post("/auth/update-password")
+    .send({
+      email_or_username: "mostafa.abdelbrr@hotmail.com",
+      password: "myPassw@ord123",
+      new_password: "myPassword@123",
+    })
+    .expect(200);
+});
+
+test("Testing user password update with username.", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const response = await request(app)
+    .post("/auth/update-password")
+    .send({
+      email_or_username: "MostafaA",
+      password: "myPassw@ord123",
+      new_password: "myPassword@123",
+    })
+    .expect(200);
+});
+
+test("Testing user password update with wrong password.", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const response = await request(app)
+    .post("/auth/update-password")
+    .send({
+      email_or_username: "MostafaA",
+      password: "myPassw@ord1234",
+      new_password: "myPassword@123",
+    })
+    .expect(401);
+});
+
+test("Testing user password update with missing data.", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const response = await request(app)
+    .post("/auth/update-password")
+    .send({
+      email_or_username: "",
+      password: "myPassw@ord123",
+      new_password: "myPassword@123",
+    })
+    .expect(401);
+});

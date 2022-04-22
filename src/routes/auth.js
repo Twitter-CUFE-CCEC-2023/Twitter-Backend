@@ -80,3 +80,26 @@ router.post("/auth/reset-password", async (req, res) => {
     res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request." });
   }
 });
+
+router.post("/auth/update-password", async (req, res) => {
+  try {
+    const user = await User.verifyCreds(req.body.email_or_username, req.body.password);
+    if (user) {
+        user.password = req.body.new_password;
+        await user.save();
+
+        res
+          .status(200)
+          .send({ message: "Password has been updated successfully." });
+      } else {
+        res.status(401).send({ message: "Wrong credentials." });
+      }
+  } catch (err) {
+    res
+      .status(500)
+      .send({
+        message:
+          "The server encountered an unexpected condition which prevented it from fulfilling the request."
+      });
+  }
+});
