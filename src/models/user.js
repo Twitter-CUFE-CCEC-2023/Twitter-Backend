@@ -221,6 +221,25 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
   return verification_code;
 };
 
+UserSchema.methods.sendVerifyResetEmail = async function (email, verification_code) {
+  const mailOptions = {
+    from: process.env.verification_email,
+    to: email,
+    subject: "Password reset email",
+    text:
+      "Below you can find your password reset verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
+      verification_code +
+      "\n\nPlease never share this code anywhere.\n\nBest Regards.",
+  };
+
+  await transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      throw error;
+    }
+  });
+  return verification_code;
+};
+
 const User = mongoose.model("user", UserSchema);
 
 module.exports = User;

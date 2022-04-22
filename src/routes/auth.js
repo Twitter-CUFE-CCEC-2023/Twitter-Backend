@@ -53,7 +53,7 @@ router.post("/auth/login", async (req, res) => {
       res.status(401).send({ message: "The enetered credentials are invalid." });
     }
   } catch (err) {
-    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request.\n" + err.toString() });
+    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request." });
   }
 });
 
@@ -65,6 +65,8 @@ router.post("/auth/reset-password", async (req, res) => {
       if (user.verificationCode == req.body.verificationCode) {
         user.password = req.body.password;
         await user.save();
+        await user.sendVerifyResetEmail(user.email, user.verificationCode);
+
         res.status(200).send({ message: "Password has been updated successfully." });
       }
       else {
@@ -75,6 +77,6 @@ router.post("/auth/reset-password", async (req, res) => {
       res.status(400).send({ message: "The server cannot or will not process the request due to something that is perceived to be a client error." });
     }
   } catch (err) {
-    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request.\n" + err.toString() });
+    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request." });
   }
 });

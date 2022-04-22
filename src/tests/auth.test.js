@@ -135,7 +135,7 @@ test("Testing user login with wrong passwrod", async () => {
     .expect(401);
 });
 
-test("Testing user password update.", async () => {
+test("Testing user password reset with username.", async () => {
 const signup = await request(app).post("/auth/signup").send({
   email: "mostafa.abdelbrr@hotmail.com",
   username: "MostafaA",
@@ -155,7 +155,27 @@ const signup = await request(app).post("/auth/signup").send({
     .expect(200);
 });
 
-test("Testing user password update with wrong verification code.", async () => {
+test("Testing user password reset with email.", async () => {
+  const signup = await request(app).post("/auth/signup").send({
+    email: "mostafa.abdelbrr@hotmail.com",
+    username: "MostafaA",
+    password: "myPassw@ord123",
+    name: "Mostafa Abdelbrr",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+  });
+  const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
+  const token = user.verificationCode;
+  const response = await request(app)
+    .post("/auth/reset-password")
+    .send({
+      email_or_username: "mostafa.abdelbrr@hotmail.com",
+      password: "myPassw@ord123456",
+      verificationCode: token,
+    })
+    .expect(200);
+});
+
+test("Testing user password reset with wrong verification code.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -175,7 +195,7 @@ test("Testing user password update with wrong verification code.", async () => {
     .expect(401);
 });
 
-test("Testing user password update with missing credentials.", async () => {
+test("Testing user password reset with missing credentials.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
