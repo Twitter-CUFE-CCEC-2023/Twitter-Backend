@@ -58,7 +58,7 @@ router.post("/auth/login", async (req, res) => {
 });
 
 // Reset password
-router.post("/auth/reset-password", async (req, res) => {
+router.put("/auth/reset-password", async (req, res) => {
   try {
     const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
     if (user) {
@@ -81,7 +81,7 @@ router.post("/auth/reset-password", async (req, res) => {
   }
 });
 
-router.post("/auth/update-password", async (req, res) => {
+router.put("/auth/update-password", async (req, res) => {
   try {
     const user = await User.verifyCreds(req.body.email_or_username, req.body.password);
     if (user) {

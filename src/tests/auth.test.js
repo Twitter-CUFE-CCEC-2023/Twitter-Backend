@@ -146,7 +146,7 @@ const signup = await request(app).post("/auth/signup").send({
   const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
   const token = user.verificationCode;
   const response = await request(app)
-    .post("/auth/reset-password")
+    .put("/auth/reset-password")
     .send({
       email_or_username: "MostafaA",
       password: "myPassw@ord123456",
@@ -166,7 +166,7 @@ test("Test: user password reset with email.", async () => {
   const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
   const token = user.verificationCode;
   const response = await request(app)
-    .post("/auth/reset-password")
+    .put("/auth/reset-password")
     .send({
       email_or_username: "mostafa.abdelbrr@hotmail.com",
       password: "myPassw@ord123456",
@@ -186,7 +186,7 @@ test("Test: user password reset with wrong verification code.", async () => {
   const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
   const token = user.verificationCode;
   const response = await request(app)
-    .post("/auth/reset-password")
+    .put("/auth/reset-password")
     .send({
       email_or_username: "MostafaA",
       password: "myPassw@ord123456",
@@ -206,7 +206,7 @@ test("Test: user password reset with missing credentials.", async () => {
   const user = await User.verifyCreds("MostafaA", "myPassw@ord123");
   const token = user.verificationCode;
   const response = await request(app)
-    .post("/auth/reset-password")
+    .put("/auth/reset-password")
     .send({
       email_or_username: "",
       password: "myPassw@ord123456",
@@ -224,7 +224,7 @@ test("Test: user password update with email.", async () => {
     dateOfBirth: "2000-01-01T00:00:00.000Z",
   });
   const response = await request(app)
-    .post("/auth/update-password")
+    .put("/auth/update-password")
     .send({
       email_or_username: "mostafa.abdelbrr@hotmail.com",
       password: "myPassw@ord123",
@@ -242,7 +242,7 @@ test("Test: user password update with username.", async () => {
     dateOfBirth: "2000-01-01T00:00:00.000Z",
   });
   const response = await request(app)
-    .post("/auth/update-password")
+    .put("/auth/update-password")
     .send({
       email_or_username: "MostafaA",
       password: "myPassw@ord123",
@@ -260,7 +260,7 @@ test("Test: user password update with wrong password.", async () => {
     dateOfBirth: "2000-01-01T00:00:00.000Z",
   });
   const response = await request(app)
-    .post("/auth/update-password")
+    .put("/auth/update-password")
     .send({
       email_or_username: "MostafaA",
       password: "myPassw@ord1234",
@@ -278,7 +278,7 @@ test("Test: user password update with missing data.", async () => {
     dateOfBirth: "2000-01-01T00:00:00.000Z",
   });
   const response = await request(app)
-    .post("/auth/update-password")
+    .put("/auth/update-password")
     .send({
       email_or_username: "",
       password: "myPassw@ord123",
