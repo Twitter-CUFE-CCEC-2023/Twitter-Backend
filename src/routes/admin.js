@@ -1,9 +1,10 @@
 const express = require('express');
 const banUser = require('../models/banUser')
 const User= require('../models/user')
+const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.post('/dashboard/ban', async (req, res) => {
+router.post('/dashboard/ban',auth,  async (req, res) => {
 
     const banuser=new banUser(req.body)
     const updates = Object.keys(req.body)

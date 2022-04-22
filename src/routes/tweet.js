@@ -1,10 +1,10 @@
 const express = require("express");
 const Tweet = require("../models/tweet");
 const User = require("../models/user");
-
+const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.delete("/status/tweet/delete", async (req, res) => {
+router.delete("/status/tweet/delete", auth, async (req, res) => {
   try {
     const tweet = await Tweet.findByIdAndDelete(req.body.id);
 
@@ -21,7 +21,7 @@ router.delete("/status/tweet/delete", async (req, res) => {
   }
 });
 
-router.get("/status/tweets/list/:username", async (req, res) => {
+router.get("/status/tweets/list/:username", auth, async (req, res) => {
   try {
     tweets = undefined;
     if (req.query.include_replies == "true") {

@@ -5,9 +5,10 @@ const router = express.Router();
 const notificationModel = require("./../models/notification.js");
 const tweetModel = require("./../models/tweet");
 const userModel = require("./../models/user.js");
+const auth = require("../middleware/auth");
 require("./../models/constants/notificationType.js");
 
-router.get("/notifications/list", async (req, res) => {
+router.get("/notifications/list", auth, async (req, res) => {
   try {
     const id = req.body.userId;
     const user = await userModel.findOne({ _id: id }).select("username -_id");
@@ -67,7 +68,7 @@ router.get("/notifications/list", async (req, res) => {
   }
 });
 
-router.get('/followers/list/:username', async (req, res) => {
+router.get('/followers/list/:username',auth,  async (req, res) => {
     const _username = req.params.username
     const count = 10;
 
@@ -102,7 +103,7 @@ router.get('/followers/list/:username', async (req, res) => {
     }
 })
 
-router.get('/following/list/:username', async (req, res) => {
+router.get('/following/list/:username',auth, async (req, res) => {
     const _username = req.params.username
     const count = 10;
     try {
@@ -134,6 +135,5 @@ router.get('/following/list/:username', async (req, res) => {
         res.status(500).send(error.toString())
     }
 })
-
 
 module.exports = router;
