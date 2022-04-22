@@ -29,7 +29,7 @@ afterAll(() => {
   mongoose.connection.close();
 });
 
-test("Testing normal user signup", async () => {
+test("Test: normal user signup", async () => {
   const response = await request(app)
     .post("/auth/signup")
     .send({
@@ -42,7 +42,7 @@ test("Testing normal user signup", async () => {
     .expect(200);
 });
 
-test("Testing conflict user signup", async () => {
+test("Test: conflict user signup", async () => {
   await request(app)
     .post("/auth/signup")
     .send({
@@ -65,7 +65,7 @@ test("Testing conflict user signup", async () => {
     .expect(409);
 });
 
-test("Testing user signup with missing data", async () => {
+test("Test: user signup with missing data", async () => {
   const response = await request(app)
     .post("/auth/signup")
     .send({
@@ -78,7 +78,7 @@ test("Testing user signup with missing data", async () => {
     .expect(400);
 });
 
-test("Testing user login with username", async () => {
+test("Test: user login with username", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -92,7 +92,7 @@ test("Testing user login with username", async () => {
     .expect(200);
 });
 
-test("Testing user login with email", async () => {
+test("Test: user login with email", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -106,7 +106,7 @@ test("Testing user login with email", async () => {
     .expect(200);
 });
 
-test("Testing user login with missing data", async () => {
+test("Test: user login with missing data", async () => {
   // jest.setTimeout(10000);
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
@@ -121,7 +121,7 @@ test("Testing user login with missing data", async () => {
     .expect(401);
 });
 
-test("Testing user login with wrong passwrod", async () => {
+test("Test: user login with wrong passwrod", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -135,7 +135,7 @@ test("Testing user login with wrong passwrod", async () => {
     .expect(401);
 });
 
-test("Testing user password reset with username.", async () => {
+test("Test: user password reset with username.", async () => {
 const signup = await request(app).post("/auth/signup").send({
   email: "mostafa.abdelbrr@hotmail.com",
   username: "MostafaA",
@@ -155,7 +155,7 @@ const signup = await request(app).post("/auth/signup").send({
     .expect(200);
 });
 
-test("Testing user password reset with email.", async () => {
+test("Test: user password reset with email.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -175,7 +175,7 @@ test("Testing user password reset with email.", async () => {
     .expect(200);
 });
 
-test("Testing user password reset with wrong verification code.", async () => {
+test("Test: user password reset with wrong verification code.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -195,7 +195,7 @@ test("Testing user password reset with wrong verification code.", async () => {
     .expect(401);
 });
 
-test("Testing user password reset with missing credentials.", async () => {
+test("Test: user password reset with missing credentials.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -215,7 +215,7 @@ test("Testing user password reset with missing credentials.", async () => {
     .expect(400);
 });
 
-test("Testing user password update with email.", async () => {
+test("Test: user password update with email.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -233,7 +233,7 @@ test("Testing user password update with email.", async () => {
     .expect(200);
 });
 
-test("Testing user password update with username.", async () => {
+test("Test: user password update with username.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -251,7 +251,7 @@ test("Testing user password update with username.", async () => {
     .expect(200);
 });
 
-test("Testing user password update with wrong password.", async () => {
+test("Test: user password update with wrong password.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
@@ -269,7 +269,7 @@ test("Testing user password update with wrong password.", async () => {
     .expect(401);
 });
 
-test("Testing user password update with missing data.", async () => {
+test("Test: user password update with missing data.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
