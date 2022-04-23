@@ -5,7 +5,9 @@ const router = express.Router();
 const notificationModel = require("./../models/notification.js");
 const tweetModel = require("./../models/tweet");
 const userModel = require("./../models/user.js");
+const Like = require("../models/like");
 const auth = require("../middleware/auth");
+const { default: mongoose } = require("mongoose");
 require("./../models/constants/notificationType.js");
 
 router.get("/notifications/list", auth, async (req, res) => {
@@ -134,6 +136,45 @@ router.get('/following/list/:username',auth, async (req, res) => {
     } catch (error) {
         res.status(500).send(error.toString())
     }
+})
+
+
+/*
+
+  Questions?  V.I.P ZIKA review
+
+  1) should each tweet returns accompanied by its tweet info ? 
+
+  2) auth ? 
+
+*/
+
+router.get("/liked/list/:username", async(req, res)=>{
+  try{
+    let likes = await Like.find({likerUsername:req.params.username});
+    if(!likes)
+    {
+      res.status(400).send();
+    }
+    let tweets = [];
+
+    
+    for(i = 0; i<likes.length; i++)
+    {
+      let CurrTweet = await tweetModel.findById(likes[i].tweetId);
+      if(!CurrTweet)
+      {
+        res.status(400).send();
+      }
+      tweets.push(CurrTweet);
+    }
+    res.status(200).send({
+      tweets: tweets,
+      message: "Tweets have been retrieved successfully"
+    })
+  } catch(error){
+    res.status(500).send(error.toString())
+  }
 })
 
 module.exports = router;
