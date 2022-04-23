@@ -63,20 +63,20 @@ const UserSchema = new Schema(
       maxLength: 160,
       default: "",
     },
-    followers: {
-      username: {
+    followers: [
+      {
         type: String,
         ref: "User",
+        index: true,
       },
-      default: [],
-    },
-    followings: {
-      username: {
+    ],
+    followings: [
+      {
         type: String,
         ref: "User",
+        index: true,
       },
-      default: [],
-    },
+    ],
     website: {
       type: String,
       trim: true,
