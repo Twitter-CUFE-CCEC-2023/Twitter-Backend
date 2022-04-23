@@ -1,7 +1,6 @@
 const express = require("express");
 const tweetModel = require("./../models/tweet");
 const userModel = require("./../models/user");
-const followUserModel = require("./../models/followUser");
 const auth = require("../middleware/auth");
 const router = express.Router();
 

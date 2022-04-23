@@ -7,14 +7,11 @@ const auth = async (req, res, next) => {
     const decoded = jwt.verify(token, "CCEC-23-Twitter-Clone-CUFE-CHS");
     const user = await User.findOne({
       _id: decoded._id,
-      "tokens.token": token,
     });
 
     if (!user) {
       throw new Error();
     }
-
-    req.token = token;
     req.user = user;
     next();
   } catch (e) {
