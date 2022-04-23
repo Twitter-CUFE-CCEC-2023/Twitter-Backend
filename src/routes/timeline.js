@@ -6,30 +6,24 @@ const router = express.Router();
 
 router.get("/home",auth, async (req, res) => {
   try {
-    const count = 2;
+    let count = 10;
 
-    if (isNaN(req.body.page) && req.body.page != "" && req.body.page != null) {
+    if (isNaN(req.body.page) || req.body.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!req.body.userId) {
-      return res.status(400).send({ message: "User Id is required" });
+    if (!isNaN(req.body.count) && req.body.count >= 0) {
+      count = req.body.count;
     }
 
     const page = req.body.page === "" ? 1 : parseInt(req.body.page);
-    const userId = req.body.userId;
-    const followingIds = await followUserModel
-      .find({ followingUserId: userId })
-      .select("userId -_id");
     const usersIds = [
-      userId,
-      ...followingIds.map((item) => item.userId.toString()),
+      req.user._id,
+      ...req.user.followings,
     ];
-    const usernames = await (
-      await userModel.find({ _id: { $in: usersIds } }).select("username -_id")
-    ).map((item) => item.username);
+
     const result = await tweetModel
-      .find({ username: { $in: usernames } })
+      .find({ userId: { $in: usersIds } })
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
       .limit(count)
@@ -41,7 +35,7 @@ router.get("/home",auth, async (req, res) => {
     const getTweets = result.map(async (item) => {
       const tweetInfo = await tweetModel.getTweetInfobyId(
         item._id,
-        usernames[0]
+        req.user.username
       );
       if (tweetInfo.error) {
         return item;

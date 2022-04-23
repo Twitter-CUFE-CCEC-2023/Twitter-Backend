@@ -72,11 +72,15 @@ router.get("/notifications/list", auth, async (req, res) => {
 
 router.get("/follower/list/:username", auth, async (req, res) => {
   const _username = req.params.username;
-  const count = 10;
+  let count = 10;
 
   try {
     if (isNaN(req.body.page) || req.body.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
+    }
+
+    if (!isNaN(req.body.count) && req.body.count >= 0) {
+      count = req.body.count;
     }
 
     const page = req.body.page === "" ? 1 : parseInt(req.body.page);
@@ -110,11 +114,15 @@ router.get("/follower/list/:username", auth, async (req, res) => {
 
 router.get("/following/list/:username", auth, async (req, res) => {
   const _username = req.params.username;
-  const count = 10;
+  let count = 10;
 
   try {
     if (isNaN(req.body.page) || req.body.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
+    }
+
+    if (!isNaN(req.body.count) && req.body.count >= 0) {
+      count = req.body.count;
     }
 
     const page = req.body.page === "" ? 1 : parseInt(req.body.page);
