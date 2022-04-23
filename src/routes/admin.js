@@ -42,6 +42,9 @@ router.post("/dashboard/ban", async (req, res) => {
   }
 });
 
+
+
+
 router.post("/dashboard/unban", async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["userId", "isBanned"];
@@ -71,6 +74,9 @@ router.post("/dashboard/unban", async (req, res) => {
     res.status(500).send(e);
   }
 });
+
+
+
 
 router.get("/dashboard/users", async (req, res) => {
   const updates = Object.keys(req.body);
@@ -128,6 +134,8 @@ router.get("/dashboard/users", async (req, res) => {
 });
 
 
+
+
 router.get("/dashboard/tweets", async (req, res) => {
   let count = null;
   let now = new Date();
@@ -140,12 +148,10 @@ router.get("/dashboard/tweets", async (req, res) => {
       count = await Tweet.count({
         createdAt: { $gte: req.body.start_date,$lte: req.body.end_date },
       });
-      console.log("1");
     } else if (req.body.start_date) {
       count = await Tweet.count({
         createdAt: { $gte: req.body.start_date,$lte:now},
       });
-      console.log("2");
     } else if (req.body.end_date) {
       // if (req.body.end_date < lastWeeek) {
       //   return res.status(400).send({ error: "Invalid filters!" });
@@ -153,13 +159,11 @@ router.get("/dashboard/tweets", async (req, res) => {
       count = await Tweet.count({
         createdAt: { $gte: lastWeeek ,$lte: req.body.end_date},
       });
-      console.log("3");
     } else {
       count = await Tweet.count({
         createdAt: { $lte: now,$gte: lastWeeek},
 
       });
-      console.log("4");
     }
 
     res.status(200).send({
@@ -175,48 +179,51 @@ router.get("/dashboard/tweets", async (req, res) => {
 
 
 
-// router.get("/dashboard/retweets", async (req, res) => {
-//   let count = null;
-//   let now = new Date();
-//   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
-//   if (req.body.start_date > req.body.end_date) {
-//     return res.status(400).send({ error: "Invalid filters!" });
-//   }
-//   try {
-//     if (req.body.start_date && req.body.end_date) {
-//       count = await Tweet.count({
-//         createdAt: { $gte: req.body.start_date,$lte: req.body.end_date },
-//       });
-//       console.log("1");
-//     } else if (req.body.start_date) {
-//       count = await Tweet.count({
-//         createdAt: { $gte: req.body.start_date,$lte:now},
-//       });
-//       console.log("2");
-//     } else if (req.body.end_date) {
-//       // if (req.body.end_date < lastWeeek) {
-//       //   return res.status(400).send({ error: "Invalid filters!" });
-//       // }
-//       count = await Tweet.count({
-//         createdAt: { $gte: lastWeeek ,$lte: req.body.end_date},
-//       });
-//       console.log("3");
-//     } else {
-//       count = await Tweet.count({
-//         createdAt: { $lte: now,$gte: lastWeeek},
 
-//       });
-//       console.log("4");
-//     }
+router.get("/dashboard/retweets", async (req, res) => {
+  let count = null;
+  let now = new Date();
+  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+  if (req.body.start_date > req.body.end_date) {
+    return res.status(400).send({ error: "Invalid filters!" });
+  }
+  try {
+    if (req.body.start_date && req.body.end_date) {
+      count = await Tweet.count({
+        createdAt: { $gte: req.body.start_date,$lte: req.body.end_date },
+        isRetweeted:true
+      });
+    } else if (req.body.start_date) {
+      count = await Tweet.count({
+        createdAt: { $gte: req.body.start_date,$lte:now},
+        isRetweeted:true
+      });
+    } else if (req.body.end_date) {
+      // if (req.body.end_date < lastWeeek) {
+      //   return res.status(400).send({ error: "Invalid filters!" });
+      // }
+      count = await Tweet.count({
+        createdAt: { $gte: lastWeeek ,$lte: req.body.end_date},
+        isRetweeted:true
+      });
+    } else {
+      count = await Tweet.count({
+        createdAt: { $lte: now,$gte: lastWeeek},
+        isRetweeted:true
+      });
+    }
 
-//     res.status(200).send({
-//       count: count,
-//       message: "Tweets counted successfully",
-//     });
-//   } catch (e) {
-//     res.status(500).send(e);
-//   }
-// });
+    res.status(200).send({
+      count: count,
+      message: "Retweets counted successfully",
+    });
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
+
+
+
 
 
 router.get("/dashboard/likes", async (req, res) => {
@@ -231,12 +238,10 @@ router.get("/dashboard/likes", async (req, res) => {
       count = await Like.count({
         createdAt: { $gte: req.body.start_date,$lte: req.body.end_date },
       });
-      console.log("1");
     } else if (req.body.start_date) {
       count = await Like.count({
         createdAt: { $gte: req.body.start_date,$lte:now},
       });
-      console.log("2");
     } else if (req.body.end_date) {
       // if (req.body.end_date < lastWeeek) {
       //   return res.status(400).send({ error: "Invalid filters!" });
@@ -244,13 +249,11 @@ router.get("/dashboard/likes", async (req, res) => {
       count = await Like.count({
         createdAt: { $gte: lastWeeek ,$lte: req.body.end_date},
       });
-      console.log("3");
     } else {
       count = await Like.count({
         createdAt: { $lte: now,$gte: lastWeeek},
 
       });
-      console.log("4");
     }
 
     res.status(200).send({
