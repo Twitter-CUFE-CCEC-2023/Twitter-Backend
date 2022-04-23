@@ -65,8 +65,8 @@ router.get("/home", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const user = await userModel.findOne({}).select("username -_id");
-  console.log(user);
+  // const user = await userModel.findOne({}).select("username -_id");
+  // console.log(user);
   res.status(200).send({"test": "check working"});
 });
 
