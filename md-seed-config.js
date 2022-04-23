@@ -5,7 +5,6 @@ const notificationTypeSeeder = require("./seeders/notification-type.seeder");
 const birthInformationAccessSeeder = require("./seeders/birth-information-access.seeder");
 const userSeeder = require("./seeders/user.seeder");
 const tweetSeeder = require("./seeders/tweet.seeder");
-const followUserSeeder = require("./seeders/follow-user.seeder");
 const notificationSeeder = require("./seeders/notification.seeder");
 
 /**
@@ -19,7 +18,6 @@ module.exports.seedersList = {
   birthInformationAccessSeeder,
   userSeeder,
   tweetSeeder,
-  followUserSeeder,
   notificationSeeder
 };
 /**
