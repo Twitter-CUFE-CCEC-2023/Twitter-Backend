@@ -67,7 +67,7 @@ router.get("/notifications/list", auth, async (req, res) => {
     res.status(500).send({ message: "Error in getting notifications" });
   }
 });
-
+//people who follows you
 router.get('/followers/list/:username',auth,  async (req, res) => {
     const _username = req.params.username
     const count = 10;
@@ -102,7 +102,7 @@ router.get('/followers/list/:username',auth,  async (req, res) => {
         res.status(500).send(error.toString())
     }
 })
-
+// people you follow
 router.get('/following/list/:username',auth, async (req, res) => {
     const _username = req.params.username
     const count = 10;
@@ -134,6 +134,130 @@ router.get('/following/list/:username',auth, async (req, res) => {
     } catch (error) {
         res.status(500).send(error.toString())
     }
+})
+
+
+router.get('/info/:username',  async (req, res) => {
+  console.log("d")
+  const _username = req.params.username
+  try {
+      const user=await User.findOne({
+        username: _username
+      }).select('username name bio profilePicture -_id')
+      if (!user) {
+          return res.status(404).send({ error_message: "User not found" })
+      }
+      res.send(user)
+  } catch (error) {
+      res.status(500).send(error.toString())
+  }
+})
+
+router.post('/dashboard/ban',auth,  async (req, res) => {
+
+  const banuser=new banUser(req.body)
+  const updates = Object.keys(req.body)
+  const allowedUpdates = ['userId','isBanned','banDuration','reason','isPermanent']
+  const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+  if (!isValidOperation) {
+      return res.status(400).send({ error: 'Invalid updates!' })
+  }
+  try {
+      banuser.save()
+      const user = await User.findByIdAndUpdate(req.body.userId, {isBanned:true}, { new: true, runValidators: true })
+
+      if (!user) {
+          return res.status(404).send()
+      }
+
+      res.status(200).send({
+          user:user,
+          message:'User Banned successfully'
+      })
+  } catch (e) {
+      res.status(500).send(e)
+  }
+})
+
+router.post('/user/follow/:username', async (req, res) => {
+  const user1= await User.findOne({
+    username:req.params.username
+  })
+  if (!user1) {
+    return res.status(404).send()
+}
+  const user2= await User.findOne({
+    username:req.body.username
+  })
+  if (!user2) {
+    return res.status(404).send()
+}
+if(user1.username==user2.username){
+  return res.status(400).send({error:'You cannot follow yourself'})
+}
+  const _followuser=new followUserModel({
+    userId:user1._id,
+    followingUserId:user2._id
+  })
+  try {
+      _followuser.save().then(result=>{
+        res.status(200).send({
+          message:"User Followed successfully"
+        })
+      })
+  } catch (error) {
+      res.status(500).send(error.toString())
+  }
+})
+
+router.delete("/status/tweet/delete", auth, async (req, res) => {
+  try {
+    const tweet = await Tweet.findByIdAndDelete(req.body.id);
+
+    if (!tweet) {
+      return res.status(404).send();
+    }
+
+    res.status(200).send({
+      tweet: tweet,
+      message: "tweet deleted successfully",
+    });
+  } catch {
+    res.status(500).send();
+  }
+});
+
+router.delete('/user/unfollow/:username', async (req, res) => {
+  const user1= await User.findOne({
+    username:req.params.username
+  })
+  if (!user1) {
+    return res.status(404).send()
+}
+  const user2= await User.findOne({
+    username:req.body.username
+  })
+  if (!user2) {
+    return res.status(404).send()
+}
+const followuser=await followUserModel.findOne({
+  userId:user1._id,
+  followingUserId:user2._id
+})
+if(!followuser){
+  return res.status(404).send({error:'User not found'})
+}
+try {
+    await followUserModel.findOneAndDelete({
+      userId:user1._id,
+      followingUserId:user2._id
+    })
+    res.status(200).send({
+      message:"User Unfollowed successfully"
+    })
+  } catch (error) {
+      res.status(500).send(error.toString())
+  }
 })
 
 module.exports = router;
