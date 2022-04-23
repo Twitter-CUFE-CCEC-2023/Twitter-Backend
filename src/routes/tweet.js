@@ -101,7 +101,7 @@ router.get("/status/tweet/:id", async (req, res) => {
 
   1) the project allows the same user to like the same tweet more than once, is that acceptable?
     
-  3) the auth part !!
+  2) the auth part !!
 
 */
 
@@ -131,6 +131,56 @@ router.post("/status/like", async(req,res)=>{
       message: "Like is added successfully"
     });
   } catch(error){
+    res.status(500).send(error.toString());
+  }
+})
+
+
+/*
+  Qeustions? V.I.P ZIKA review, Please with extra attention
+
+  1) show example of the mentions 
+
+  2) can 2 tweets exist with the same content for the same user? \
+        I think it is possible
+
+  3) auth!
+
+*/
+
+router.post("/status/tweet/post", async(req,res)=>{
+  try{
+
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['content','userId','username'];
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+    if (!isValidOperation) {
+      return res.status(400).send()
+    }
+    tweet = new Tweet({
+      content : req.body.content,
+      userId : req.body.userId,
+      username: req.body.username,
+      replying : req.body.replying,
+      mentions	: req.body.mentions,
+      attachment_urls	: req.body.urls,
+      media_ids	: req.body.media_ids,
+      notify : req.body.notify
+    })
+    if(!tweet)
+    {
+      return res.status(400).send();
+    }
+
+    await tweet.save();
+
+  
+
+    res.status(200).send({
+      tweet: tweet,
+      message: "Tweet posted successfully"
+    });    
+  } catch (error){
     res.status(500).send(error.toString());
   }
 })
