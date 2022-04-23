@@ -219,47 +219,47 @@ router.get("/dashboard/tweets", async (req, res) => {
 // });
 
 
-// router.get("/dashboard/likes", async (req, res) => {
-//   let count = null;
-//   let now = new Date();
-//   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
-//   if (req.body.start_date > req.body.end_date) {
-//     return res.status(400).send({ error: "Invalid filters!" });
-//   }
-//   try {
-//     if (req.body.start_date && req.body.end_date) {
-//       count = await Like.count({
-//         createdAt: { $gte: req.body.start_date,$lte: req.body.end_date },
-//       });
-//       console.log("1");
-//     } else if (req.body.start_date) {
-//       count = await Like.count({
-//         createdAt: { $gte: req.body.start_date,$lte:now},
-//       });
-//       console.log("2");
-//     } else if (req.body.end_date) {
-//       // if (req.body.end_date < lastWeeek) {
-//       //   return res.status(400).send({ error: "Invalid filters!" });
-//       // }
-//       count = await Like.count({
-//         createdAt: { $gte: lastWeeek ,$lte: req.body.end_date},
-//       });
-//       console.log("3");
-//     } else {
-//       count = await Like.count({
-//         createdAt: { $lte: now,$gte: lastWeeek},
+router.get("/dashboard/likes", async (req, res) => {
+  let count = null;
+  let now = new Date();
+  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+  if (req.body.start_date > req.body.end_date) {
+    return res.status(400).send({ error: "Invalid filters!" });
+  }
+  try {
+    if (req.body.start_date && req.body.end_date) {
+      count = await Like.count({
+        createdAt: { $gte: req.body.start_date,$lte: req.body.end_date },
+      });
+      console.log("1");
+    } else if (req.body.start_date) {
+      count = await Like.count({
+        createdAt: { $gte: req.body.start_date,$lte:now},
+      });
+      console.log("2");
+    } else if (req.body.end_date) {
+      // if (req.body.end_date < lastWeeek) {
+      //   return res.status(400).send({ error: "Invalid filters!" });
+      // }
+      count = await Like.count({
+        createdAt: { $gte: lastWeeek ,$lte: req.body.end_date},
+      });
+      console.log("3");
+    } else {
+      count = await Like.count({
+        createdAt: { $lte: now,$gte: lastWeeek},
 
-//       });
-//       console.log("4");
-//     }
+      });
+      console.log("4");
+    }
 
-//     res.status(200).send({
-//       count: count,
-//       message: "Likes counted successfully",
-//     });
-//   } catch (e) {
-//     res.status(500).send(e);
-//   }
-// });
+    res.status(200).send({
+      count: count,
+      message: "Likes counted successfully",
+    });
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
 
 module.exports = router;
