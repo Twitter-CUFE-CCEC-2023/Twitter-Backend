@@ -47,6 +47,10 @@ const UserSchema = new Schema(
       type: Date,
       required: true,
     },
+    gender: {
+      type: String,
+      required: true,
+    },
     location: {
       type: String,
       trim: true,
@@ -58,6 +62,20 @@ const UserSchema = new Schema(
       trim: true,
       maxLength: 160,
       default: "",
+    },
+    followers: {
+      username: {
+        type: String,
+        ref: "User",
+      },
+      default: [],
+    },
+    followings: {
+      username: {
+        type: String,
+        ref: "User",
+      },
+      default: [],
     },
     website: {
       type: String,
@@ -89,8 +107,8 @@ const UserSchema = new Schema(
       {
         token: {
           type: String,
-          required: true,
         },
+        default: [],
       },
     ],
     profilePicture: {
@@ -153,7 +171,7 @@ UserSchema.statics.checkConflict = async function (email) {
 // Verify user creds and check if username and password both are correct or if only the password is wrong.
 UserSchema.statics.verifyCreds = async function (username_email, password) {
   const user = await User.find({
-    $or: [{ "email": username_email }, { "username": username_email }],
+    $or: [{ email: username_email }, { username: username_email }],
   });
   if (user[0]) {
     const isMatch = await bcrypt.compare(password, user[0].password);
@@ -221,7 +239,10 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
   return verification_code;
 };
 
-UserSchema.methods.sendVerifyResetEmail = async function (email, verification_code) {
+UserSchema.methods.sendVerifyResetEmail = async function (
+  email,
+  verification_code
+) {
   const mailOptions = {
     from: process.env.verification_email,
     to: email,

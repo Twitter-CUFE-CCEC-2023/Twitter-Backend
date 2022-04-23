@@ -45,6 +45,14 @@ const TweetSchema = new Schema(
         index: true,
       },
     ],
+    mentions: [
+      {
+        username: {
+          type: String,
+        },
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,
