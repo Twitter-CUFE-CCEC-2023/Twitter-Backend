@@ -3,9 +3,10 @@ const banUser = require("../models/banUser");
 const User = require("../models/user");
 const Tweet = require("../models/tweet");
 const Like = require("../models/like");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.post("/dashboard/ban", async (req, res) => {
+router.post("/dashboard/ban",auth, async (req, res) => {
   const banuser = new banUser(req.body);
   const updates = Object.keys(req.body);
   const allowedUpdates = [
