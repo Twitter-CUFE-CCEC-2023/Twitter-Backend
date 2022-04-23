@@ -63,20 +63,8 @@ const UserSchema = new Schema(
       maxLength: 160,
       default: "",
     },
-    followers: [
-      {
-        type: String,
-        ref: "User",
-        index: true,
-      },
-    ],
-    followings: [
-      {
-        type: String,
-        ref: "User",
-        index: true,
-      },
-    ],
+    followers: [{ type: Schema.Types.ObjectId, ref: "user", index: true }],
+    followings: [{ type: Schema.Types.ObjectId, ref: "user", index: true }],
     website: {
       type: String,
       trim: true,
