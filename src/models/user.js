@@ -150,6 +150,37 @@ UserSchema.statics.checkConflict = async function (email) {
   return false;
 };
 
+// Verify user creds and check if username and password both are correct or if only the password is wrong.
+UserSchema.statics.verifyCreds = async function (username_email, password) {
+  const user = await User.find({
+    $or: [{ "email": username_email }, { "username": username_email }],
+  });
+  if (user[0]) {
+    const isMatch = await bcrypt.compare(password, user[0].password);
+    if (isMatch) {
+      return new User(user[0]);
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
+UserSchema.statics.getUserByUsernameOrEmail = async function (
+  username_email,
+  password
+) {
+  const user = await User.find({
+    $or: [{ email: username_email }, { username: username_email }],
+  });
+  if (user[0]) {
+    return new User(user[0]);
+  } else {
+    return null;
+  }
+};
+
 UserSchema.methods.generateAuthToken = async function () {
   user = this;
   const token = jwt.sign(
@@ -159,7 +190,7 @@ UserSchema.methods.generateAuthToken = async function () {
     },
     "CCEC-23-Twitter-Clone-CUFE-CHS"
   );
-  await user.save();
+  // await user.save();
   return token;
 };
 
@@ -177,9 +208,28 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
     to: email,
     subject: "Verification email",
     text:
-      "Thank you for singing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
+      "Thank you for signing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
       verification_code +
       "\n\nBest Regards.",
+  };
+
+  await transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      throw error;
+    }
+  });
+  return verification_code;
+};
+
+UserSchema.methods.sendVerifyResetEmail = async function (email, verification_code) {
+  const mailOptions = {
+    from: process.env.verification_email,
+    to: email,
+    subject: "Password reset email",
+    text:
+      "Below you can find your password reset verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
+      verification_code +
+      "\n\nPlease never share this code anywhere.\n\nBest Regards.",
   };
 
   await transporter.sendMail(mailOptions, function (error, info) {
