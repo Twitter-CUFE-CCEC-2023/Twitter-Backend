@@ -138,7 +138,6 @@ router.get('/following/list/:username',auth, async (req, res) => {
 
 
 router.get('/info/:username',  async (req, res) => {
-  console.log("d")
   const _username = req.params.username
   try {
       const user=await User.findOne({
@@ -150,32 +149,6 @@ router.get('/info/:username',  async (req, res) => {
       res.send(user)
   } catch (error) {
       res.status(500).send(error.toString())
-  }
-})
-
-router.post('/dashboard/ban',auth,  async (req, res) => {
-
-  const banuser=new banUser(req.body)
-  const updates = Object.keys(req.body)
-  const allowedUpdates = ['userId','isBanned','banDuration','reason','isPermanent']
-  const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-  if (!isValidOperation) {
-      return res.status(400).send({ error: 'Invalid updates!' })
-  }
-  try {
-      banuser.save()
-      const user = await User.findByIdAndUpdate(req.body.userId, {isBanned:true}, { new: true, runValidators: true })
-
-      if (!user) {
-          return res.status(404).send()
-      }
-
-      res.status(200).send({
-          user:user,
-          message:'User Banned successfully'
-      })
-  } catch (e) {
-      res.status(500).send(e)
   }
 })
 
@@ -209,23 +182,6 @@ if(user1.username==user2.username){
       res.status(500).send(error.toString())
   }
 })
-
-router.delete("/status/tweet/delete", auth, async (req, res) => {
-  try {
-    const tweet = await Tweet.findByIdAndDelete(req.body.id);
-
-    if (!tweet) {
-      return res.status(404).send();
-    }
-
-    res.status(200).send({
-      tweet: tweet,
-      message: "tweet deleted successfully",
-    });
-  } catch {
-    res.status(500).send();
-  }
-});
 
 router.delete('/user/unfollow/:username', async (req, res) => {
   const user1= await User.findOne({
