@@ -10,6 +10,8 @@ const users = [
     dateOfBirth: "2000-10-17",
     roleId: userRole.defaultRole._id,
     isVerified: true,
+    followers: ["YoussMokh"],
+    followings: ["YoussMokh"],
   },
   {
     _id: "624a4fbf3f392aefdb4dd1c8",
@@ -30,6 +32,8 @@ const users = [
     dateOfBirth: "2000-5-10",
     roleId: userRole.defaultRole._id,
     isVerified: true,
+    followers: ["amrzaki"],
+    followings: ["amrzaki"],
   },
 ];
 
