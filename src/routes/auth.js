@@ -33,3 +33,73 @@ router.post("/auth/signup", async (req, res) => {
     }
   }
 });
+
+
+// login route
+router.post("/auth/login", async (req, res) => {
+  const user = await User.verifyCreds(req.body.email_or_username, req.body.password);
+  try {
+    if (user) {
+      const token = await user.generateAuthToken();
+      res.status(200).send({
+        access_token: token,
+        user: user,
+        role: user.role,
+        token_expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        message: "User logged in successfully"
+      });
+    }
+    else {
+      res.status(401).send({ message: "The enetered credentials are invalid." });
+    }
+  } catch (err) {
+    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request." });
+  }
+});
+
+// Reset password
+router.put("/auth/reset-password", async (req, res) => {
+  try {
+    const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
+    if (user) {
+      if (user.verificationCode == req.body.verificationCode) {
+        user.password = req.body.password;
+        await user.save();
+        await user.sendVerifyResetEmail(user.email, user.verificationCode);
+
+        res.status(200).send({ message: "Password has been updated successfully." });
+      }
+      else {
+        res.status(401).send({ message: "The verification code is invalid." });
+      }
+    }
+    else {
+      res.status(400).send({ message: "The server cannot or will not process the request due to something that is perceived to be a client error." });
+    }
+  } catch (err) {
+    res.status(500).send({ message: "The server encountered an unexpected condition which prevented it from fulfilling the request." });
+  }
+});
+
+router.put("/auth/update-password", async (req, res) => {
+  try {
+    const user = await User.verifyCreds(req.body.email_or_username, req.body.password);
+    if (user) {
+        user.password = req.body.new_password;
+        await user.save();
+
+        res
+          .status(200)
+          .send({ message: "Password has been updated successfully." });
+      } else {
+        res.status(401).send({ message: "Wrong credentials." });
+      }
+  } catch (err) {
+    res
+      .status(500)
+      .send({
+        message:
+          "The server encountered an unexpected condition which prevented it from fulfilling the request."
+      });
+  }
+});

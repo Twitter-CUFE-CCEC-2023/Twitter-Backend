@@ -26,7 +26,7 @@
  * @apiParam {String{1-50}} name The name of the user
  * @apiParam {String} gender gender of the user
  * @apiParam {DateTime} birth_date birth date of the user
- * @apiParam {String} phone_number phone number of the user
+ * @apiParam {String} [phone_number] phone number of the user
  * @apiParam {int} [profile_picture] Id of the uploaded profile picture
  * @apiParamExample {json} Request-Example:
  * {
@@ -159,29 +159,30 @@
  **/
 
 /**
- * @api {put} /auth/verify-reset-password Verify reset password
+ * @api {put} /auth/reset-password Reset password
  * @apiVersion 0.1.0
- * @apiName VerifyResetPassword
+ * @apiName ResetPassword
  * @apiGroup Authentication
- * @apiDescription Verifies the reset password request with the code sent to the user email.
+ * @apiDescription Reset password request with the code sent to the user email.
  * @apiSampleRequest off
- * @apiParam {int} id Id of the user that needes reset password request to be verified
- * @apiParam {int} verification_code The code that is used to verify reset password request
- * @apiParamExample {json} Request-Example:
+* @apiParam {String} email_or_username Email or username of the user to reset the password
+* @apiParam {int} verification_code Verification code that is sent by email
+* @apiParam {String} password New password of the user
+* @apiParamExample {json} Request-Example:
  * {
- *      "id": 32543216216,
- *      "verification_code": "123456"
+ *      "email_or_username": "amrzaki2000.az@gmail.com",
+ *      "verification_code: "123456",
+ *      "password": "myPassw@ord123"
  * }
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
  * {
- *      "message": "Request has been verified"
+ *      "message": "Password has been reset successfully"
  * }
  * @apiError (400) {String} BadRequest  The server cannot or will not process the request due to something that is perceived to be a client error
  * @apiError (500) {String} InternalServerError  The server encountered an unexpected condition which prevented it from fulfilling the request
  * @apiError (401) {String} Unauthorized  Invalid verification code
- * @apiError (404) {String} NotFound  Invalid verification code
  * @apiErrorExample {json} Error-Response:
  * HTTP/1.1 401 Unauthorized
  * {
@@ -190,18 +191,19 @@
  **/
 
 /**
- * @api {put} /auth/reset-password Update password
+ * @api {put} /auth/update-password Update password
  * @apiVersion 0.1.0
- * @apiName ResetPassword
+ * @apiName UpdatePassword
  * @apiGroup Authentication
- * @apiDescription Updates user's password.
+ * @apiDescription Updates authenticated user's password.
  * @apiSampleRequest off
- * @apiParam {int} id Id of the user that needs to reset his/her password
- * @apiParam {String} password The new password of the user
+ * @apiParam {String} token Authentication token for the user. It is sent in the header of the request
+ * @apiParam {String} old_password The old password of the user
+ * @apiParam {String} new_password The new password of the user
  * @apiParamExample {json} Request-Example:
  * {
- *      "id": 32543216216,
- *      "password": "myNewPassw@rd"
+ *      "old_password": "myPassw@ord123",
+ *      "new_password": "myNewPassw@rd"
  * }
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
@@ -950,12 +952,11 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user. It is sent in header
- * @apiParam {int} id user id of the following user
+ * @apiParam {int} username username of the user to be followed
  * @apiParam {Boolean} [notify=true] send notification to the following user
  * @apiParamExample {json} Request-Example:
  * {
- *      "following_userid": 11,
+ *      "username": "amrzaki",
  *      "notify": true
  * }
  * @apiSuccess {object} user object carrying authenticated user information
@@ -986,12 +987,11 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user. It is sent in header
- * @apiParam {int} id user id of the following user
+ * @apiParam {int} username username of the user to be unfollowed
  * @apiParam {Boolean} [notify=false] send notification to the following user
  * @apiParamExample {json} Request-Example:
  * {
- *      "following_userid": 25,
+ *      "username": "amrzaki",
  *      "notify": false
  * }
  * @apiSuccess {object} user object carrying authenticated user information
@@ -1023,6 +1023,11 @@
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {String} username The username of the user
+ * @apiParam {int} count count of followers to per page
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "count": 20,
+ * }
  * @apiSuccess {list} followers_users list of followers users objects
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
@@ -1052,7 +1057,12 @@
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {String} username The username of the user
- * @apiSuccess {list} following_users list of following user objects
+ * @apiParam {int} count count of followings per page
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "count": 20,
+ * } 
+* @apiSuccess {list} following_users list of following user objects
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
@@ -1080,7 +1090,6 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid user id of the authenticated user. It is sent in header
  * @apiParam {String} name Full name associated with profile.
  * @apiParam {String} location The location of the user.
  * @apiParam {String} website The website of the user.
@@ -1154,8 +1163,12 @@
  * @apiSampleRequest off 
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid the ID of the user for whom to return results. It is sent in header
- * @apiSuccess {list} notifications list of objects carrying the notifications information 
+ * @apiParam {int} count count of notifications per page
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "count": 20,
+ * } 
+* @apiSuccess {list} notifications list of objects carrying the notifications information 
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
  * HTTP/1.1 200 OK
@@ -1212,6 +1225,11 @@
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
  * @apiParam {String} username The username of the user
+ * @apiParam {int} count count of liked tweets per page
+ * @apiParamExample {json} Request-Example:
+ * {
+ *      "count": 20,
+ * }
  * @apiSuccess {list} tweets list of tweet objects carrying user liked tweets
  * @apiSuccess {String} message Success message
  * @apiSuccessExample {json} Success-Response:
@@ -1280,11 +1298,10 @@
  * @apiSampleRequest off
  * @apiPermission Default
  * @apiParam {String} access_token JWT generated access token for the user. It is sent in header
- * @apiParam {int} userid The id of the user. It is sent in header
- * @apiParam {int} [since_id] Returns results with an ID greater than (that is, more recent than) the specified ID.
+ * @apiParam {int} count count of tweets per page.
  * @apiParamExample {json} Request-Example:
  * {
- *      "since_id": "1324",
+ *      "count": "20",
  * }
  * @apiSuccess {list} tweets list of retrieved tweets
  * @apiSuccess {String} message Success message
@@ -1320,7 +1337,7 @@
  * @apiParam {String} name Represents the name of the user
  * @apiParam {String} username Represents the username of the user
  * @apiParam {String} email Represents the email of the user
- * @apiParam {String} phone Represents the phone number of the user
+ * @apiParam {String} [phone] Represents the phone number of the user
  * @apiParam {String} profile_image_url Represents the profile image url of the user
  * @apiParam {String} cover_image_url Represents the cover image url of the user
  * @apiParam {String} bio Represents the bio of the user
