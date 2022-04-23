@@ -151,9 +151,17 @@ UserSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 12);
   }
-  var verificationCode = await User.getVerificationCode();
-  var lengthDiff = 6 - verificationCode.toString().length;
-  for (var i = 0; i < lengthDiff; i++) {
+  if (user.isModified("resetCode")) {
+    let resetCode = user.resetCode.toString();
+    let lengthDiff = 6 - resetCode.length;
+    for (let index = 0; index < lengthDiff; i++) {
+      resetCode = "0" + resetCode;
+    }
+    user.resetCode = resetCode;
+  }
+  let verificationCode = (await User.getVerificationCode()).toString();
+  let lengthDiff = 6 - verificationCode.length;
+  for (let index = 0; index < lengthDiff; i++) {
     verificationCode = "0" + verificationCode;
   }
   user.verificationCode = verificationCode;
@@ -187,7 +195,6 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
 
 UserSchema.statics.getUserByUsernameOrEmail = async function (
   username_email,
-  password
 ) {
   const user = await User.find({
     $or: [{ email: username_email }, { username: username_email }],
@@ -213,21 +220,29 @@ UserSchema.methods.generateAuthToken = async function () {
 };
 
 UserSchema.statics.getVerificationCode = async function () {
-  var verification_code = "";
-  for (var iteration = 0; iteration < 6; iteration++) {
-    verification_code += "" + Math.floor(Math.random() * 10);
+  let verificationCode = "";
+  for (let iteration = 0; iteration < 6; iteration++) {
+    verificationCode += "" + Math.floor(Math.random() * 10);
   }
-  return verification_code;
+  return verificationCode;
 };
 
-UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
+UserSchema.statics.generateResetPasswordCode = async function () {
+  let resetCode = "";
+  for (let iteration = 0; iteration < 6; iteration++) {
+    resetCode += "" + Math.floor(Math.random() * 10);
+  }
+  return resetCode;
+};
+
+UserSchema.methods.sendVerifyEmail = async function (email, verificationCode) {
   const mailOptions = {
     from: process.env.verification_email,
     to: email,
     subject: "Verification email",
     text:
       "Thank you for signing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
-      verification_code +
+      verificationCode +
       "\n\nBest Regards.",
   };
 
@@ -236,12 +251,12 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
       throw error;
     }
   });
-  return verification_code;
+  return verificationCode;
 };
 
 UserSchema.methods.sendVerifyResetEmail = async function (
   email,
-  verification_code
+  resetPasswordCode
 ) {
   const mailOptions = {
     from: process.env.verification_email,
@@ -249,7 +264,7 @@ UserSchema.methods.sendVerifyResetEmail = async function (
     subject: "Password reset email",
     text:
       "Below you can find your password reset verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
-      verification_code +
+      resetPasswordCode +
       "\n\nPlease never share this code anywhere.\n\nBest Regards.",
   };
 
@@ -258,7 +273,7 @@ UserSchema.methods.sendVerifyResetEmail = async function (
       throw error;
     }
   });
-  return verification_code;
+  return resetPasswordCode;
 };
 
 const User = mongoose.model("user", UserSchema);
