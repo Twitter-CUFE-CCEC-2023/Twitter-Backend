@@ -156,23 +156,35 @@ router.get("/liked/list/:username", async(req, res)=>{
     {
       res.status(400).send();
     }
-    let tweets = [];
+
+    const tweets = await Like
+    .find({ likerUsername: req.params.username })
+    .sort({ createdAt: -1 })
+    .populate({
+        path: "tweetId",
+    });
+
+
+    const getTweets = tweets.map(async (item) => {
+      const tweetInfo = await tweetModel.getTweetInfobyId(
+        item._id,
+      );
+      if (tweetInfo.error) {
+        return item;
+      }
+      item.tweetInfo = tweetInfo;
+      return item;
+    });
 
     
-    for(i = 0; i<likes.length; i++)
-    {
-      let CurrTweet = await tweetModel.findById(likes[i].tweetId);
-      if(!CurrTweet)
-      {
-        res.status(400).send();
-      }
-      tweets.push(CurrTweet);
-    }
-    res.status(200).send({
-      tweets: tweets,
-      message: "Tweets have been retrieved successfully"
-    })
-  } catch(error){
+    Promise.all(getTweets)
+      .then((tweets) => {
+        res.status(200).send(tweets);
+      })
+      .catch((error) => {
+        throw error;
+      });
+  }  catch(error){
     res.status(500).send(error.toString())
   }
 })

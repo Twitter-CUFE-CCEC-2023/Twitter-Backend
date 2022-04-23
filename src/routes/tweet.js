@@ -107,6 +107,17 @@ router.get("/status/tweet/:id", async (req, res) => {
 
 router.post("/status/like", async(req,res)=>{
   try{
+
+    ExistingLike = await Like.findOne({
+      tweetId:req.body.id,
+      likerUsername:req.body.username
+    })
+
+    if(ExistingLike){
+      return res.status(400).send();
+    }
+
+
     let tweet = await Tweet.findById(req.body.id);
     if (!tweet) {
       return res.status(400).send();
