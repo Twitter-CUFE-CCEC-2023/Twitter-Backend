@@ -14,10 +14,10 @@ router.post("/auth/signup", async (req, res) => {
       await user.save();
       // const token = await user.generateAuthToken();
       await user.sendVerifyEmail(user.email, user.verificationCode);
-
+      const userObj = await User.generateUserObject(user);
       res.status(200).send({
         // access_token: token,
-        user: user,
+        user: userObj,
         // token_expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         message: "User Signed up successfully",
       });
