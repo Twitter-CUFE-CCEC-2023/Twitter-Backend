@@ -304,6 +304,7 @@ UserSchema.statics.generateUserObject = async function (user) {
       bio: user.bio,
       website: user.website,
       location: user.location,
+      birth_date: user.birth_date,
       created_at: user.createdAt,
       role: user.roleId.name,
       followers_count: user.followers.length,
