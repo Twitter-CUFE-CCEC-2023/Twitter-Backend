@@ -24,7 +24,7 @@ services:
             - example-net 
     nginx:
         build:
-          context: .
+          context: ./nginx
         container_name: nginx
         hostname: nginx
         ports:
