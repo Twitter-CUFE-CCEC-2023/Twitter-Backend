@@ -155,82 +155,84 @@ router.get("/following/list/:username", auth, async (req, res) => {
 });
 
 
-router.get('/info/:username',  async (req, res) => {
+router.get('/info/:username', async (req, res) => {
   const _username = req.params.username
   try {
-      const user=await User.findOne({
-        username: _username
-      }).select('username name bio profilePicture -_id')
-      if (!user) {
-          return res.status(404).send({ error_message: "User not found" })
-      }
-      res.send(user)
+    const user = await userModel.findOne({
+      username: _username
+    }).select('username name bio profilePicture -_id')
+    if (!user) {
+      return res.status(404).send({ error_message: "User not found" })
+    }
+    res.send(user)
   } catch (error) {
-      res.status(500).send(error.toString())
+    res.status(500).send(error.toString())
   }
 })
 
 router.post('/user/follow/:username', async (req, res) => {
-  const user1= await User.findOne({
-    username:req.params.username
+  const user1 = await userModel.findOne({
+    username: req.params.username
   })
   if (!user1) {
-    return res.status(404).send()
-}
-  const user2= await User.findOne({
-    username:req.body.username
+    return res.status(404).send({ error_message: "User not found" })
+  }
+  const user2 = await userModel.findOne({
+    username: req.body.username
   })
   if (!user2) {
-    return res.status(404).send()
-}
-if(user1.username==user2.username){
-  return res.status(400).send({error:'You cannot follow yourself'})
-}
-  const _followuser=new followUserModel({
-    userId:user1._id,
-    followingUserId:user2._id
-  })
+    return res.status(404).send({ error_message: "User not found" })
+  }
+  if (user1.username == user2.username) {
+    return res.status(400).send({ error: 'You cannot follow yourself' })
+  }
+  if(user1.followings.includes(user2._id)){
+    return res.status(400).send({ error: 'You are already following this user' })
+  }
   try {
-      _followuser.save().then(result=>{
-        res.status(200).send({
-          message:"User Followed successfully"
-        })
-      })
+    const _followuser = user1.followings.concat(user2._id)
+    const user = await userModel.findByIdAndUpdate(user1._id, { followings: _followuser }, { new: true, runValidators: true })
+    if (!user) {
+      return res.status(404).send({ error_message: "User not found" })
+    }
+    res.status(200).send({
+      user: user,
+      message: "User Followed successfully"
+    })
   } catch (error) {
-      res.status(500).send(error.toString())
+    res.status(500).send(error.toString())
   }
 })
 
-router.delete('/user/unfollow/:username', async (req, res) => {
-  const user1= await User.findOne({
-    username:req.params.username
+router.post('/user/unfollow/:username', async (req, res) => {
+  const user1 = await userModel.findOne({
+    username: req.params.username
   })
   if (!user1) {
-    return res.status(404).send()
-}
-  const user2= await User.findOne({
-    username:req.body.username
+    return res.status(404).send({ error: 'User not found' })
+  }
+  const user2 = await userModel.findOne({
+    username: req.body.username
   })
   if (!user2) {
-    return res.status(404).send()
-}
-const followuser=await followUserModel.findOne({
-  userId:user1._id,
-  followingUserId:user2._id
-})
-if(!followuser){
-  return res.status(404).send({error:'User not found'})
-}
-try {
-    await followUserModel.findOneAndDelete({
-      userId:user1._id,
-      followingUserId:user2._id
-    })
+    return res.status(404).send({ error: 'User not found' })
+  }
+  if(!user1.followings.includes(user2._id)){
+    return res.status(400).send({ error: 'You are not following this user' })
+  }
+  try {
+    const _followuser = user1.followings.filter(id => id == user2._id)
+    const user = await userModel.findByIdAndUpdate(user1._id, { followings: _followuser }, { new: true, runValidators: true })
+    console.log(user1.followings)
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' })
+    }
     res.status(200).send({
-      message:"User Unfollowed successfully"
+      user: user,
+      message: "User Unfollowed successfully"
     })
   } catch (error) {
-      res.status(500).send(error.toString())
+    res.status(500).send(error.toString())
   }
 })
 
