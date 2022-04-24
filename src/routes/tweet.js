@@ -12,11 +12,9 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
       return res.status(404).send({ message: "Tweet not found" });
     }
 
-    await Like.deleteMany({tweetId:req.body.id})
+    await Like.deleteMany({ tweetId: req.body.id });
 
     const tweetObj = await Tweet.getTweetObject(tweet);
-
-
 
     res.status(200).send({
       tweet: tweetObj,
@@ -103,100 +101,111 @@ router.get("/status/tweet/:id", async (req, res) => {
   }
 });
 
-
-/*
-  Questions?    V.I.P ZIKA review
-
-  1) the project allows the same user to like the same tweet more than once, is that acceptable?
-    
-  2) the auth part !!
-
-*/
-
-router.post("/status/like", auth, async(req,res)=>{
-  try{
+router.post("/status/like", auth, async (req, res) => {
+  try {
     ExistingLike = await Like.findOne({
-      tweetId:req.body.id,
-      likerUsername:req.user.username
-    })
+      tweetId: req.body.id,
+      likerUsername: req.user.username,
+    });
 
-    if(ExistingLike){
-      return res.status(400).send("usser already liked this tweet");
+    if (ExistingLike) {
+      return res.status(400).send({ message: "User already liked this tweet" });
     }
 
-
-    let tweet = await Tweet.findById(req.body.id);
+    const tweet = await Tweet.findById(req.body.id);
     if (!tweet) {
-      return res.status(400).send();
+      return res.status(404).send({ message: "Invalid Tweet Id" });
     }
-    let like = new Like({
-      tweetId:req.body.id,
-      likerUsername:req.user.username 
+
+    const like = new Like({
+      tweetId: req.body.id,
+      likerUsername: req.user.username,
     });
-    /*if(await Like.checkConflict(req.body.id,req.body.username))
-    {
-      return res.status(400).send("user already liked this tweet before");
-    }*/
     await like.save();
+
     const tweetObj = await Tweet.getTweetObject(tweet);
-    if(!tweetObj)
-    {
-      return res.status(400).send();
-    }
-    //tweet.tweetInfo = tweetInfo;
     res.status(200).send({
       tweet: tweetObj,
-      message: "Like is added successfully"
+      message: "Like is added successfully",
     });
-  } catch(error){
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.delete("/status/unlike", auth, async (req, res) => {
+  try {
+    const like = await Like.findOne({
+      tweetId: req.body.id,
+      likerUsername: req.user.username,
+    });
+
+    if (!like) {
+      return res.status(400).send({ message: "Invalid tweet id" });
+    }
+
+    const tweet = await Tweet.findById(req.body.id);
+    if (!tweet) {
+      return res.status(404).send({ message: "Invalid Tweet Id" });
+    }
+    const unliked = await Like.deleteOne({ _id: like._id });
+    if (!unliked) {
+      throw new Error();
+    }
+
+    const tweetObj = await Tweet.getTweetObject(
+      await Tweet.findById(req.body.id)
+    );
+    res.status(200).send({
+      tweet: tweetObj,
+      message: "Tweet has been unliked successfully",
+    });
+  } catch (error) {
     res.status(500).send(error.toString());
   }
-})
+});
 
-
-/*
-  Qeustions? V.I.P ZIKA review, Please with extra attention
-
-  1) show example of the mentions 
-
-  2) can 2 tweets exist with the same content for the same user? \
-        I think it is possible
-
-  3) auth!
-
-*/
-
-router.post("/status/tweet/post" ,auth ,async(req,res)=>{
-  try{
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['content'];
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+router.post("/status/tweet/post", auth, async (req, res) => {
+  try {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = [
+      "content",
+      "replied_to_tweet",
+      "mentions",
+      "media_urls",
+      "notify",
+    ];
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
     if (!isValidOperation) {
-      return res.status(400).send()
+      return res.status(400).send({ message: "Invalid request parameters" });
     }
-    tweet = new Tweet({
-      content : req.body.content,
-      userId : req.user._id,
+
+    if (req.body.content.length > 280 || req.body.content.length == 0) {
+      return res.status(400).send({ message: "Tweet content length is invalid" });
+    }
+
+    const tweet = new Tweet({
+      content: req.body.content,
+      userId: req.user._id,
       username: req.user.username,
-      replying : req.body.replying,
-      mentions	: req.body.mentions,
-      attachment_urls	: req.body.urls,
-      media_ids	: req.body.media_ids,
-      notify : req.body.notify
-    })
-    if(!tweet)
-    {
-      return res.status(400).send();
-    }
+      parentId: req.body.replied_to_tweet,
+      mentions: req.body.mentions,
+      //attachment_urls	: req.body.urls,
+      //media_ids	: req.body.media_ids,
+      //notify : req.body.notify
+    });
     await tweet.save();
+
     const tweetObj = await Tweet.getTweetObject(tweet);
     res.status(200).send({
       tweet: tweetObj,
-      message: "Tweet posted successfully"
-    });    
-  } catch (error){
-    res.status(500).send(error.toString());
+      message: "Tweet posted successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
   }
-})
+});
 
 module.exports = router;
