@@ -169,7 +169,7 @@ router.get('/info/:username', async (req, res) => {
   }
 })
 
-router.post('/user/follow',auth, async (req, res) => {
+router.post('/user/follow', auth, async (req, res) => {
   const user1 = req.user
   const user2 = await userModel.findOne({
     _id: req.body._id
@@ -180,7 +180,7 @@ router.post('/user/follow',auth, async (req, res) => {
   if (user1._id == user2._id) {
     return res.status(400).send({ error: 'You cannot follow yourself' })
   }
-  if(user1.followings.includes(user2._id)){
+  if (user1.followings.includes(user2._id)) {
     return res.status(400).send({ error: 'You are already following this user' })
   }
   try {
@@ -191,8 +191,11 @@ router.post('/user/follow',auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error_message: "User not found" })
     }
+    const user = await userModel.generateUserObject(
+      followingUser
+    )
     res.status(200).send({
-      user: followingUser,
+      user: user,
       message: "User Followed successfully"
     })
   } catch (error) {
@@ -200,7 +203,7 @@ router.post('/user/follow',auth, async (req, res) => {
   }
 })
 
-router.post('/user/unfollow', async (req, res) => {
+router.post('/user/unfollow', auth, async (req, res) => {
   const user1 = req.user
   const user2 = await userModel.findOne({
     _id: req.body._id
@@ -208,7 +211,7 @@ router.post('/user/unfollow', async (req, res) => {
   if (!user2) {
     return res.status(404).send({ error: 'User not found' })
   }
-  if(!user1.followings.includes(user2._id)){
+  if (!user1.followings.includes(user2._id)) {
     return res.status(400).send({ error: 'You are not following this user' })
   }
   try {
@@ -219,8 +222,11 @@ router.post('/user/unfollow', async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error: 'User not found' })
     }
+    const user = await userModel.generateUserObject(
+      followingUser
+    )
     res.status(200).send({
-      user: followingUser,
+      user: user,
       message: "User Unfollowed successfully"
     })
   } catch (error) {
@@ -238,15 +244,15 @@ router.post('/user/unfollow', async (req, res) => {
 
 */
 
-router.get("/liked/list/:username", auth ,async(req, res)=>{
-  try{
+router.get("/liked/list/:username", auth, async (req, res) => {
+  try {
 
     const tweets = await Like
-    .find({ likerUsername: req.params.username })
-    .sort({ createdAt: -1 })
-    .populate({
+      .find({ likerUsername: req.params.username })
+      .sort({ createdAt: -1 })
+      .populate({
         path: "tweetId",
-    });
+      });
 
     const getTweets = tweets.map(async (item) => {
       const tweetobj = await tweetModel.getTweetObject(item.tweetId);
@@ -254,7 +260,7 @@ router.get("/liked/list/:username", auth ,async(req, res)=>{
       item = tweetobj;
       return item;
     })
-    
+
     Promise.all(getTweets)
       .then((tweets) => {
         res.status(200).send(tweets);
@@ -262,7 +268,7 @@ router.get("/liked/list/:username", auth ,async(req, res)=>{
       .catch((error) => {
         throw error;
       });
-  }  catch(error){
+  } catch (error) {
     res.status(500).send(error.toString())
   }
 })
