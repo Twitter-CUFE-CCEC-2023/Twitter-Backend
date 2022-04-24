@@ -164,13 +164,8 @@ router.get("/following/list/:username", auth, async (req, res) => {
 
 */
 
-router.get("/liked/list/:username", async(req, res)=>{
+router.get("/liked/list/:username", auth ,async(req, res)=>{
   try{
-    let likes = await Like.find({likerUsername:req.params.username});
-    if(!likes)
-    {
-      res.status(400).send();
-    }
 
     const tweets = await Like
     .find({ likerUsername: req.params.username })
@@ -179,18 +174,12 @@ router.get("/liked/list/:username", async(req, res)=>{
         path: "tweetId",
     });
 
-
     const getTweets = tweets.map(async (item) => {
-      const tweetInfo = await tweetModel.getTweetInfobyId(
-        item._id,
-      );
-      if (tweetInfo.error) {
-        return item;
-      }
-      item.tweetInfo = tweetInfo;
+      const tweetobj = await tweetModel.getTweetObject(item.tweetId);
+      //console.log(tweetobj);
+      item = tweetobj;
       return item;
-    });
-
+    })
     
     Promise.all(getTweets)
       .then((tweets) => {

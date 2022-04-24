@@ -15,7 +15,7 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
     const tweetObj = await Tweet.getTweetObject(tweet);
 
     res.status(200).send({
-      tweet: tweet,
+      tweet: tweetObj,
       message: "Tweet deleted successfully",
     });
   } catch {
@@ -42,11 +42,9 @@ router.get("/status/tweets/list/:username", auth, async (req, res) => {
       })
       .skip(count * (page - 1))
       .limit(count);
-
     if (!tweets) {
       return res.status(404).send({ message: "Invalid username" });
     }
-
     const tweetObjects = [];
     for (let i = 0; i < tweets.length; i++) {
       const tweetObject = await Tweet.getTweetObject(tweets[i]);
@@ -100,16 +98,15 @@ router.get("/status/tweet/:id", async (req, res) => {
 
 */
 
-router.post("/status/like", async(req,res)=>{
+router.post("/status/like", auth, async(req,res)=>{
   try{
-
     ExistingLike = await Like.findOne({
       tweetId:req.body.id,
-      likerUsername:req.body.username
+      likerUsername:req.user.username
     })
 
     if(ExistingLike){
-      return res.status(400).send();
+      return res.status(400).send("usser already liked this tweet");
     }
 
 
@@ -119,21 +116,21 @@ router.post("/status/like", async(req,res)=>{
     }
     let like = new Like({
       tweetId:req.body.id,
-      likerUsername:req.body.username 
+      likerUsername:req.user.username 
     });
     /*if(await Like.checkConflict(req.body.id,req.body.username))
     {
       return res.status(400).send("user already liked this tweet before");
     }*/
     await like.save();
-    const tweetInfo = await Tweet.getTweetInfobyId(tweet._id, tweet.username);
-    if(!tweetInfo)
+    const tweetObj = await Tweet.getTweetObject(tweet);
+    if(!tweetObj)
     {
       return res.status(400).send();
     }
-    tweet.tweetInfo = tweetInfo;
+    //tweet.tweetInfo = tweetInfo;
     res.status(200).send({
-      tweet: tweet,
+      tweet: tweetObj,
       message: "Like is added successfully"
     });
   } catch(error){
@@ -154,19 +151,18 @@ router.post("/status/like", async(req,res)=>{
 
 */
 
-router.post("/status/tweet/post", async(req,res)=>{
+router.post("/status/tweet/post" ,auth ,async(req,res)=>{
   try{
-
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['content','userId','username'];
+    const allowedUpdates = ['content'];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
     if (!isValidOperation) {
       return res.status(400).send()
     }
     tweet = new Tweet({
       content : req.body.content,
-      userId : req.body.userId,
-      username: req.body.username,
+      userId : req.user._id,
+      username: req.user.username,
       replying : req.body.replying,
       mentions	: req.body.mentions,
       attachment_urls	: req.body.urls,
@@ -177,13 +173,10 @@ router.post("/status/tweet/post", async(req,res)=>{
     {
       return res.status(400).send();
     }
-
     await tweet.save();
-
-  
-
+    const tweetObj = await Tweet.getTweetObject(tweet);
     res.status(200).send({
-      tweet: tweet,
+      tweet: tweetObj,
       message: "Tweet posted successfully"
     });    
   } catch (error){
