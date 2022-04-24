@@ -164,7 +164,7 @@ test("Test: user verification.", async () => {
   });
   const user = await getUser("MostafaA");
   const response = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: user.verificationCode })
     .expect(200);
 });
@@ -180,7 +180,7 @@ test("Test: user verification - Check DB.", async () => {
   });
   const user = await getUser("MostafaA");
   const response = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: user.verificationCode });
   const verifiedUser = await getUser("MostafaA");
   expect(verifiedUser.isVerified).toBe(true);
@@ -197,7 +197,7 @@ test("Test: user verification with wrong verification code.", async () => {
   });
   const user = await getUser("MostafaA");
   const response = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: "-1" })
     .expect(401);
 });
@@ -213,7 +213,7 @@ test("Test: user verification with wrong verification code - Check DB.", async (
   });
   const user = await getUser("MostafaA");
   const response = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: "-1" });
   const verifiedUser = await getUser("MostafaA");
   expect(verifiedUser.isVerified).toBe(false);
@@ -230,7 +230,7 @@ test("Test: user verification with missing data.", async () => {
   });
   const user = await getUser("MostafaA");
   const response = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: "", verificationCode: "" })
     .expect(401);
 });
@@ -246,7 +246,7 @@ test("Test: user login with username", async () => {
   });
   const user = await getUser("MostafaA");
   const verification = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: user.verificationCode });
   const response = await request(app)
     .post("/auth/login")
@@ -265,7 +265,7 @@ test("Test: user login with email", async () => {
   });
   const user = await getUser("MostafaA");
   const verification = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: user.verificationCode });
   const response = await request(app)
     .post("/auth/login")
@@ -285,7 +285,7 @@ test("Test: user login with missing data", async () => {
   });
   const user = await getUser("MostafaA");
   const verification = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: user.verificationCode });
   const response = await request(app)
     .post("/auth/login")
@@ -304,7 +304,7 @@ test("Test: user login with wrong passwrod", async () => {
   });
   const user = await getUser("MostafaA");
   const verification = await request(app)
-    .post("/auth/verify-credentials")
+    .put("/auth/verify-credentials")
     .send({ id: user._id, verificationCode: user.verificationCode });
   const response = await request(app)
     .post("/auth/login")
