@@ -12,9 +12,11 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
       return res.status(404).send({ message: "Tweet not found" });
     }
 
+    const tweetObj = await Tweet.getTweetObject(tweet);
+
     res.status(200).send({
       tweet: tweet,
-      message: "tweet deleted successfully",
+      message: "Tweet deleted successfully",
     });
   } catch {
     res.status(500).send({ message: "Internal Server Error" });
@@ -32,48 +34,35 @@ router.get("/status/tweets/list/:username", auth, async (req, res) => {
       count = req.body.count;
     }
 
+    const page = parseInt(req.body.page);
     let tweets = undefined;
-    if (req.query.include_replies === true) {
-      tweets = await Tweet.find({ username: req.params.username })
-        .sort({
-          createdAt: -1,
-        })
-        .skip(count * (page - 1))
-        .limit(count);
-    } else {
-      tweets = await Tweet.find({
-        username: req.params.username,
-        parentId: null,
+    tweets = await Tweet.find({ username: req.params.username })
+      .sort({
+        createdAt: -1,
       })
-        .sort({ createdAt: -1 })
-        .skip(count * (page - 1))
-        .limit(count);
-    }
+      .skip(count * (page - 1))
+      .limit(count);
+
     if (!tweets) {
       return res.status(404).send({ message: "Invalid username" });
     }
 
-    const getTweets = tweets.map(async (item) => {
-      const tweetInfo = await Tweet.getTweetInfobyId(
-        item._id,
-        req.params.username
-      );
-      if (tweetInfo.error) {
-        return item;
+    const tweetObjects = [];
+    for (let i = 0; i < tweets.length; i++) {
+      const tweetObject = await Tweet.getTweetObject(tweets[i]);
+      if (req.query.include_replies === "true") {
+        const tweetObjectWithReplies = await Tweet.getTweetReplies(tweetObject);
+        tweetObjects.push(tweetObjectWithReplies);
+      } else {
+        tweetObjects.push(tweetObject);
       }
-      item.tweetInfo = tweetInfo;
-      return item;
-    });
+    }
 
-    Promise.all(getTweets)
-      .then((tweets) => {
-        res.status(200).send(tweets);
-      })
-      .catch((error) => {
-        throw error;
-      });
-  } catch {
-    res.status(500).send();
+    res.status(200).send({
+      tweets: tweetObjects,
+    });
+  } catch(error) {
+    res.status(500).send(error.toString());
   }
 });
 
@@ -85,17 +74,14 @@ router.get("/status/tweet/:id", async (req, res) => {
     });
 
     if (!tweet) {
-      return res.status(404).send({ "message": "Invalid Tweet Id" });
+      return res.status(404).send({ message: "Invalid Tweet Id" });
     }
-    const tweetWithInfo = await Tweet.getTweetInfobyId(
-      tweet._id,
-      tweet.username
-    );
-
-    tweet.tweetInfo = tweetWithInfo;
+    
+    const tweetObject = await Tweet.getTweetObject(tweet);
+    const tweetWithReplies = await Tweet.getTweetReplies(tweetObject);
 
     res.status(200).send({
-      tweet: tweet,
+      tweet: tweetWithReplies,
       message: "Tweet has been retrieved successfully",
     });
   } catch (err) {
