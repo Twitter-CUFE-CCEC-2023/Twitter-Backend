@@ -3,6 +3,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const config = require("../config");
+const tweetModel = require("./tweet");
+const likeModel = require("./like");
+const banUserModel = require("./banUser");
+const birthInformationAccessModel = require("./constants/birthInformationAccess");
+const userRoleModel = require("./constants/userRole");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -43,13 +48,16 @@ const UserSchema = new Schema(
       minLength: 8,
       trim: true,
     },
-    dateOfBirth: {
+    birth_date: {
       type: Date,
       required: true,
     },
     gender: {
       type: String,
       required: true,
+    },
+    phone_number: {
+      type: String,
     },
     location: {
       type: String,
@@ -96,15 +104,18 @@ const UserSchema = new Schema(
         token: {
           type: String,
         },
-        default: [],
+        token_expiration_date: {
+          type: Date,
+          default: new Date(new Date().setHours(new Date().getHours() + 24)),
+        },
       },
     ],
-    profilePicture: {
+    profile_picture: {
       type: String,
       trim: true,
       default: "",
     },
-    coverPicture: {
+    cover_picture: {
       type: String,
       trim: true,
       default: "",
@@ -166,13 +177,23 @@ UserSchema.statics.checkConflict = async function (email) {
 
 // Verify user creds and check if username and password both are correct or if only the password is wrong.
 UserSchema.statics.verifyCreds = async function (username_email, password) {
-  const user = await User.find({
+  const user = await User.findOne({
     $or: [{ email: username_email }, { username: username_email }],
-  });
-  if (user[0]) {
-    const isMatch = await bcrypt.compare(password, user[0].password);
+  })
+    .populate({ path: "roleId", select: "name" })
+    .populate({
+      path: "monthDayBirthAccessId",
+      select: "name",
+    })
+    .populate({
+      path: "yearBirthAccessId",
+      select: "name",
+    });
+
+  if (user) {
+    const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
-      return new User(user[0]);
+      return user;
     } else {
       return null;
     }
@@ -181,9 +202,7 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
   }
 };
 
-UserSchema.statics.getUserByUsernameOrEmail = async function (
-  username_email,
-) {
+UserSchema.statics.getUserByUsernameOrEmail = async function (username_email) {
   const user = await User.find({
     $or: [{ email: username_email }, { username: username_email }],
   });
@@ -262,6 +281,43 @@ UserSchema.methods.sendVerifyResetEmail = async function (
     }
   });
   return resetPasswordCode;
+};
+
+UserSchema.statics.generateUserObject = async function (user) {
+  const tweetsCount = await tweetModel
+    .find({ userId: user._id })
+    .countDocuments();
+  const likesCount = await likeModel
+    .find({ likerUsername: user.username })
+    .countDocuments();
+  const banInfo = await banUserModel.findOne({ userId: user._id });
+
+  const userObj = {
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    phone: user.phone_number,
+    profile_image_url: user.profile_picture,
+    cover_image_url: user.cover_picture,
+    bio: user.bio,
+    website: user.website,
+    location: user.location,
+    created_at: user.createdAt,
+    role: user.roleId.name,
+    followers_count: user.followers.length,
+    following_count: user.followings.length,
+    tweets_count: tweetsCount,
+    likes_count: likesCount,
+    isBanned: user.isBanned,
+    isVerified: user.isVerified,
+    month_day_access: user.monthDayBirthAccessId.name,
+    year_access: user.yearBirthAccessId.name,
+  };
+  if (banInfo) {
+    userObj.banDuration = banInfo.banDuration;
+    userObj.permanentBan = banInfo.isPermanent;
+  }
+  return userObj;
 };
 
 const User = mongoose.model("user", UserSchema);

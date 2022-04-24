@@ -39,16 +39,21 @@ router.post("/auth/login", async (req, res) => {
     req.body.email_or_username,
     req.body.password
   );
+  
   try {
     if (user) {
-      const token = { "token": await user.generateAuthToken() }.toString();
-      user.tokens.push({token});
+      const token = await user.generateAuthToken();
+      const authTokenInfo = {"token": token};
+      if (req.body.remember_me){
+        authTokenInfo["token_expiration_date"] = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      }
+      user.tokens = user.tokens.concat(authTokenInfo);
       await User.updateOne({ _id: user._id }, { $set: { tokens: user.tokens } });
+
+      const userObj = await User.generateUserObject(user);
       res.status(200).send({
         access_token: token,
-        user: user,
-        role: user.role,
-        token_expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        user: userObj,
         message: "User logged in successfully",
       });
     } else {
