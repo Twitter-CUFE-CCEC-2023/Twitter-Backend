@@ -59,7 +59,7 @@ const TweetSchema = new Schema(
 TweetSchema.statics.getTweetObject = async function (tweet) {
   const Like = mongoose.model('like');
 
-  const likesCount = await lLike.count({ tweetId: tweet._id });
+  const likesCount = await Like.count({ tweetId: tweet._id });
   const retweetsCount = await Tweet.count({
     parentId: tweet._id,
     isRetweeted: true,

@@ -6,8 +6,8 @@ const config = require("../config");
 const tweetModel = require("./tweet");
 const likeModel = require("./like");
 const banUserModel = require("./banUser");
-const birthInformationAccessModel = require("./constants/birthInformationAccess");
-const userRoleModel = require("./constants/userRole");
+require("./constants/birthInformationAccess");
+require("./constants/userRole");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

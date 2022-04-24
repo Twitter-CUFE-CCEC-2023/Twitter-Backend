@@ -20,7 +20,7 @@ router.get("/notifications/list", auth, async (req, res) => {
       count = req.body.count;
     }
 
-    const page = req.body.page === "" ? 1 : parseInt(req.body.page);
+    const page = parseInt(req.body.page);
     const result = await notificationModel
       .find({ userId: user._id })
       .sort({ createdAt: -1 })
@@ -28,11 +28,9 @@ router.get("/notifications/list", auth, async (req, res) => {
       .limit(count)
       .populate({
         path: "relatedUserId",
-        select: "username name profilePicture -_id",
       })
       .populate({
         path: "notificationTypeId",
-        select: "name -_id",
       })
       .populate({
         path: "tweetId",
@@ -42,31 +40,14 @@ router.get("/notifications/list", auth, async (req, res) => {
       res.status(404).send({ error_message: "Notifications not found" });
     }
 
-    const getNotifications = result.map(async (item) => {
-      if (!item.tweetId) {
-        return item;
-      }
-      const tweetInfo = await tweetModel.getTweetInfobyId(
-        item.tweetId,
-        username
-      );
-      if (tweetInfo.error) {
-        return item;
-      }
-      item.tweetId.tweetInfo = tweetInfo;
-      return item;
-    });
-
-    Promise.all(getNotifications)
-      .then((result) => {
-        res.status(200).send(result);
-      })
-      .catch((error) => {
-        throw error;
-      });
+    const notifications = [];
+    for (let i = 0; i < result.length; i++) {
+      const notificationObject = await notificationModel.getNotificationObject(result[i]);
+      notifications.push(notificationObject);
+    }
+    res.status(200).send({ "notifications": notifications });
   } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: "Error in getting notifications" });
+    res.status(500).send(err.toString());
   }
 });
 
@@ -83,7 +64,7 @@ router.get("/follower/list/:username", auth, async (req, res) => {
       count = req.body.count;
     }
 
-    const page = req.body.page === "" ? 1 : parseInt(req.body.page);
+    const page = parseInt(req.body.page);
     const user = await userModel.findOne({
       username: _username,
     });
@@ -125,7 +106,7 @@ router.get("/following/list/:username", auth, async (req, res) => {
       count = req.body.count;
     }
 
-    const page = req.body.page === "" ? 1 : parseInt(req.body.page);
+    const page = parseInt(req.body.page);
     const user = await userModel.findOne({
       username: _username,
     });
