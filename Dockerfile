@@ -16,3 +16,7 @@ COPY --chown=node:node --from=builder /usr/src/app/node_modules /usr/src/app/nod
 COPY --chown=node:node . /usr/src/app
 EXPOSE 80
 CMD ["npm", "start"]
+
+
+FROM nginx
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
