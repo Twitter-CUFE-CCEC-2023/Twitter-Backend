@@ -6,7 +6,9 @@ const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.post("/dashboard/ban",auth, async (req, res) => {
+
+
+router.post("/dashboard/ban", async (req, res) => {
   const banuser = new banUser(req.body);
   const updates = Object.keys(req.body);
   const allowedUpdates = [
@@ -42,6 +44,8 @@ router.post("/dashboard/ban",auth, async (req, res) => {
     res.status(500).send(e);
   }
 });
+
+
 
 
 
@@ -265,5 +269,68 @@ router.get("/dashboard/likes", async (req, res) => {
     res.status(500).send(e);
   }
 });
+
+
+
+
+
+router.get("/dashboard/tweets-per-gender", async (req, res) => {
+  let count = null;
+  let now = new Date();
+  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+  if (req.body.start_date > req.body.end_date) {
+    return res.status(400).send({ error: "Invalid filters!" });
+  }
+  try {
+    const _id = await User.find({
+      gender: req.body.gender,
+    }).select("_id");
+ 
+    if (req.body.start_date && req.body.end_date) {
+      count = await Tweet.count({
+        userId: _id ,
+        createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+      }).populate({
+        path: "userId",
+        // select: "username name bio profilePicture -_id",
+      });
+    } else if (req.body.start_date) {
+      count = await Tweet.count({
+        userId: _id ,
+        createdAt: { $gte: req.body.start_date, $lte: now },
+      }).populate({
+        path: "userId",
+        // select: "username name bio profilePicture -_id",
+      });
+    } else if (req.body.end_date) {
+      // if (req.body.end_date < lastWeeek) {
+      //   return res.status(400).send({ error: "Invalid filters!" });
+      // }
+      count = await Tweet.count({
+        userId: _id ,
+        createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+      }).populate({
+        path: "userId",
+        // select: "username name bio profilePicture -_id",
+      });
+    } else {
+      count = await Tweet.count({
+        userId: _id ,
+        createdAt: { $lte: now, $gte: lastWeeek },
+      }).populate({
+        path: "userId",
+        // select: "username name bio profilePicture -_id",
+      });
+    }
+
+    res.status(200).send({
+      count: count,
+      message: "Tweets counted successfully",
+    });
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
+
 
 module.exports = router;

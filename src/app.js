@@ -10,7 +10,7 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 const port = process.env.Port || 3000;
-const connectionurl = config.cloudConnectString;
+const connectionurl = config.devConnectionSting;
 
 app.use(express.json());
 app.use(adminRoutes);
@@ -28,7 +28,7 @@ app.listen(port, () => {
     },
     (error, result) => {
       if (error) {
-        console.log("Error in connecting to database");
+        console.log(error);
       } else {
         console.log("Database connected successfully");
       }
