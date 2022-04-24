@@ -29,10 +29,13 @@ router.get("/home/:page/:count", auth, async (req, res) => {
       });
     const tweets = [];
     for (let i = 0; i < result.length; i++) {
-      const tweet = await tweetModel.getTweetObject(result[i]);
+      const tweet = await tweetModel.getTweetObject(
+        result[i],
+        req.user.username
+      );
       tweets.push(tweet);
     }
-    res.status(200).send({ "tweets": tweets });
+    res.status(200).send({ tweets: tweets });
   } catch (error) {
     //res.status(500).send({"message": "Internal Server Error"});
     res.status(500).send(error.toString());

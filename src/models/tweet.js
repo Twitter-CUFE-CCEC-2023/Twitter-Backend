@@ -58,6 +58,7 @@ const TweetSchema = new Schema(
 
 TweetSchema.statics.getTweetObject = async function (
   tweet,
+  username,
   withUserInfo = true
 ) {
   const Like = mongoose.model("like");
@@ -78,17 +79,17 @@ TweetSchema.statics.getTweetObject = async function (
   });
   const likedTweet = await Like.findOne({
     tweetId: tweet._id,
-    likerUsername: tweet.username,
+    likerUsername: username,
   });
   const retweetedTweet = await Tweet.findOne({
     parentId: tweet._id,
     isRetweeted: true,
-    username: tweet.username,
+    username: username,
   });
   const quotedTweet = await Tweet.findOne({
     parentId: tweet._id,
     isRetweeted: true,
-    username: tweet.username,
+    username: username,
     quoteComment: { $ne: null },
   });
 
@@ -119,12 +120,12 @@ TweetSchema.statics.getTweetObject = async function (
   return tweetInfo;
 };
 
-TweetSchema.statics.getTweetReplies = async function (tweet) {
+TweetSchema.statics.getTweetReplies = async function (tweet, username) {
   const replyTweets = await Tweet.find({ parentId: tweet.id });
   tweet.replies = [];
   for (let i = 0; i < replyTweets.length; i++) {
     const tweet = replyTweets[i];
-    const tweetObject = await Tweet.getTweetObject(tweet);
+    const tweetObject = await Tweet.getTweetObject(tweet, username);
     tweet.replies.push(tweetObject);
   }
   return tweet;

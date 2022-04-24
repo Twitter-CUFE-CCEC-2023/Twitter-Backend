@@ -14,7 +14,7 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
 
     await Like.deleteMany({ tweetId: req.body.id });
 
-    const tweetObj = await Tweet.getTweetObject(tweet);
+    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
 
     res.status(200).send({
       tweet: tweetObj,
@@ -53,10 +53,15 @@ router.get(
 
       const tweetObjects = [];
       for (let i = 0; i < tweets.length; i++) {
-        const tweetObject = await Tweet.getTweetObject(tweets[i], false);
+        const tweetObject = await Tweet.getTweetObject(
+          tweets[i],
+          req.user.username,
+          false
+        );
         if (req.query.include_replies === "true") {
           const tweetObjectWithReplies = await Tweet.getTweetReplies(
-            tweetObject
+            tweetObject,
+            req.user.username
           );
           tweetObjects.push(tweetObjectWithReplies);
         } else {
@@ -73,7 +78,7 @@ router.get(
   }
 );
 
-router.get("/status/tweet/:id", async (req, res) => {
+router.get("/status/tweet/:id",auth, async (req, res) => {
   try {
     const tweet = await Tweet.findById(req.params.id).populate({
       path: "userId",
@@ -83,9 +88,12 @@ router.get("/status/tweet/:id", async (req, res) => {
       return res.status(404).send({ message: "Invalid Tweet Id" });
     }
 
-    const tweetObject = await Tweet.getTweetObject(tweet);
+    const tweetObject = await Tweet.getTweetObject(tweet, req.user.username);
     if (req.query.include_replies === "true") {
-      const tweetWithReplies = await Tweet.getTweetReplies(tweetObject);
+      const tweetWithReplies = await Tweet.getTweetReplies(
+        tweetObject,
+        req.user.username
+      );
       res.status(200).send({
         tweet: tweetWithReplies,
         message: "Tweet has been retrieved successfully",
@@ -97,7 +105,7 @@ router.get("/status/tweet/:id", async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(err.toString());
   }
 });
 
@@ -123,7 +131,7 @@ router.post("/status/like", auth, async (req, res) => {
     });
     await like.save();
 
-    const tweetObj = await Tweet.getTweetObject(tweet);
+    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
     res.status(200).send({
       tweet: tweetObj,
       message: "Like is added successfully",
@@ -154,7 +162,8 @@ router.delete("/status/unlike", auth, async (req, res) => {
     }
 
     const tweetObj = await Tweet.getTweetObject(
-      await Tweet.findById(req.body.id)
+      await Tweet.findById(req.body.id),
+      req.user.username
     );
     res.status(200).send({
       tweet: tweetObj,
@@ -183,7 +192,9 @@ router.post("/status/tweet/post", auth, async (req, res) => {
     }
 
     if (req.body.content.length > 280 || req.body.content.length == 0) {
-      return res.status(400).send({ message: "Tweet content length is invalid" });
+      return res
+        .status(400)
+        .send({ message: "Tweet content length is invalid" });
     }
 
     const tweet = new Tweet({
@@ -198,7 +209,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
     });
     await tweet.save();
 
-    const tweetObj = await Tweet.getTweetObject(tweet);
+    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
     res.status(200).send({
       tweet: tweetObj,
       message: "Tweet posted successfully",
