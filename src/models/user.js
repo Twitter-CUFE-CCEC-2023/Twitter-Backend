@@ -192,13 +192,8 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
       select: "name",
     });
 
-  if (user) {
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
-      return user;
-    } else {
-      return null;
-    }
+  if (user && await bcrypt.compare(password, user.password) && user.isVerified) {
+      return new user;
   } else {
     return null;
   }
