@@ -202,14 +202,13 @@ router.put("/auth/update-password", auth, async (req, res) => {
 router.put("/auth/verify-credentials", async (req, res) => {
   try {
     if (req.body.id && req.body.verificationCode) {
-      const user = await User.getUserByID(req.body.user_id);
+      const user = await User.getUserByID(req.body.id);
       if (user) {
         if (
           user.verificationCode == req.body.verificationCode &&
           new Date() < user.verificationCodeExpiration
         ) {
-          user.isVerified = true;
-          await user.save();
+          await User.updateOne({_id:user._id}, {$set:{isVerified:true}});
           const userObj = await User.generateUserObject(user);
           res.status(200).send({
             user: userObj,
@@ -227,7 +226,7 @@ router.put("/auth/verify-credentials", async (req, res) => {
           "The server cannot or will not process the request due to something that is perceived to be a client error.",
       });
     }
-  } catch {
+  } catch (err) {
     res.status(500).send({
       message:
         "The server encountered an unexpected condition which prevented it from fulfilling the request.",

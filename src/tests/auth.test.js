@@ -232,7 +232,7 @@ test("Test: user verification with missing data.", async () => {
   const response = await request(app)
     .put("/auth/verify-credentials")
     .send({ id: "", verificationCode: "" })
-    .expect(401);
+    .expect(400);
 });
 
 test("Test: user login with username", async () => {
@@ -363,6 +363,7 @@ test("Test: user password reset with username.", async () => {
     username: "MostafaA",
     password: "myPassw@ord123",
     name: "Mostafa Abdelbrr",
+    gender: "male",
     birth_date: "2000-01-01T00:00:00.000Z",
   });
   const resetRequest = await request(app)

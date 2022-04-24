@@ -204,6 +204,16 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
   }
 };
 
+UserSchema.statics.getUserByID = async function (id) {
+  const user = await User.findOne({ _id: id });
+  if (user) {
+    return new User(user);
+  }
+  else {
+    await null;
+  }
+};
+
 UserSchema.statics.getUserByUsernameOrEmail = async function (username_email) {
   const user = await User.find({
     $or: [{ email: username_email }, { username: username_email }],
