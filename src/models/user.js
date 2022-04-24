@@ -6,16 +6,17 @@ const config = require("../config");
 const tweetModel = require("./tweet");
 const likeModel = require("./like");
 const banUserModel = require("./banUser");
+const transporter = require('../services/email');
 require("./constants/birthInformationAccess");
 require("./constants/userRole");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: config.verificationEmail,
-    pass: config.verificationPassword,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: config.verificationEmail,
+//     pass: config.verificationPassword,
+//   },
+// });
 
 const Schema = mongoose.Schema;
 const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
@@ -251,7 +252,7 @@ UserSchema.statics.generateResetPasswordCode = async function () {
 
 UserSchema.methods.sendVerifyEmail = async function (email, verificationCode) {
   const mailOptions = {
-    from: process.env.verification_email,
+    from: "bbfd49a362070c",
     to: email,
     subject: "Verification email",
     text:
@@ -273,7 +274,7 @@ UserSchema.methods.sendVerifyResetEmail = async function (
   resetPasswordCode
 ) {
   const mailOptions = {
-    from: process.env.verification_email,
+    from: "smtp.mailtrap.io",
     to: email,
     subject: "Password reset email",
     text:
