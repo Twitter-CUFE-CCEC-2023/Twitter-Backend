@@ -277,15 +277,16 @@ router.get("/liked/list/:username/:page/:count", auth, async (req, res) => {
 
     const likedTweets = [];
     for (let i = 0; i < tweets.length; i++) {
-      const tweet = await tweetModel.getTweetObject(tweets[i].tweetId);
+      const tweet = await tweetModel.getTweetObject(
+        tweets[i].tweetId,
+        req.user.username
+      );
       likedTweets.push(tweet);
     }
-    res
-      .status(200)
-      .send({
-        tweets: likedTweets,
-        message: "Tweets have been retrieved successfully",
-      });
+    res.status(200).send({
+      tweets: likedTweets,
+      message: "Tweets have been retrieved successfully",
+    });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });
   }
