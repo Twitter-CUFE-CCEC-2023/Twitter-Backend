@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+require("./user");
+require("./tweet");
 
 const NotificationSchema = new Schema(
   {
@@ -41,6 +43,33 @@ const NotificationSchema = new Schema(
     timestamps: true,
   }
 );
+
+NotificationSchema.statics.getNotificationObject = async function (
+  notification
+) {
+  let tweet = null,
+    user = null;
+
+  if (notification.tweetId) {
+    const Tweet = mongoose.model("tweet");
+    tweet = await Tweet.getTweetObject(notification.tweetId);
+  }
+  if (notification.userId) {
+    const User = mongoose.model("user");
+    user = await User.generateUserObject(notification.userId);
+  }
+
+  const notificationObject = {
+    _id: notification._id,
+    content: notification.content,
+    notification_type: notification.notificationTypeId.name,
+    related_user: user,
+    tweet: tweet,
+    is_read: notification.isRead,
+    created_at: notification.createdAt,
+  };
+  return notificationObject;
+};
 
 const Notification = mongoose.model("notification", NotificationSchema);
 
