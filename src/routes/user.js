@@ -6,6 +6,7 @@ const userModel = require("./../models/user.js");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const { default: mongoose } = require("mongoose");
+const { get } = require("express/lib/response");
 require("./../models/constants/notificationType.js");
 
 router.get("/notifications/list/:page/:count", auth, async (req, res) => {
@@ -154,6 +155,95 @@ router.get("/following/list/:username", auth, async (req, res) => {
 });
 
 
+router.get('/info/:username',auth, async (req, res) => {
+  const _username = req.params.username
+  try {
+    if(_username === req.user.username){
+      const userObj = await userModel.generateUserObject(
+        req.user
+      )
+      res.status(200).send({user: userObj})
+    }
+    const user = await userModel.findOne({
+      username: _username
+    })
+    if (!user) {
+      return res.status(404).send({ error_message: "User not found" })
+    }
+    const userObj = await userModel.generateUserObject(
+      user
+    )
+    res.status(200).send({ user: userObj })
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
+})
+
+router.post('/user/follow', auth, async (req, res) => {
+  const user1 = req.user
+  const user2 = await userModel.findOne({
+    _id: req.body.id
+  })
+  if (!user2) {
+    return res.status(404).send({ error_message: "User not found" })
+  }
+  if (user1._id == user2._id) {
+    return res.status(400).send({ error: 'You cannot follow yourself' })
+  }
+  if (user1.followings.includes(user2._id)) {
+    return res.status(400).send({ error: 'You are already following this user' })
+  }
+  try {
+    const _followeruser = user1.followings.concat(user2._id)
+    const _followinguser = user2.followers.concat(user1._id)
+    const followerUser = await userModel.findByIdAndUpdate(user1._id, { followings: _followeruser }, { new: true, runValidators: true })
+    const followingUser = await userModel.findByIdAndUpdate(user2._id, { followers: _followinguser }, { new: true, runValidators: true })
+    if (!followingUser || !followerUser) {
+      return res.status(404).send({ error_message: "User not found" })
+    }
+    const user = await userModel.generateUserObject(
+      followingUser
+    )
+    res.status(200).send({
+      user: user,
+      message: "User Followed successfully"
+    })
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
+})
+
+router.post('/user/unfollow', auth, async (req, res) => {
+  const user1 = req.user
+  const user2 = await userModel.findOne({
+    _id: req.body.id
+  })
+  if (!user2) {
+    return res.status(404).send({ error: 'User not found' })
+  }
+  if (!user1.followings.includes(user2._id)) {
+    return res.status(400).send({ error: 'You are not following this user' })
+  }
+  try {
+    const _followeruser = user1.followings.filter(id => id == user2._id)
+    const _followinguser = user2.followers.filter(id => id == user1._id)
+    const followerUser = await userModel.findByIdAndUpdate(user1._id, { followings: _followeruser }, { new: true, runValidators: true })
+    const followingUser = await userModel.findByIdAndUpdate(user2._id, { followers: _followinguser }, { new: true, runValidators: true })
+    if (!followingUser || !followerUser) {
+      return res.status(404).send({ error: 'User not found' })
+    }
+    const user = await userModel.generateUserObject(
+      followingUser
+    )
+    res.status(200).send({
+      user: user,
+      message: "User Unfollowed successfully"
+    })
+  } catch (error) {
+    res.status(500).send(error.toString())
+  }
+})
+
 /*
 
   Questions?  V.I.P ZIKA review
@@ -164,15 +254,15 @@ router.get("/following/list/:username", auth, async (req, res) => {
 
 */
 
-router.get("/liked/list/:username", auth ,async(req, res)=>{
-  try{
+router.get("/liked/list/:username", auth, async (req, res) => {
+  try {
 
     const tweets = await Like
-    .find({ likerUsername: req.params.username })
-    .sort({ createdAt: -1 })
-    .populate({
+      .find({ likerUsername: req.params.username })
+      .sort({ createdAt: -1 })
+      .populate({
         path: "tweetId",
-    });
+      });
 
     const getTweets = tweets.map(async (item) => {
       const tweetobj = await tweetModel.getTweetObject(item.tweetId);
@@ -180,7 +270,7 @@ router.get("/liked/list/:username", auth ,async(req, res)=>{
       item = tweetobj;
       return item;
     })
-    
+
     Promise.all(getTweets)
       .then((tweets) => {
         res.status(200).send(tweets);
@@ -188,7 +278,7 @@ router.get("/liked/list/:username", auth ,async(req, res)=>{
       .catch((error) => {
         throw error;
       });
-  }  catch(error){
+  } catch (error) {
     res.status(500).send(error.toString())
   }
 })
