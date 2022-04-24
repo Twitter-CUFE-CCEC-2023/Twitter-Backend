@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const config = require('./config');
 
 const adminRoutes = require("./routes/admin");
@@ -13,6 +14,8 @@ const port = 80;
 const connectionurl = config.cloudConnectString;
 
 app.use(express.json());
+app.use(cors());
+
 app.use(adminRoutes);
 app.use(userRoutes);
 app.use(tweetRoutes);
