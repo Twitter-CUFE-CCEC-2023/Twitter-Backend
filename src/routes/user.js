@@ -162,7 +162,7 @@ router.get('/info/:username',auth, async (req, res) => {
       const userObj = await userModel.generateUserObject(
         req.user
       )
-      res.status(200).send({user: userObj})
+      return res.status(200).send({user: userObj})
     }
     const user = await userModel.findOne({
       username: _username
