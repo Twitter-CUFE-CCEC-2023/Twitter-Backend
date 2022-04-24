@@ -26,7 +26,7 @@
  * @apiParam {String{1-50}} name The name of the user
  * @apiParam {String} gender gender of the user
  * @apiParam {DateTime} birth_date birth date of the user
- * @apiParam {String} phone_number phone number of the user
+ * @apiParam {String} [phone_number] phone number of the user
  * @apiParam {int} [profile_picture] Id of the uploaded profile picture
  * @apiParamExample {json} Request-Example:
  * {
@@ -1337,7 +1337,7 @@
  * @apiParam {String} name Represents the name of the user
  * @apiParam {String} username Represents the username of the user
  * @apiParam {String} email Represents the email of the user
- * @apiParam {String} phone Represents the phone number of the user
+ * @apiParam {String} [phone] Represents the phone number of the user
  * @apiParam {String} profile_image_url Represents the profile image url of the user
  * @apiParam {String} cover_image_url Represents the cover image url of the user
  * @apiParam {String} bio Represents the bio of the user

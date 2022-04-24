@@ -47,10 +47,7 @@ const TweetSchema = new Schema(
     ],
     mentions: [
       {
-        username: {
-          type: String,
-        },
-        default: [],
+        type: String,
       },
     ],
   },
