@@ -190,13 +190,15 @@ router.post('/user/follow/:username', async (req, res) => {
     return res.status(400).send({ error: 'You are already following this user' })
   }
   try {
-    const _followuser = user1.followings.concat(user2._id)
-    const user = await userModel.findByIdAndUpdate(user1._id, { followings: _followuser }, { new: true, runValidators: true })
-    if (!user) {
+    const _followeruser = user1.followings.concat(user2._id)
+    const _followinguser = user2.followers.concat(user1._id)
+    const followerUser = await userModel.findByIdAndUpdate(user1._id, { followings: _followeruser }, { new: true, runValidators: true })
+    const followingUser = await userModel.findByIdAndUpdate(user2._id, { followers: _followinguser }, { new: true, runValidators: true })
+    if (!followingUser || !followerUser) {
       return res.status(404).send({ error_message: "User not found" })
     }
     res.status(200).send({
-      user: user,
+      user: followingUser,
       message: "User Followed successfully"
     })
   } catch (error) {
@@ -221,14 +223,15 @@ router.post('/user/unfollow/:username', async (req, res) => {
     return res.status(400).send({ error: 'You are not following this user' })
   }
   try {
-    const _followuser = user1.followings.filter(id => id == user2._id)
-    const user = await userModel.findByIdAndUpdate(user1._id, { followings: _followuser }, { new: true, runValidators: true })
-    console.log(user1.followings)
-    if (!user) {
+    const _followeruser = user1.followings.filter(id => id == user2._id)
+    const _followinguser = user2.followers.filter(id => id == user1._id)
+    const followerUser = await userModel.findByIdAndUpdate(user1._id, { followings: _followeruser }, { new: true, runValidators: true })
+    const followingUser = await userModel.findByIdAndUpdate(user2._id, { followers: _followinguser }, { new: true, runValidators: true })
+    if (!followingUser || !followerUser) {
       return res.status(404).send({ error: 'User not found' })
     }
     res.status(200).send({
-      user: user,
+      user: followingUser,
       message: "User Unfollowed successfully"
     })
   } catch (error) {
