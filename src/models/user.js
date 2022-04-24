@@ -295,6 +295,7 @@ UserSchema.statics.generateUserObject = async function (user) {
 
     const userObj = {
       _id: user._id,
+      name: user.name,
       username: user.username,
       email: user.email,
       phone: user.phone_number,
