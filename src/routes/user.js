@@ -42,10 +42,12 @@ router.get("/notifications/list", auth, async (req, res) => {
 
     const notifications = [];
     for (let i = 0; i < result.length; i++) {
-      const notificationObject = await notificationModel.getNotificationObject(result[i]);
+      const notificationObject = await notificationModel.getNotificationObject(
+        result[i]
+      );
       notifications.push(notificationObject);
     }
-    res.status(200).send({ "notifications": notifications });
+    res.status(200).send({ notifications: notifications });
   } catch (err) {
     res.status(500).send(err.toString());
   }
@@ -69,7 +71,7 @@ router.get("/follower/list/:username", auth, async (req, res) => {
       username: _username,
     });
     if (!user) {
-      return res.status(404).send({ error_message: "User not found" });
+      return res.status(404).send({ message: "User not found" });
     }
 
     const userFollowers = await userModel
@@ -79,15 +81,22 @@ router.get("/follower/list/:username", auth, async (req, res) => {
       .select("followers -_id")
       .populate({
         path: "followers",
-        select: "username name bio profilePicture -_id",
       })
       .skip(count * (page - 1))
       .limit(count);
 
     if (!userFollowers) {
-      return res.status(404).send({ error_message: "Followers not found" });
+      return res.status(404).send({ message: "Followers not found" });
     }
-    res.send(userFollowers);
+
+    const followers = [];
+    for (let i = 0; i < userFollowers.followers.length; i++) {
+      const userFollower = await userModel.generateUserObject(
+        userFollowers.followers[i]
+      );
+      followers.push(userFollower);
+    }
+    res.status(200).send({ followers: followers });
   } catch (error) {
     res.status(500).send("Internal server Error");
   }
@@ -111,7 +120,7 @@ router.get("/following/list/:username", auth, async (req, res) => {
       username: _username,
     });
     if (!user) {
-      return res.status(404).send({ error_message: "User not found" });
+      return res.status(404).send({ message: "User not found" });
     }
 
     const userFollowings = await userModel
@@ -121,17 +130,24 @@ router.get("/following/list/:username", auth, async (req, res) => {
       .select("followings -_id")
       .populate({
         path: "followings",
-        select: "username name bio profilePicture -_id",
       })
       .skip(count * (page - 1))
       .limit(count);
 
     if (!userFollowings) {
-      return res.status(404).send({ error_message: "Followings not found" });
+      return res.status(404).send({ message: "Followings not found" });
     }
-    res.send(userFollowings);
+
+    const followings = [];
+    for (let i = 0; i < userFollowings.followings.length; i++) {
+      const userFollowing = await userModel.generateUserObject(
+        userFollowings.followings[i]
+      );
+      followings.push(userFollowing);
+    }
+    res.status(200).send({ followings: followings });
   } catch (error) {
-    res.status(500).send(error.toString());
+    res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
