@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const config = require("../config");
 const Tweets = require("../models/tweet");
 const User = require("../models/user");
+const auth = require("../middleware/auth");
 
 const connectionurl = config.testConnectionString;
 

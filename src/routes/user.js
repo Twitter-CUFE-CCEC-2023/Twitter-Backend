@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const notificationModel = require("./../models/notification.js");
 const tweetModel = require("./../models/tweet");
-const userModel = require("./../models/user");
+const userModel = require("./../models/user.js");
+const Like = require("../models/like");
 const auth = require("../middleware/auth");
+const { default: mongoose } = require("mongoose");
 require("./../models/constants/notificationType.js");
 
 router.get("/notifications/list/:page/:count", auth, async (req, res) => {
@@ -150,5 +152,45 @@ router.get("/following/list/:username", auth, async (req, res) => {
     res.status(500).send({ message: "Internal Server Error" });
   }
 });
+
+
+/*
+
+  Questions?  V.I.P ZIKA review
+
+  1) should each tweet returns accompanied by its tweet info ? 
+
+  2) auth ? 
+
+*/
+
+router.get("/liked/list/:username", auth ,async(req, res)=>{
+  try{
+
+    const tweets = await Like
+    .find({ likerUsername: req.params.username })
+    .sort({ createdAt: -1 })
+    .populate({
+        path: "tweetId",
+    });
+
+    const getTweets = tweets.map(async (item) => {
+      const tweetobj = await tweetModel.getTweetObject(item.tweetId);
+      //console.log(tweetobj);
+      item = tweetobj;
+      return item;
+    })
+    
+    Promise.all(getTweets)
+      .then((tweets) => {
+        res.status(200).send(tweets);
+      })
+      .catch((error) => {
+        throw error;
+      });
+  }  catch(error){
+    res.status(500).send(error.toString())
+  }
+})
 
 module.exports = router;
