@@ -6,8 +6,8 @@ const config = require("../config");
 const tweetModel = require("./tweet");
 const likeModel = require("./like");
 const banUserModel = require("./banUser");
-const birthInformationAccessModel = require("./constants/birthInformationAccess");
-const userRoleModel = require("./constants/userRole");
+require("./constants/birthInformationAccess");
+require("./constants/userRole");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -284,40 +284,44 @@ UserSchema.methods.sendVerifyResetEmail = async function (
 };
 
 UserSchema.statics.generateUserObject = async function (user) {
-  const tweetsCount = await tweetModel
-    .find({ userId: user._id })
-    .countDocuments();
-  const likesCount = await likeModel
-    .find({ likerUsername: user.username })
-    .countDocuments();
-  const banInfo = await banUserModel.findOne({ userId: user._id });
+  try {
+    const tweetsCount = await tweetModel
+      .find({ userId: user._id })
+      .countDocuments();
+    const likesCount = await likeModel
+      .find({ likerUsername: user.username })
+      .countDocuments();
+    const banInfo = await banUserModel.findOne({ userId: user._id });
 
-  const userObj = {
-    _id: user._id,
-    username: user.username,
-    email: user.email,
-    phone: user.phone_number,
-    profile_image_url: user.profile_picture,
-    cover_image_url: user.cover_picture,
-    bio: user.bio,
-    website: user.website,
-    location: user.location,
-    created_at: user.createdAt,
-    role: user.roleId.name,
-    followers_count: user.followers.length,
-    following_count: user.followings.length,
-    tweets_count: tweetsCount,
-    likes_count: likesCount,
-    isBanned: user.isBanned,
-    isVerified: user.isVerified,
-    month_day_access: user.monthDayBirthAccessId.name,
-    year_access: user.yearBirthAccessId.name,
-  };
-  if (banInfo) {
-    userObj.banDuration = banInfo.banDuration;
-    userObj.permanentBan = banInfo.isPermanent;
+    const userObj = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone_number,
+      profile_image_url: user.profile_picture,
+      cover_image_url: user.cover_picture,
+      bio: user.bio,
+      website: user.website,
+      location: user.location,
+      created_at: user.createdAt,
+      role: user.roleId.name,
+      followers_count: user.followers.length,
+      following_count: user.followings.length,
+      tweets_count: tweetsCount,
+      likes_count: likesCount,
+      isBanned: user.isBanned,
+      isVerified: user.isVerified,
+      month_day_access: user.monthDayBirthAccessId.name,
+      year_access: user.yearBirthAccessId.name,
+    };
+    if (banInfo) {
+      userObj.banDuration = banInfo.banDuration;
+      userObj.permanentBan = banInfo.isPermanent;
+    }
+    return userObj;
+  } catch (err) {
+    return null;
   }
-  return userObj;
 };
 
 const User = mongoose.model("user", UserSchema);
