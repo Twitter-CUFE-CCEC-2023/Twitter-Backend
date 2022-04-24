@@ -11,18 +11,19 @@ router.post("/auth/signup", async (req, res) => {
     const user = new User(req.body);
 
     if (!(await User.checkConflict(user.email, user.username))) {
-      await user.save();
-      // const token = await user.generateAuthToken();
-      await user.sendVerifyEmail(user.email, user.verificationCode);
-      const userObj = await User.generateUserObject(user);
+      const savedUser  = await user.save();
+      if(!savedUser) {
+        return res.status(400).send({ error: "User not saved" });
+      }
+      console.log(savedUser);
+      //await user.sendVerifyEmail(user.email, user.verificationCode);
+      const userObj = await User.generateUserObject(savedUser);
       res.status(200).send({
-        // access_token: token,
         user: userObj,
-        // token_expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         message: "User Signed up successfully",
       });
     } else {
-      res.status(409).send({ error_message: "User already exists" });
+      res.status(409).send({ message: "User already exists" });
     }
   } catch (err) {
     if (err.name == "ValidationError") {

@@ -19,6 +19,7 @@ const transporter = nodemailer.createTransport({
 
 const Schema = mongoose.Schema;
 const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
+const userRole = require("./../../seed-data/constants/userRole");
 
 const UserSchema = new Schema(
   {
@@ -124,6 +125,7 @@ const UserSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "userRole",
       index: true,
+      default: userRole.defaultRole
     },
     isBanned: {
       type: Boolean,
