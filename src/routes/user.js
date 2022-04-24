@@ -169,20 +169,15 @@ router.get('/info/:username', async (req, res) => {
   }
 })
 
-router.post('/user/follow/:username', async (req, res) => {
-  const user1 = await userModel.findOne({
-    username: req.params.username
-  })
-  if (!user1) {
-    return res.status(404).send({ error_message: "User not found" })
-  }
+router.post('/user/follow',auth, async (req, res) => {
+  const user1 = req.user
   const user2 = await userModel.findOne({
-    username: req.body.username
+    _id: req.body._id
   })
   if (!user2) {
     return res.status(404).send({ error_message: "User not found" })
   }
-  if (user1.username == user2.username) {
+  if (user1._id == user2._id) {
     return res.status(400).send({ error: 'You cannot follow yourself' })
   }
   if(user1.followings.includes(user2._id)){
