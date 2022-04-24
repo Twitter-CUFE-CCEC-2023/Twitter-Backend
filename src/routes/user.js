@@ -6,6 +6,7 @@ const userModel = require("./../models/user.js");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const { default: mongoose } = require("mongoose");
+const { get } = require("express/lib/response");
 require("./../models/constants/notificationType.js");
 
 router.get("/notifications/list/:page/:count", auth, async (req, res) => {
@@ -154,16 +155,25 @@ router.get("/following/list/:username", auth, async (req, res) => {
 });
 
 
-router.get('/info/:username', async (req, res) => {
+router.get('/info/:username',auth, async (req, res) => {
   const _username = req.params.username
   try {
+    if(_username === req.user.username){
+      const userObj = await userModel.generateUserObject(
+        req.user
+      )
+      res.status(200).send({user: userObj})
+    }
     const user = await userModel.findOne({
       username: _username
-    }).select('username name bio profilePicture -_id')
+    })
     if (!user) {
       return res.status(404).send({ error_message: "User not found" })
     }
-    res.send(user)
+    const userObj = await userModel.generateUserObject(
+      user
+    )
+    res.status(200).send({ user: userObj })
   } catch (error) {
     res.status(500).send(error.toString())
   }
