@@ -182,7 +182,7 @@ router.get('/info/:username',auth, async (req, res) => {
 router.post('/user/follow', auth, async (req, res) => {
   const user1 = req.user
   const user2 = await userModel.findOne({
-    _id: req.body._id
+    _id: req.body.id
   })
   if (!user2) {
     return res.status(404).send({ error_message: "User not found" })
@@ -216,7 +216,7 @@ router.post('/user/follow', auth, async (req, res) => {
 router.post('/user/unfollow', auth, async (req, res) => {
   const user1 = req.user
   const user2 = await userModel.findOne({
-    _id: req.body._id
+    _id: req.body.id
   })
   if (!user2) {
     return res.status(404).send({ error: 'User not found' })
