@@ -92,7 +92,7 @@ TweetSchema.statics.getTweetObject = async function (
     quoteComment: { $ne: null },
   });
 
-  const userObject = {};
+  let userObject = {};
   if (withUserInfo) {
     const User = mongoose.model("user");
     const user = await User.findOne({ username: tweet.username });
