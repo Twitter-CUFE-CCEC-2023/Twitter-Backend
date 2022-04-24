@@ -39,21 +39,31 @@ router.post("/auth/login", async (req, res) => {
     req.body.email_or_username,
     req.body.password
   );
-  
+
   try {
     if (user) {
       const token = await user.generateAuthToken();
-      const authTokenInfo = {"token": token};
-      if (req.body.remember_me){
-        authTokenInfo["token_expiration_date"] = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const authTokenInfo = { token: token };
+      if (req.body.remember_me) {
+        authTokenInfo["token_expiration_date"] = new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000
+        );
+      } else {
+        authTokenInfo["token_expiration_date"] = new Date(
+          new Date().setHours(new Date().getHours() + 24)
+        );
       }
       user.tokens = user.tokens.concat(authTokenInfo);
-      await User.updateOne({ _id: user._id }, { $set: { tokens: user.tokens } });
+      await User.updateOne(
+        { _id: user._id },
+        { $set: { tokens: user.tokens } }
+      );
 
       const userObj = await User.generateUserObject(user);
       res.status(200).send({
         access_token: token,
         user: userObj,
+        token_expiration_date: authTokenInfo["token_expiration_date"],
         message: "User logged in successfully",
       });
     } else {
@@ -62,24 +72,32 @@ router.post("/auth/login", async (req, res) => {
         .send({ message: "The enetered credentials are invalid." });
     }
   } catch (err) {
-    res
-      .status(500)
-      .send({
-        message:
-          "The server encountered an unexpected condition which prevented it from fulfilling the request.",
-      });
+    res.status(500).send({
+      message:
+        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+    });
   }
 });
 
 router.post("/auth/send-reset-password", async (req, res) => {
   try {
     if (req.body.email_or_username) {
-      const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
+      const user = await User.getUserByUsernameOrEmail(
+        req.body.email_or_username
+      );
       if (user) {
         const resetPasswordCode = await User.generateResetPasswordCode();
         user.resetPasswordCode = resetPasswordCode;
-        user.resetPasswordCodeExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        await User.updateOne({_id:user._id}, {resetPasswordCode: user.resetPasswordCode, resetPasswordCodeExpiration: user.resetPasswordCodeExpiration});
+        user.resetPasswordCodeExpiration = new Date(
+          Date.now() + 24 * 60 * 60 * 1000
+        );
+        await User.updateOne(
+          { _id: user._id },
+          {
+            resetPasswordCode: user.resetPasswordCode,
+            resetPasswordCodeExpiration: user.resetPasswordCodeExpiration,
+          }
+        );
         await user.sendVerifyResetEmail(user.email, user.resetPasswordCode);
         res.status(200).send({
           message: "Reset password email has been sent successfully.",
@@ -106,7 +124,9 @@ router.post("/auth/send-reset-password", async (req, res) => {
 // Reset password
 router.put("/auth/reset-password", async (req, res) => {
   try {
-    const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
+    const user = await User.getUserByUsernameOrEmail(
+      req.body.email_or_username
+    );
     if (user) {
       if (user.resetPasswordCode == req.body.resetPasswordCode) {
         user.password = req.body.password;
@@ -120,20 +140,16 @@ router.put("/auth/reset-password", async (req, res) => {
         res.status(401).send({ message: "The verification code is invalid." });
       }
     } else {
-      res
-        .status(400)
-        .send({
-          message:
-            "The server cannot or will not process the request due to something that is perceived to be a client error.",
-        });
+      res.status(400).send({
+        message:
+          "The server cannot or will not process the request due to something that is perceived to be a client error.",
+      });
     }
   } catch (err) {
-    res
-      .status(500)
-      .send({
-        message:
-          "The server encountered an unexpected condition which prevented it from fulfilling the request.",
-      });
+    res.status(500).send({
+      message:
+        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+    });
   }
 });
 
