@@ -12,7 +12,7 @@ services:
             - example-net
 
         depends_on:
-            - mongo
+            - localhost
     localhost:
         container_name: localhost
         image: localhost
