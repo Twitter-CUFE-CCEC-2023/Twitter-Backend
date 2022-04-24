@@ -12,7 +12,11 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
       return res.status(404).send({ message: "Tweet not found" });
     }
 
+    await Like.deleteMany({tweetId:req.body.id})
+
     const tweetObj = await Tweet.getTweetObject(tweet);
+
+
 
     res.status(200).send({
       tweet: tweetObj,
