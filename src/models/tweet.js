@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const likeModel = require("./../models/like");
+require("./like");
+require("./user");
 
 const TweetSchema = new Schema(
   {
@@ -36,7 +37,6 @@ const TweetSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    tweetInfo: {},
     attachments: [
       {
         type: Schema.Types.ObjectId,
@@ -56,51 +56,74 @@ const TweetSchema = new Schema(
   }
 );
 
-TweetSchema.statics.getTweetInfobyId = async (tweetId, username) => {
-  try {
-    const tweetInfo = {};
+TweetSchema.statics.getTweetObject = async function (tweet) {
+  const Like = mongoose.model('like');
 
-    tweetInfo["likesCount"] = await likeModel.count({ tweetId: tweetId });
-    tweetInfo["retweetsCount"] = await Tweet.count({
-      parentId: tweetId,
-      isRetweeted: true,
-    });
-    tweetInfo["repliesCount"] = await Tweet.count({
-      parentId: tweetId,
-      isRetweeted: false,
-    });
+  const likesCount = await lLike.count({ tweetId: tweet._id });
+  const retweetsCount = await Tweet.count({
+    parentId: tweet._id,
+    isRetweeted: true,
+  });
+  const repliesCount = await Tweet.count({
+    parentId: tweet._id,
+    isRetweeted: false,
+  });
+  const quotesCount = await Tweet.count({
+    parentId: tweet._id,
+    isRetweeted: true,
+    quoteComment: { $ne: null },
+  });
+  const likedTweet = await Like.findOne({
+    tweetId: tweet._id,
+    likerUsername: tweet.username,
+  });
+  const retweetedTweet = await Tweet.findOne({
+    parentId: tweet._id,
+    isRetweeted: true,
+    username: tweet.username,
+  });
+  const quotedTweet = await Tweet.findOne({
+    parentId: tweet._id,
+    isRetweeted: true,
+    username: tweet.username,
+    quoteComment: { $ne: null },
+  });
 
-    const likedTweet = await likeModel.findOne({
-      tweetId: tweetId,
-      likerUsername: username,
-    });
-    if (likedTweet) {
-      tweetInfo["isLiked"] = true;
-    } else {
-      tweetInfo["isLiked"] = false;
-    }
+  const User = mongoose.model('user');
+  const user = await User.findOne({ username: tweet.username });
+  const userObject = await User.generateUserObject(user);
 
-    const retweetedTweet = await Tweet.findOne({
-      parentId: tweetId,
-      isRetweeted: true,
-      username: username,
-    });
-    if (retweetedTweet) {
-      tweetInfo["isRetweeted"] = true;
-    } else {
-      tweetInfo["isRetweeted"] = false;
-    }
-
-    tweetInfo["quoteRepliesCount"] = await Tweet.count({
-      parentId: tweetId,
-      isRetweeted: true,
-      quoteComment: { $ne: null },
-    });
-    return tweetInfo;
-  } catch (err) {
-    throw err;
-  }
+  const tweetInfo = {
+    id: tweet._id,
+    content: tweet.content,
+    user: userObject,
+    likes_count: likesCount,
+    retweets_count: retweetsCount,
+    replies_count: repliesCount,
+    quotes_count: quotesCount,
+    is_liked: likedTweet ? true : false,
+    is_retweeted: retweetedTweet ? true : false,
+    is_quoted: quotedTweet ? true : false,
+    is_reply: tweet.parentId ? true : false,
+    quote_comment: quotedTweet ? quotedTweet.quoteComment : null,
+    mentions: tweet.mentions,
+    media: tweet.attachments,
+    created_at: tweet.createdAt,
+  };
+  return tweetInfo;
 };
+
+TweetSchema.statics.getTweetReplies = async function (tweet) {
+  const replyTweets = await Tweet.find({ parentId: tweet.id });
+  tweet.replies = [];
+  for (let i = 0; i < replyTweets.length; i++) {
+    const tweet = replyTweets[i];
+    const tweetObject = await Tweet.getTweetObject(tweet);
+    tweet.replies.push(tweetObject);
+  }
+  return tweet;
+};
+
 
 const Tweet = mongoose.model("tweet", TweetSchema);
 

@@ -98,8 +98,9 @@ router.get("/status/tweet/:id", async (req, res) => {
       tweet: tweet,
       message: "Tweet has been retrieved successfully",
     });
-  } catch {
-    res.status(500).send({ "message": "Internal Server Error" });
+  } catch (err) {
+    //res.status(500).send({ "message": "Internal Server Error" });
+    res.status(500).send(err.toString());
   }
 });
 
