@@ -56,8 +56,11 @@ const TweetSchema = new Schema(
   }
 );
 
-TweetSchema.statics.getTweetObject = async function (tweet) {
-  const Like = mongoose.model('like');
+TweetSchema.statics.getTweetObject = async function (
+  tweet,
+  withUserInfo = true
+) {
+  const Like = mongoose.model("like");
 
   const likesCount = await Like.count({ tweetId: tweet._id });
   const retweetsCount = await Tweet.count({
@@ -89,9 +92,12 @@ TweetSchema.statics.getTweetObject = async function (tweet) {
     quoteComment: { $ne: null },
   });
 
-  const User = mongoose.model('user');
-  const user = await User.findOne({ username: tweet.username });
-  const userObject = await User.generateUserObject(user);
+  let userObject = {};
+  if (withUserInfo) {
+    const User = mongoose.model("user");
+    const user = await User.findOne({ username: tweet.username });
+    userObject = await User.generateUserObject(user);
+  }
 
   const tweetInfo = {
     id: tweet._id,
@@ -123,7 +129,6 @@ TweetSchema.statics.getTweetReplies = async function (tweet) {
   }
   return tweet;
 };
-
 
 const Tweet = mongoose.model("tweet", TweetSchema);
 

@@ -8,21 +8,21 @@ const auth = require("../middleware/auth");
 const { default: mongoose } = require("mongoose");
 require("./../models/constants/notificationType.js");
 
-router.get("/notifications/list", auth, async (req, res) => {
+router.get("/notifications/list/:page/:count", auth, async (req, res) => {
   try {
     const user = req.user;
     const username = user["username"];
     let count = 10;
 
-    if (isNaN(req.body.page) || req.body.page <= 0) {
+    if (isNaN(req.params.page) || req.params.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!isNaN(req.body.count) && req.body.count >= 0) {
-      count = req.body.count;
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
     }
 
-    const page = parseInt(req.body.page);
+    const page = parseInt(req.params.page);
     const result = await notificationModel
       .find({ userId: user._id })
       .sort({ createdAt: -1 })
@@ -55,20 +55,20 @@ router.get("/notifications/list", auth, async (req, res) => {
   }
 });
 
-router.get("/follower/list/:username", auth, async (req, res) => {
+router.get("/follower/list/:username/:page/:count", auth, async (req, res) => {
   const _username = req.params.username;
   let count = 10;
 
   try {
-    if (isNaN(req.body.page) || req.body.page <= 0) {
+    if (isNaN(req.params.page) || req.params.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!isNaN(req.body.count) && req.body.count >= 0) {
-      count = req.body.count;
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
     }
 
-    const page = parseInt(req.body.page);
+    const page = parseInt(req.params.page);
     const user = await userModel.findOne({
       username: _username,
     });
@@ -109,15 +109,15 @@ router.get("/following/list/:username", auth, async (req, res) => {
   let count = 10;
 
   try {
-    if (isNaN(req.body.page) || req.body.page <= 0) {
+    if (isNaN(req.params.page) || req.params.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!isNaN(req.body.count) && req.body.count >= 0) {
-      count = req.body.count;
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
     }
 
-    const page = parseInt(req.body.page);
+    const page = parseInt(req.params.page);
     const user = await userModel.findOne({
       username: _username,
     });
