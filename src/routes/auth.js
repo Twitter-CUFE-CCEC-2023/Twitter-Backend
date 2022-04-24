@@ -11,18 +11,19 @@ router.post("/auth/signup", async (req, res) => {
     const user = new User(req.body);
 
     if (!(await User.checkConflict(user.email, user.username))) {
-      await user.save();
-      // const token = await user.generateAuthToken();
-      await user.sendVerifyEmail(user.email, user.verificationCode);
-
+      const savedUser  = await user.save();
+      if(!savedUser) {
+        return res.status(400).send({ error: "User not saved" });
+      }
+      console.log(savedUser);
+      //await user.sendVerifyEmail(user.email, user.verificationCode);
+      const userObj = await User.generateUserObject(savedUser);
       res.status(200).send({
-        // access_token: token,
-        user: user,
-        // token_expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        user: userObj,
         message: "User Signed up successfully",
       });
     } else {
-      res.status(409).send({ error_message: "User already exists" });
+      res.status(409).send({ message: "User already exists" });
     }
   } catch (err) {
     if (err.name == "ValidationError") {
@@ -30,6 +31,30 @@ router.post("/auth/signup", async (req, res) => {
     } else {
       res.status(500).send(err.toString() + "\n" + typeof err);
     }
+  }
+});
+
+router.post("/auth/resend-verification", async (req, res) => {
+  try {
+    if (req.body.email_or_username) {
+      const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
+      if (user) {
+        await user.sendVerifyEmail(user.email, user.verificationCode);
+        res.status(200).send({ message: "Verification email sent" });
+      } else {
+        res.status(404).send({ error_message: "User not found." });
+      }
+    } else {
+      res.status(400).send({
+        error_message:
+          "The server cannot or will not process the request due to something that is perceived to be a client error",
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      error_message:
+        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+    });
   }
 });
 
@@ -167,6 +192,42 @@ router.put("/auth/update-password", auth, async (req, res) => {
       res.status(401).send({ message: "Wrong credentials." });
     }
   } catch (err) {
+    res.status(500).send({
+      message:
+        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+    });
+  }
+});
+
+router.put("/auth/verify-credentials", async (req, res) => {
+  try {
+    if (req.body.id && req.body.verificationCode) {
+      const user = await User.getUserByID(req.body.user_id);
+      if (user) {
+        if (
+          user.verificationCode == req.body.verificationCode &&
+          new Date() < user.verificationCodeExpiration
+        ) {
+          user.isVerified = true;
+          await user.save();
+          const userObj = await User.generateUserObject(user);
+          res.status(200).send({
+            user: userObj,
+            message: "User verified successfully.",
+          });
+        } else {
+          res
+            .status(401)
+            .send({ message: "The verification code is invalid." });
+        }
+      }
+    } else {
+      res.status(400).send({
+        message:
+          "The server cannot or will not process the request due to something that is perceived to be a client error.",
+      });
+    }
+  } catch {
     res.status(500).send({
       message:
         "The server encountered an unexpected condition which prevented it from fulfilling the request.",
