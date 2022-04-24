@@ -18,5 +18,3 @@ EXPOSE 80
 CMD ["npm", "start"]
 
 
-FROM nginx
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
