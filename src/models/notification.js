@@ -52,7 +52,7 @@ NotificationSchema.statics.getNotificationObject = async function (
 
   if (notification.tweetId != null) {
     const Tweet = mongoose.model("tweet");
-    tweet = await Tweet.getTweetObject(notification.tweetId, notification.userId.username);
+    tweet = await Tweet.getTweetObject(notification.tweetId, notification.userId.username, false);
   }
   if (notification.relatedUserId != null) {
     const User = mongoose.model("user");
