@@ -105,7 +105,7 @@ router.get("/follower/list/:username/:page/:count", auth, async (req, res) => {
   }
 });
 
-router.get("/following/list/:username", auth, async (req, res) => {
+router.get("/following/list/:username/:page/:count", auth, async (req, res) => {
   const _username = req.params.username;
   let count = 10;
 
