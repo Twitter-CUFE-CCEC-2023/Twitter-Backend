@@ -11,8 +11,8 @@ router.post("/auth/signup", async (req, res) => {
     const user = new User(req.body);
 
     if (!(await User.checkConflict(user.email, user.username))) {
-      const savedUser  = await user.save();
-      if(!savedUser) {
+      const savedUser = await user.save();
+      if (!savedUser) {
         return res.status(400).send({ error: "User not saved" });
       }
       await user.sendVerifyEmail(user.email, user.verificationCode);
@@ -36,7 +36,9 @@ router.post("/auth/signup", async (req, res) => {
 router.post("/auth/resend-verification", async (req, res) => {
   try {
     if (req.body.email_or_username) {
-      const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
+      const user = await User.getUserByUsernameOrEmail(
+        req.body.email_or_username
+      );
       if (user) {
         await user.sendVerifyEmail(user.email, user.verificationCode);
         res.status(200).send({ message: "Verification email sent" });
@@ -180,15 +182,18 @@ router.put("/auth/reset-password", async (req, res) => {
 router.put("/auth/update-password", auth, async (req, res) => {
   try {
     const user = req.user;
-    if (user) {
+    const verifiedUser = await User.verifyCreds(
+      user.email,
+      req.body.old_password
+    );
+    if (verifiedUser) {
       user.password = req.body.new_password;
       await user.save();
-
       res
         .status(200)
         .send({ message: "Password has been updated successfully." });
     } else {
-      res.status(401).send({ message: "Wrong credentials." });
+      res.status(401).send({ message: "Wrong credentials or invalid token" });
     }
   } catch (err) {
     res.status(500).send({
@@ -207,7 +212,10 @@ router.put("/auth/verify-credentials", async (req, res) => {
           user.verificationCode == req.body.verificationCode &&
           new Date() < user.verificationCodeExpiration
         ) {
-          await User.updateOne({_id:user._id}, {$set:{isVerified:true}});
+          await User.updateOne(
+            { _id: user._id },
+            { $set: { isVerified: true } }
+          );
           const userObj = await User.generateUserObject(user);
           res.status(200).send({
             user: userObj,
