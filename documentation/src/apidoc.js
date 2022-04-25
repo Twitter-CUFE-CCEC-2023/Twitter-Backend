@@ -967,7 +967,7 @@
  **/
 
 /**
- * @api {delete} /user/unfollow Unfollow user
+ * @api {post} /user/unfollow Unfollow user
  * @apiVersion 0.1.0
  * @apiName UnFollowUser
  * @apiGroup User
@@ -1001,7 +1001,7 @@
  **/
 
 /**
- * @api {GET} /followers/list/:username/:page/:count Followers list
+ * @api {GET} /follower/list/:username/:page/:count Followers list
  * @apiVersion 0.1.0
  * @apiName FollowersList
  * @apiGroup User
