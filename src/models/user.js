@@ -198,7 +198,7 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
     (await bcrypt.compare(password, user.password)) &&
     user.isVerified
   ) {
-    return new user();
+    return user;
   } else {
     return null;
   }
