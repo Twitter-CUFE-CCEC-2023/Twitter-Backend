@@ -1,11 +1,11 @@
 const nodemailer = require("nodemailer");
 
 const transport = nodemailer.createTransport({
-  host: "smtp.mailtrap.io",
-  port: 2525,
+  host: "smtp.zoho.com",
+  port: 465,
   auth: {
-    user: "bbfd49a362070c",
-    pass: "40af911cf2083a",
+    user: "noreply@twittcloneteamone.xyz",
+    pass: "twittercloneemailHost",
   },
 });
 

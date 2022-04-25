@@ -212,11 +212,14 @@ router.put("/auth/verify-credentials", async (req, res) => {
           user.verificationCode == req.body.verificationCode &&
           new Date() < user.verificationCodeExpiration
         ) {
-          await User.updateOne(
+          const userVerified = await User.updateOne(
             { _id: user._id },
             { $set: { isVerified: true } }
           );
-          const userObj = await User.generateUserObject(user);
+          if (!userVerified) {
+            throw new Error();
+          }
+          const userObj = await User.generateUserObject(userVerified);
           res.status(200).send({
             user: userObj,
             message: "User verified successfully.",

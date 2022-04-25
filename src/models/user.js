@@ -10,14 +10,6 @@ const transporter = require("../services/email");
 require("./constants/birthInformationAccess");
 require("./constants/userRole");
 
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: config.verificationEmail,
-//     pass: config.verificationPassword,
-//   },
-// });
-
 const Schema = mongoose.Schema;
 const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
 const userRole = require("./../../seed-data/constants/userRole");
@@ -255,7 +247,7 @@ UserSchema.statics.generateResetPasswordCode = async function () {
 
 UserSchema.methods.sendVerifyEmail = async function (email, verificationCode) {
   const mailOptions = {
-    from: "bbfd49a362070c",
+    from: "noreply@twittcloneteamone.xyz",
     to: email,
     subject: "Verification email",
     text:
