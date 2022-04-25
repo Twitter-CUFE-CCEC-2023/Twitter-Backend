@@ -97,6 +97,7 @@ router.get("/follower/list/:username/:page/:count", auth, async (req, res) => {
       const userFollower = await userModel.generateUserObject(
         userFollowers.followers[i]
       );
+      userFollower.is_followed = req.user.followings.includes(userFollower.id);
       followers.push(userFollower);
     }
     res.status(200).send({ followers: followers });
@@ -146,6 +147,7 @@ router.get("/following/list/:username/:page/:count", auth, async (req, res) => {
       const userFollowing = await userModel.generateUserObject(
         userFollowings.followings[i]
       );
+      userFollowing.is_followed = req.user.followings.includes(userFollowing.id);
       followings.push(userFollowing);
     }
     res.status(200).send({ followings: followings });

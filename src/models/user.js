@@ -6,7 +6,7 @@ const config = require("../config");
 const tweetModel = require("./tweet");
 const likeModel = require("./like");
 const banUserModel = require("./banUser");
-const transporter = require('../services/email');
+const transporter = require("../services/email");
 require("./constants/birthInformationAccess");
 require("./constants/userRole");
 
@@ -126,7 +126,7 @@ const UserSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "userRole",
       index: true,
-      default: userRole.defaultRole
+      default: userRole.defaultRole,
     },
     isBanned: {
       type: Boolean,
@@ -193,8 +193,12 @@ UserSchema.statics.verifyCreds = async function (username_email, password) {
       select: "name",
     });
 
-  if (user && await bcrypt.compare(password, user.password) && user.isVerified) {
-      return new user;
+  if (
+    user &&
+    (await bcrypt.compare(password, user.password)) &&
+    user.isVerified
+  ) {
+    return new user();
   } else {
     return null;
   }
@@ -204,8 +208,7 @@ UserSchema.statics.getUserByID = async function (id) {
   const user = await User.findOne({ _id: id });
   if (user) {
     return new User(user);
-  }
-  else {
+  } else {
     await null;
   }
 };
@@ -302,7 +305,7 @@ UserSchema.statics.generateUserObject = async function (user) {
     const banInfo = await banUserModel.findOne({ userId: user._id });
 
     const userObj = {
-      _id: user._id,
+      id: user._id,
       name: user.name,
       username: user.username,
       email: user.email,
@@ -328,6 +331,7 @@ UserSchema.statics.generateUserObject = async function (user) {
       userObj.banDuration = banInfo.banDuration;
       userObj.permanentBan = banInfo.isPermanent;
     }
+
     return userObj;
   } catch (err) {
     return null;
