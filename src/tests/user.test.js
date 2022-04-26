@@ -23,7 +23,7 @@ const userOne = {
     followers: [userTwoId],
     followings: [userTwoId],
     gender:"Male",
-    tokens: [{ token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET) }]
+    tokens: [{ token: jwt.sign({ _id: userOneId }, " "+ process.env.JWT_SECRET) }]
 }
 
 const userTwo = {
@@ -36,7 +36,7 @@ const userTwo = {
     followers: [userOneId],
     followings: [userOneId],
     gender:"Male",
-    tokens: [{ token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET) }]
+    tokens: [{ token: jwt.sign({ _id: userOneId }, " "+process.env.JWT_SECRET) }]
 }
 
 const notificationOne = {
@@ -95,7 +95,7 @@ beforeEach(async () => {
         .expect(404);
 });*/
 
-test("Should get followers list",auth, async () => {
+test("Should get followers list", async () => {
     const response = await request(app)
         .get("/follower/list/" + userTwo.username)
         .set("Authorization", `Bearer ${ userOne.tokens[0].token}`)
