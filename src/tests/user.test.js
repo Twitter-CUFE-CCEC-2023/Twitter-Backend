@@ -69,12 +69,9 @@ afterAll(() => {
 
 beforeEach(async () => {
     await User.deleteMany({});
-    await followUserModel.deleteMany({});
     await notificationModel.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
-    await new followUserModel(followUserOne).save();
-    await new followUserModel(followUserTwo).save();
     await new notificationModel(notificationOne).save();
     await new notificationModel(notificationTwo).save();
 });
@@ -96,7 +93,7 @@ beforeEach(async () => {
         .expect(404);
 });*/
 
-test("Should get followers list", async () => {
+test("Should get followers list",auth, async () => {
     const response = await request(app)
         .get("/follower/list/" + userTwo.username)
         .set("Authorization", `Bearer ${ userOne.tokens[0].token}`)
