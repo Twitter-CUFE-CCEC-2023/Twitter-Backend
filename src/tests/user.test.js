@@ -4,7 +4,6 @@ const app = require("./testApp");
 const mongoose = require("mongoose");
 const config = require("../config");
 const User = require("../models/user");
-const followUserModel = require("../models/followUser");
 const notificationModel = require("./../models/notification.js");
 
 const connectionurl = config.testConnectionString;
@@ -19,6 +18,9 @@ const userOne = {
     birth_date: "2000-01-01T00:00:00.000Z",
     email: "zika@gmail.com",
     password: "myPassw@ord123",
+    followers: [userTwoId],
+    followings: [userTwoId],
+    gender:"Male",
     tokens: [{ token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET) }]
 }
 
@@ -29,16 +31,10 @@ const userTwo = {
     birth_date: "1999-10-10T00:00:00.000Z",
     email: "elgarf@gmail.com",
     password: "TTFTTSTTD",
+    followers: [userOneId],
+    followings: [userOneId],
+    gender:"Male",
     tokens: [{ token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET) }]
-}
-
-const followUserOne = {
-    userId: userOneId,
-    followingUserId: userTwoId,
-}
-const followUserTwo = {
-    userId: userTwoId,
-    followingUserId: userOneId,
 }
 
 const notificationOne = {
