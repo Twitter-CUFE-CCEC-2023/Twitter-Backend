@@ -2,25 +2,28 @@ const express = require("express");
 const router = express.Router();
 const notificationModel = require("./../models/notification.js");
 const tweetModel = require("./../models/tweet");
-const userModel = require("./../models/user");
+const userModel = require("./../models/user.js");
+const Like = require("../models/like");
 const auth = require("../middleware/auth");
+const { default: mongoose } = require("mongoose");
+const { get } = require("express/lib/response");
 require("./../models/constants/notificationType.js");
 
-router.get("/notifications/list", auth, async (req, res) => {
+router.get("/notifications/list/:page/:count", auth, async (req, res) => {
   try {
     const user = req.user;
     const username = user["username"];
     let count = 10;
 
-    if (isNaN(req.body.page) || req.body.page <= 0) {
+    if (isNaN(req.params.page) || req.params.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!isNaN(req.body.count) && req.body.count >= 0) {
-      count = req.body.count;
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
     }
 
-    const page = req.body.page === "" ? 1 : parseInt(req.body.page);
+    const page = parseInt(req.params.page);
     const result = await notificationModel
       .find({ userId: user._id })
       .sort({ createdAt: -1 })
@@ -28,11 +31,9 @@ router.get("/notifications/list", auth, async (req, res) => {
       .limit(count)
       .populate({
         path: "relatedUserId",
-        select: "username name profilePicture -_id",
       })
       .populate({
         path: "notificationTypeId",
-        select: "name -_id",
       })
       .populate({
         path: "tweetId",
@@ -42,53 +43,38 @@ router.get("/notifications/list", auth, async (req, res) => {
       res.status(404).send({ error_message: "Notifications not found" });
     }
 
-    const getNotifications = result.map(async (item) => {
-      if (!item.tweetId) {
-        return item;
-      }
-      const tweetInfo = await tweetModel.getTweetInfobyId(
-        item.tweetId,
-        username
+    const notifications = [];
+    for (let i = 0; i < result.length; i++) {
+      const notificationObject = await notificationModel.getNotificationObject(
+        result[i]
       );
-      if (tweetInfo.error) {
-        return item;
-      }
-      item.tweetId.tweetInfo = tweetInfo;
-      return item;
-    });
-
-    Promise.all(getNotifications)
-      .then((result) => {
-        res.status(200).send(result);
-      })
-      .catch((error) => {
-        throw error;
-      });
+      notifications.push(notificationObject);
+    }
+    res.status(200).send({ notifications: notifications });
   } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: "Error in getting notifications" });
+    res.status(500).send(err.toString());
   }
 });
 
-router.get("/follower/list/:username", auth, async (req, res) => {
+router.get("/follower/list/:username/:page/:count", auth, async (req, res) => {
   const _username = req.params.username;
   let count = 10;
 
   try {
-    if (isNaN(req.body.page) || req.body.page <= 0) {
+    if (isNaN(req.params.page) || req.params.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!isNaN(req.body.count) && req.body.count >= 0) {
-      count = req.body.count;
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
     }
 
-    const page = req.body.page === "" ? 1 : parseInt(req.body.page);
+    const page = parseInt(req.params.page);
     const user = await userModel.findOne({
       username: _username,
     });
     if (!user) {
-      return res.status(404).send({ error_message: "User not found" });
+      return res.status(404).send({ message: "User not found" });
     }
 
     const userFollowers = await userModel
@@ -98,39 +84,47 @@ router.get("/follower/list/:username", auth, async (req, res) => {
       .select("followers -_id")
       .populate({
         path: "followers",
-        select: "username name bio profilePicture -_id",
       })
       .skip(count * (page - 1))
       .limit(count);
 
     if (!userFollowers) {
-      return res.status(404).send({ error_message: "Followers not found" });
+      return res.status(404).send({ message: "Followers not found" });
     }
-    res.send(userFollowers);
+
+    const followers = [];
+    for (let i = 0; i < userFollowers.followers.length; i++) {
+      const userFollower = await userModel.generateUserObject(
+        userFollowers.followers[i]
+      );
+      userFollower.is_followed = req.user.followings.includes(userFollower.id);
+      followers.push(userFollower);
+    }
+    res.status(200).send({ followers: followers });
   } catch (error) {
     res.status(500).send("Internal server Error");
   }
 });
 
-router.get("/following/list/:username", auth, async (req, res) => {
+router.get("/following/list/:username/:page/:count", auth, async (req, res) => {
   const _username = req.params.username;
   let count = 10;
 
   try {
-    if (isNaN(req.body.page) || req.body.page <= 0) {
+    if (isNaN(req.params.page) || req.params.page <= 0) {
       return res.status(400).send({ message: "Invalid page number" });
     }
 
-    if (!isNaN(req.body.count) && req.body.count >= 0) {
-      count = req.body.count;
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
     }
 
-    const page = req.body.page === "" ? 1 : parseInt(req.body.page);
+    const page = parseInt(req.params.page);
     const user = await userModel.findOne({
       username: _username,
     });
     if (!user) {
-      return res.status(404).send({ error_message: "User not found" });
+      return res.status(404).send({ message: "User not found" });
     }
 
     const userFollowings = await userModel
@@ -140,17 +134,163 @@ router.get("/following/list/:username", auth, async (req, res) => {
       .select("followings -_id")
       .populate({
         path: "followings",
-        select: "username name bio profilePicture -_id",
       })
       .skip(count * (page - 1))
       .limit(count);
 
     if (!userFollowings) {
-      return res.status(404).send({ error_message: "Followings not found" });
+      return res.status(404).send({ message: "Followings not found" });
     }
-    res.send(userFollowings);
+
+    const followings = [];
+    for (let i = 0; i < userFollowings.followings.length; i++) {
+      const userFollowing = await userModel.generateUserObject(
+        userFollowings.followings[i]
+      );
+      userFollowing.is_followed = req.user.followings.includes(userFollowing.id);
+      followings.push(userFollowing);
+    }
+    res.status(200).send({ followings: followings });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/info/:username", auth, async (req, res) => {
+  const _username = req.params.username;
+  try {
+    if (_username === req.user.username) {
+      const userObj = await userModel.generateUserObject(req.user);
+      return res.status(200).send({ user: userObj });
+    }
+    const user = await userModel.findOne({
+      username: _username,
+    });
+    if (!user) {
+      return res.status(404).send({ error_message: "User not found" });
+    }
+    const userObj = await userModel.generateUserObject(user);
+    res.status(200).send({ user: userObj });
   } catch (error) {
     res.status(500).send(error.toString());
+  }
+});
+
+router.post("/user/follow", auth, async (req, res) => {
+  const user1 = req.user;
+  const user2 = await userModel.findOne({
+    _id: req.body.id,
+  });
+  if (!user2) {
+    return res.status(404).send({ error_message: "User not found" });
+  }
+  if (user1._id == user2._id) {
+    return res.status(400).send({ error: "You cannot follow yourself" });
+  }
+  if (user1.followings.includes(user2._id)) {
+    return res
+      .status(400)
+      .send({ error: "You are already following this user" });
+  }
+  try {
+    const _followeruser = user1.followings.concat(user2._id);
+    const _followinguser = user2.followers.concat(user1._id);
+    const followerUser = await userModel.findByIdAndUpdate(
+      user1._id,
+      { followings: _followeruser },
+      { new: true, runValidators: true }
+    );
+    const followingUser = await userModel.findByIdAndUpdate(
+      user2._id,
+      { followers: _followinguser },
+      { new: true, runValidators: true }
+    );
+    if (!followingUser || !followerUser) {
+      return res.status(404).send({ error_message: "User not found" });
+    }
+    const user = await userModel.generateUserObject(followingUser);
+    res.status(200).send({
+      user: user,
+      message: "User Followed successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
+router.post("/user/unfollow", auth, async (req, res) => {
+  const user1 = req.user;
+  const user2 = await userModel.findOne({
+    _id: req.body.id,
+  });
+  if (!user2) {
+    return res.status(404).send({ error: "User not found" });
+  }
+  if (!user1.followings.includes(user2._id)) {
+    return res.status(400).send({ error: "You are not following this user" });
+  }
+  try {
+    const _followeruser = user1.followings.filter((id) => id == user2._id);
+    const _followinguser = user2.followers.filter((id) => id == user1._id);
+    const followerUser = await userModel.findByIdAndUpdate(
+      user1._id,
+      { followings: _followeruser },
+      { new: true, runValidators: true }
+    );
+    const followingUser = await userModel.findByIdAndUpdate(
+      user2._id,
+      { followers: _followinguser },
+      { new: true, runValidators: true }
+    );
+    if (!followingUser || !followerUser) {
+      return res.status(404).send({ error: "User not found" });
+    }
+    const user = await userModel.generateUserObject(followingUser);
+    res.status(200).send({
+      user: user,
+      message: "User Unfollowed successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
+router.get("/liked/list/:username/:page/:count", auth, async (req, res) => {
+  try {
+    const _username = req.params.username;
+    let count = 10;
+
+    if (isNaN(req.params.page) || req.params.page <= 0) {
+      return res.status(400).send({ message: "Invalid page number" });
+    }
+
+    if (!isNaN(req.params.count) && req.params.count >= 0) {
+      count = req.params.count;
+    }
+
+    const page = parseInt(req.params.page);
+    const tweets = await Like.find({ likerUsername: req.params.username })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "tweetId",
+      })
+      .skip(count * (page - 1))
+      .limit(count);
+
+    const likedTweets = [];
+    for (let i = 0; i < tweets.length; i++) {
+      const tweet = await tweetModel.getTweetObject(
+        tweets[i].tweetId,
+        req.user.username
+      );
+      likedTweets.push(tweet);
+    }
+    res.status(200).send({
+      tweets: likedTweets,
+      message: "Tweets have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
   }
 });
 

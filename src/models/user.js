@@ -3,17 +3,16 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const config = require("../config");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: config.verificationEmail,
-    pass: config.verificationPassword,
-  },
-});
+const tweetModel = require("./tweet");
+const likeModel = require("./like");
+const banUserModel = require("./banUser");
+const transporter = require("../services/email");
+require("./constants/birthInformationAccess");
+require("./constants/userRole");
 
 const Schema = mongoose.Schema;
 const birthInformationAccess = require("./../../seed-data/constants/birthInformationAccess");
+const userRole = require("./../../seed-data/constants/userRole");
 
 const UserSchema = new Schema(
   {
@@ -43,13 +42,16 @@ const UserSchema = new Schema(
       minLength: 8,
       trim: true,
     },
-    dateOfBirth: {
+    birth_date: {
       type: Date,
       required: true,
     },
     gender: {
       type: String,
       required: true,
+    },
+    phone_number: {
+      type: String,
     },
     location: {
       type: String,
@@ -96,15 +98,18 @@ const UserSchema = new Schema(
         token: {
           type: String,
         },
-        default: [],
+        token_expiration_date: {
+          type: Date,
+          default: new Date(new Date().setHours(new Date().getHours() + 24)),
+        },
       },
     ],
-    profilePicture: {
+    profile_picture: {
       type: String,
       trim: true,
       default: "",
     },
-    coverPicture: {
+    cover_picture: {
       type: String,
       trim: true,
       default: "",
@@ -113,6 +118,7 @@ const UserSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "userRole",
       index: true,
+      default: userRole.defaultRole,
     },
     isBanned: {
       type: Boolean,
@@ -139,9 +145,17 @@ UserSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 12);
   }
-  var verificationCode = await User.getVerificationCode();
-  var lengthDiff = 6 - verificationCode.toString().length;
-  for (var i = 0; i < lengthDiff; i++) {
+  if (user.isModified("resetCode")) {
+    let resetCode = user.resetCode.toString();
+    let lengthDiff = 6 - resetCode.length;
+    for (let index = 0; index < lengthDiff; i++) {
+      resetCode = "0" + resetCode;
+    }
+    user.resetCode = resetCode;
+  }
+  let verificationCode = (await User.getVerificationCode()).toString();
+  let lengthDiff = 6 - verificationCode.length;
+  for (let index = 0; index < lengthDiff; i++) {
     verificationCode = "0" + verificationCode;
   }
   user.verificationCode = verificationCode;
@@ -158,25 +172,40 @@ UserSchema.statics.checkConflict = async function (email) {
 
 // Verify user creds and check if username and password both are correct or if only the password is wrong.
 UserSchema.statics.verifyCreds = async function (username_email, password) {
-  const user = await User.find({
+  const user = await User.findOne({
     $or: [{ email: username_email }, { username: username_email }],
-  });
-  if (user[0]) {
-    const isMatch = await bcrypt.compare(password, user[0].password);
-    if (isMatch) {
-      return new User(user[0]);
-    } else {
-      return null;
-    }
+  })
+    .populate({ path: "roleId", select: "name" })
+    .populate({
+      path: "monthDayBirthAccessId",
+      select: "name",
+    })
+    .populate({
+      path: "yearBirthAccessId",
+      select: "name",
+    });
+
+  if (
+    user &&
+    (await bcrypt.compare(password, user.password)) &&
+    user.isVerified
+  ) {
+    return user;
   } else {
     return null;
   }
 };
 
-UserSchema.statics.getUserByUsernameOrEmail = async function (
-  username_email,
-  password
-) {
+UserSchema.statics.getUserByID = async function (id) {
+  const user = await User.findOne({ _id: id });
+  if (user) {
+    return new User(user);
+  } else {
+    await null;
+  }
+};
+
+UserSchema.statics.getUserByUsernameOrEmail = async function (username_email) {
   const user = await User.find({
     $or: [{ email: username_email }, { username: username_email }],
   });
@@ -201,21 +230,29 @@ UserSchema.methods.generateAuthToken = async function () {
 };
 
 UserSchema.statics.getVerificationCode = async function () {
-  var verification_code = "";
-  for (var iteration = 0; iteration < 6; iteration++) {
-    verification_code += "" + Math.floor(Math.random() * 10);
+  let verificationCode = "";
+  for (let iteration = 0; iteration < 6; iteration++) {
+    verificationCode += "" + Math.floor(Math.random() * 10);
   }
-  return verification_code;
+  return verificationCode;
 };
 
-UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
+UserSchema.statics.generateResetPasswordCode = async function () {
+  let resetCode = "";
+  for (let iteration = 0; iteration < 6; iteration++) {
+    resetCode += "" + Math.floor(Math.random() * 10);
+  }
+  return resetCode;
+};
+
+UserSchema.methods.sendVerifyEmail = async function (email, verificationCode) {
   const mailOptions = {
-    from: process.env.verification_email,
+    from: "noreply@twittcloneteamone.xyz",
     to: email,
     subject: "Verification email",
     text:
       "Thank you for signing up for an account on our site!\n\nPlease verify your account, below you can find your verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
-      verification_code +
+      verificationCode +
       "\n\nBest Regards.",
   };
 
@@ -224,20 +261,20 @@ UserSchema.methods.sendVerifyEmail = async function (email, verification_code) {
       throw error;
     }
   });
-  return verification_code;
+  return verificationCode;
 };
 
 UserSchema.methods.sendVerifyResetEmail = async function (
   email,
-  verification_code
+  resetPasswordCode
 ) {
   const mailOptions = {
-    from: process.env.verification_email,
+    from: "smtp.mailtrap.io",
     to: email,
     subject: "Password reset email",
     text:
       "Below you can find your password reset verification code which is valid for 24 hours.\n\nYour verification code is: \n" +
-      verification_code +
+      resetPasswordCode +
       "\n\nPlease never share this code anywhere.\n\nBest Regards.",
   };
 
@@ -246,7 +283,51 @@ UserSchema.methods.sendVerifyResetEmail = async function (
       throw error;
     }
   });
-  return verification_code;
+  return resetPasswordCode;
+};
+
+UserSchema.statics.generateUserObject = async function (user) {
+  try {
+    const tweetsCount = await tweetModel
+      .find({ userId: user._id })
+      .countDocuments();
+    const likesCount = await likeModel
+      .find({ likerUsername: user.username })
+      .countDocuments();
+    const banInfo = await banUserModel.findOne({ userId: user._id });
+
+    const userObj = {
+      id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      phone: user.phone_number,
+      profile_image_url: user.profile_picture,
+      cover_image_url: user.cover_picture,
+      bio: user.bio,
+      website: user.website,
+      location: user.location,
+      birth_date: user.birth_date,
+      created_at: user.createdAt,
+      role: user.roleId.name,
+      followers_count: user.followers.length,
+      following_count: user.followings.length,
+      tweets_count: tweetsCount,
+      likes_count: likesCount,
+      isBanned: user.isBanned,
+      isVerified: user.isVerified,
+      month_day_access: user.monthDayBirthAccessId.name,
+      year_access: user.yearBirthAccessId.name,
+    };
+    if (banInfo) {
+      userObj.banDuration = banInfo.banDuration;
+      userObj.permanentBan = banInfo.isPermanent;
+    }
+
+    return userObj;
+  } catch (err) {
+    return null;
+  }
 };
 
 const User = mongoose.model("user", UserSchema);

@@ -7,7 +7,6 @@ const auth = require("../middleware/auth");
 const router = express.Router();
 
 
-
 router.post("/dashboard/ban", async (req, res) => {
   const banuser = new banUser(req.body);
   const updates = Object.keys(req.body);
@@ -331,6 +330,5 @@ router.get("/dashboard/tweets-per-gender", async (req, res) => {
     res.status(500).send(e);
   }
 });
-
 
 module.exports = router;
