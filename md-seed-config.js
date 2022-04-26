@@ -25,7 +25,7 @@ module.exports.seedersList = {
  * @return {Promise}
  */
 module.exports.connect = async () =>
-  await mongoose.connect(config.devConnectionSting, {
+  await mongoose.connect(config.cloudConnectString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
