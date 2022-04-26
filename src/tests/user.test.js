@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const config = require("../config");
 const User = require("../models/user");
 const notificationModel = require("./../models/notification.js");
-require("./src/tests/.env").config();
+require("dotenv").config();
 
 
 const connectionurl = config.testConnectionString;
