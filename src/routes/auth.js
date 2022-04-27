@@ -205,8 +205,8 @@ router.put("/auth/update-password", auth, async (req, res) => {
 
 router.put("/auth/verify-credentials", async (req, res) => {
   try {
-    if (req.body.id && req.body.verificationCode) {
-      const user = await User.getUserByID(req.body.id);
+    if (req.body.emai_or_username && req.body.verificationCode) {
+      const user = await User.getUserByUsernameOrEmail(req.body.email_or_username);
       if (user) {
         if (
           user.verificationCode == req.body.verificationCode &&
