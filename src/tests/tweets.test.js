@@ -153,7 +153,7 @@ test("Should give error for unlike a tweet", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id,
+                tweetId: new mongoose.Types.ObjectId(),
                 likerUsername: user.username
             }
         )
