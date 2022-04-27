@@ -34,8 +34,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
     }
     res.status(200).send({ tweets: tweets });
   } catch (error) {
-    //res.status(500).send({"message": "Internal Server Error"});
-    res.status(500).send(error.toString());
+    res.status(500).send({"message": "Internal Server Error"});
   }
 });
 
