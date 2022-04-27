@@ -31,25 +31,25 @@ afterAll(() => {
 
 id = new mongoose.Types.ObjectId()
 id2 = new mongoose.Types.ObjectId()
-
+const userOneId = new mongoose.Types.ObjectId();
+const userTwoId = new mongoose.Types.ObjectId();
+const userThreeId = new mongoose.Types.ObjectId();
 const tweet1 = {
     _id: id,
-    userId:id2,
+    userId:userOneId,
     username: "zikaaaaaa",
     content: "I am the first tweet"
 }
 
 const tweet2 = {
     username: "zikaaaaaa",
-    userId: id2,
+    userId: userOneId,
     parentId: id,
     isRetweeted: true,
     content: "I am the second tweet"
 }
 
-const userOneId = new mongoose.Types.ObjectId();
-const userTwoId = new mongoose.Types.ObjectId();
-const userThreeId = new mongoose.Types.ObjectId();
+
 
 const userOne = {
     _id: userOneId,
