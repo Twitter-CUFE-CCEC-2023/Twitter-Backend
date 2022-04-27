@@ -97,8 +97,8 @@ beforeEach(async () => {
 
 test("Should get followers list", async () => {
     const response = await request(app)
-        .get("/follower/list/" + userTwo.username+1)
-        .set("Authorization", `Bearer ${ userOne.tokens[0].token}`)
+        .get("/follower/list/" + userTwo.username+"/1/2")
+        .set("Authorization", `Bearer ${ userTwo.tokens[0].token}`)
         .send()
         .expect(200);
 });
