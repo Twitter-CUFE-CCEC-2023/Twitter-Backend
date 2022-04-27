@@ -88,7 +88,16 @@ const userThree = {
     isVerified: true
 }
 
-
+async function getUser(username_email) {
+    const user = await User.find({
+        $or: [{ email: username_email }, { username: username_email }],
+    });
+    if (user[0]) {
+        return new User(user[0]);
+    } else {
+        return null;
+    }
+};
 beforeEach(async () => {
     await User.deleteMany({});
     await new User(userOne).save();
@@ -125,7 +134,8 @@ test("Should like a tweet", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id
+                tweetId: tweet1._id,
+                likerUsername: user.username
             }
         )
         .expect(200);
@@ -143,16 +153,18 @@ test("Should unlike a tweet", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id
+                tweetId: tweet1._id,
+                likerUsername: user.username
             }
         )
         .expect(200);
         const unfollow = await request(app)
-        .post("/status/unlike")
+        .delete("/status/unlike")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id
+                tweetId: tweet1._id,
+                likerUsername: user.username
             }
         )
         .expect(200);
