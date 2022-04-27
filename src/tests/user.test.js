@@ -125,7 +125,7 @@ test("Testing that no user is found with this username", async () => {
     const user = await getUser("MostafaA");
     const response = await request(app)
         .get("/follower/list/me5aaaaa/1/2")
-        .set("Authorization", "Bearer " + login.body.token)
+        .set("Authorization", "Bearer " + user.tokens[0].token)
         .send()
         .expect(404);
 });
