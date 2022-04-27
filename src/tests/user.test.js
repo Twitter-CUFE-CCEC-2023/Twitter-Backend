@@ -94,12 +94,29 @@ beforeEach(async () => {
 
 
 
-/*test("Testing that no user is found with this username", async () => {
+test("Testing that no user is found with this username", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+
+    const user = await getUser("MostafaA");
     const response = await request(app)
-        .get("/following/list/me5aaaaa")
+        .get("/follower/list/me5aaaaa/1/2")
+        .set("Authorization", "Bearer " + login.body.token)
         .send()
         .expect(404);
-});*/
+});
 
 test("Should get followers list", async () => {
     const signup = await request(app).post("/auth/signup").send({
@@ -194,17 +211,75 @@ test("Should get notifications list", async () => {
     const response = await request(app)
         .get("/notifications/list")
         .set("Authorization", "Bearer " + user.tokens[0].token)
-        .send({
-            userId: userOneId,
-        })
+        .send()
         .expect(200);
 });
 
-test("Testing when sending Invalid ID", async () => {
+test("Should follow user", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                _id: userTwo._id
+            }
+        )
+        .expect(200);
+});
+test("Should give error message when you try to follow yourself", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                _id: userOne._id
+            }
+        )
+        .expect(400);
+});
+test("Should unfollow user", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                _id: userTwo._id
+            }
+        )
+        .expect(200);
+        const unfollow = await request(app)
+        .post("/user/unfollow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                _id: userTwo._id
+            }
+        )
+        .expect(200);
+});
+/*test("Testing when sending Invalid ID", async () => {
     const response = await request(app)
         .get("/notifications/list")
         .send({
             userId: "5e9f8f9f8b70b6ccc7a22cdf",
         })
         .expect(500);
-});
+});*/
