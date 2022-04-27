@@ -191,7 +191,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
       "replied_to_tweet",
       "mentions",
       "media_urls",
-      "notify",
+      "notify"
     ];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)

@@ -102,10 +102,6 @@ beforeEach(async () => {
 });
 
 
-
-
-
-
 test("Testing that no user is found with this username", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
