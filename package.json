@@ -1,13 +1,14 @@
 {
   "devDependencies": {
     "jest": "^27.5.1",
+    "jest-html-reporter": "^3.4.2",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "dotenv": "^16.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
@@ -24,7 +25,17 @@
   "version": "0.1.0",
   "main": "app.js",
   "jest": {
-    "testTimeout": 5000
+    "testTimeout": 5000,
+    "coverageDirectory": "./test-report",
+    "reporters": [
+      "default",
+      [
+        "./node_modules/jest-html-reporter",
+        {
+          "pageTitle": "Test Report"
+        }
+      ]
+    ]
   },
   "scripts": {
     "dev": "nodemon src/app.js",
@@ -43,5 +54,10 @@
   "homepage": "https://github.com/Twitter-CUFE-CCEC-2023/Twitter-Backend#readme",
   "mdSeed": {
     "seedersFolder": "seeders"
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Your test suite",
+    "outputPath": "test-report.html",
+    "includeFailureMsg": true
   }
 }
