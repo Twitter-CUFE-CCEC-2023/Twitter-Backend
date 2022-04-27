@@ -24,7 +24,7 @@ const userOne = {
     followings: [userTwoId],
     gender:"Male",
     tokens: [{ token: jwt.sign({ _id: userOneId }, " "+ process.env.JWT_SECRET) }],
-    isVerified
+    isVerified:true
 }
 
 const userTwo = {
