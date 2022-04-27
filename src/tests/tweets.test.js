@@ -108,7 +108,7 @@ beforeEach(async () => {
     await new Tweets(tweet2).save()
 });
 
-test('getting a tweet and the writing user from the tweet id', async()=>{
+/*test('getting a tweet and the writing user from the tweet id', async()=>{
     await request(app).get('/status/tweet/' + id).send({}).expect(200)
 })
 
@@ -121,7 +121,7 @@ test('deleting a tweet', async()=>{
         id:id
     }).expect(200)
 })
-
+*/
 test("Should give error for like a tweet", async () => {
     const login = await request(app)
         .post("/auth/login")
