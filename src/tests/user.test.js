@@ -36,19 +36,19 @@ const userTwo = {
     followers: [userOneId],
     followings: [userOneId],
     gender: "Male",
-    isVerified:true
+    isVerified: true
 }
 
 const userThreeId = new mongoose.Types.ObjectId();
 const userThree = {
-    _id:userThreeId,
+    _id: userThreeId,
     name: "Ammar yasser",
     username: "ElDr.Ammar",
     birth_date: "1999-10-10T00:00:00.000Z",
     email: "ammar@gmail.com",
     password: "ammaryasserEng",
     gender: "Male",
-    isVerified:true
+    isVerified: true
 }
 
 const notificationOne = {
@@ -211,8 +211,8 @@ test("Should get notifications list", async () => {
 
     const user = await getUser(userOne.username);
     const response = await request(app)
-        .get("/notifications/list")
         .set("Authorization", "Bearer " + user.tokens[0].token)
+        .get("/notifications/list")
         .send()
         .expect(200);
 });
@@ -229,7 +229,7 @@ test("Should follow user", async () => {
     }).expect(200);
     const login = await request(app)
         .post("/auth/login")
-        .send({ email_or_username:"MostafaA" , password: "myPassw@ord123" })
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
         .expect(200);
     const user = await getUser("MostafaA");
     const response = await request(app)
@@ -275,7 +275,7 @@ test("Should unfollow user", async () => {
             }
         )
         .expect(200);
-        const unfollow = await request(app)
+    const unfollow = await request(app)
         .post("/user/unfollow")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
