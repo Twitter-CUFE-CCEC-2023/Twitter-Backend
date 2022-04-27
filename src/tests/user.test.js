@@ -232,6 +232,32 @@ test("Should follow user", async () => {
         )
         .expect(200);
 });
+test("Should follow user", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                username: userTwo._id
+            }
+        )
+        .expect(200);
+        const unfollow = await request(app)
+        .post("/user/unfollow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                username: userTwo._id
+            }
+        )
+        .expect(200);
+});
 /*test("Testing when sending Invalid ID", async () => {
     const response = await request(app)
         .get("/notifications/list")
