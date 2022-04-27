@@ -39,6 +39,18 @@ const userTwo = {
     isVerified:true
 }
 
+const userThreeId = new mongoose.Types.ObjectId();
+const userThree = {
+    _id:userThreeId,
+    name: "Ammar yasser",
+    username: "ElDr.Ammar",
+    birth_date: "1999-10-10T00:00:00.000Z",
+    email: "ammar@gmail.com",
+    password: "ammaryasserEng",
+    gender: "Male",
+    isVerified:true
+}
+
 const notificationOne = {
     userId: userOneId,
     notificationTypeId: "6240cd218b70b6ccc7a22cdf",
@@ -84,6 +96,7 @@ beforeEach(async () => {
     await notificationModel.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
+    await new User(userThree).save();
     await new notificationModel(notificationOne).save();
     await new notificationModel(notificationTwo).save();
 });
@@ -228,14 +241,13 @@ test("Should follow user", async () => {
         .post("/auth/login")
         .send({ email_or_username:"MostafaA" , password: "myPassw@ord123" })
         .expect(200);
-
     const user = await getUser("MostafaA");
     const response = await request(app)
         .post("/user/follow")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                _id: userTwo._id
+                _id: userThree._id
             }
         )
         .expect(200);
