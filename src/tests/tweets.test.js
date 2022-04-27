@@ -167,7 +167,7 @@ test("Should give error for unlike a tweet", async () => {
                 likerUsername: user.username
             }
         )
-        .expect(404);
+        .expect(400);
 });
 test("posting a tweet", async()=>{
     const signup = await request(app).post("/auth/signup").send({
