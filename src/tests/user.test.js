@@ -281,7 +281,7 @@ test("Should unfollow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                id: userTwo._id
+                id: userThree._id
             }
         )
         .expect(200);
