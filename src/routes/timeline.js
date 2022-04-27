@@ -39,4 +39,11 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  // const user = await userModel.findOne({}).select("username -_id");
+  // console.log(user);
+  res.status(200).send({"test": "check working"});
+});
+
+
 module.exports = router;
