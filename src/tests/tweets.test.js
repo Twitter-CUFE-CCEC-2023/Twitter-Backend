@@ -157,7 +157,7 @@ test("Should give error for unlike a tweet", async () => {
                 likerUsername: user.username
             }
         )
-        .expect(200);
+        .expect(404);
         const unfollow = await request(app)
         .delete("/status/unlike")
         .set("Authorization", "Bearer " + user.tokens[0].token)
