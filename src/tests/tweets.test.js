@@ -97,7 +97,18 @@ beforeEach(async () => {
     await new Tweets(tweet2).save()
 });
 
-test('getting a tweet and the writing user from the tweet id', async()=>{
+async function getUser(username_email) {
+    const user = await User.find({
+        $or: [{ email: username_email }, { username: username_email }],
+    });
+    if (user[0]) {
+        return new User(user[0]);
+    } else {
+        return null;
+    }
+};
+
+/*test('getting a tweet and the writing user from the tweet id', async()=>{
     await request(app).get('/status/tweet/' + id).send({}).expect(200)
 })
 
@@ -109,7 +120,7 @@ test('deleting a tweet', async()=>{
     await request(app).delete('/status/tweet/delete').send({
         id:id
     }).expect(200)
-})
+})*/
 
 test("Should like a tweet", async () => {
     const login = await request(app)
