@@ -213,7 +213,7 @@ test("Should get notifications list", async () => {
     const response = await request(app)
         .get("/notifications/list/1/2")
         .set("Authorization", "Bearer " + user.tokens[0].token)
-        .send()
+        .send({})
         .expect(200);
 });
 
