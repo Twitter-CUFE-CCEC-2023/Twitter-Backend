@@ -23,7 +23,6 @@ const userOne = {
     followers: [userTwoId],
     followings: [userTwoId],
     gender: "Male",
-    tokens: [{ token: jwt.sign({ _id: userOneId }, " " + process.env.JWT_SECRET) }],
     isVerified: true
 }
 
@@ -37,7 +36,7 @@ const userTwo = {
     followers: [userOneId],
     followings: [userOneId],
     gender: "Male",
-    tokens: [{ token: jwt.sign({ _id: userTwoId }, " " + process.env.JWT_SECRET) }]
+    isVerified:true
 }
 
 const notificationOne = {
