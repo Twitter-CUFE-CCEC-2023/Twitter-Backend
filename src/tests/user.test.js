@@ -12,6 +12,7 @@ const connectionurl = config.testConnectionString;
 
 const userOneId = new mongoose.Types.ObjectId();
 const userTwoId = new mongoose.Types.ObjectId();
+const userThreeId = new mongoose.Types.ObjectId();
 
 const userOne = {
     _id: userOneId,
@@ -39,7 +40,6 @@ const userTwo = {
     isVerified: true
 }
 
-const userThreeId = new mongoose.Types.ObjectId();
 const userThree = {
     _id: userThreeId,
     name: "Ammar yasser",
