@@ -31,7 +31,7 @@ app.listen(port, () => {
     },
     (error, result) => {
       if (error) {
-        console.log("Error in connecting to database");
+        console.log(error);
       } else {
         console.log("Database connected successfully");
       }
