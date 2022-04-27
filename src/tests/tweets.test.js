@@ -6,6 +6,8 @@ const Tweets = require("../models/tweet");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
+const notificationModel = require("./../models/notification.js");
+require("dotenv").config();
 
 
 const connectionurl = config.testConnectionString;
@@ -30,11 +32,24 @@ afterAll(() => {
     mongoose.connection.close();
 });
 
+const userOneId = new mongoose.Types.ObjectId();
 
 id = new mongoose.Types.ObjectId()
 id2 = new mongoose.Types.ObjectId()
 
 const userOne = {
+    _id: userOneId,
+    name: "Amr Zaki",
+    username: "zikaaaaa",
+    birth_date: "2000-01-01T00:00:00.000Z",
+    email: "zika@gmail.com",
+    password: "myPassw@ord123",
+    gender: "Male",
+    tokens: [{ token: jwt.sign({ _id: userOneId }, " " + process.env.JWT_SECRET) }],
+    isVerified: true
+}
+
+/*const userOne = {
     _id: id,
     name: "Amr Zaki",
     username: "zikaaaaa",
@@ -60,7 +75,7 @@ const userTwo = {
     gender:"Male",
     tokens: [{ token: jwt.sign({ _id: id2 }, " "+process.env.JWT_SECRET) }],
     isVerified:true
-}
+}*/
 
 async function getUser  (username_email) {
     const user = await User.find({
@@ -100,19 +115,60 @@ const userOne = {
 beforeEach(async () => {
     await User.deleteMany({});
     await new User(userOne).save();
-    await new User(userTwo).save();
+    //await new User(userTwo).save();
     await Tweets.deleteMany({});
     
 });
 
+test("Should get following list", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+
+    const user = await getUser("MostafaA");
+
+    const response = await request(app)
+        .get("/following/list/" + userOne.username + "/1/2")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(200);
+});
+
 test('post a tweet' , async()=>{
-    
+    /*const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+
+    const user = await getUser("MostafaA");*/
+
     const login = await request(app)
     .post("/auth/login")
-    .send({ email_or_username: userTwo.username, password: userTwo.password })
+    .send({ email_or_username: userOne.username, password: userOne.password })
     .expect(200);
-    
-    const user = await getUser(userTwo.username); 
+
+    const user = await getUser(userOne.username);
 
     const response = await request(app).post('/status/tweet/post')
     .set("Authorization", "Bearer " + user.tokens[0].token)
