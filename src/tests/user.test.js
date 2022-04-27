@@ -206,7 +206,7 @@ test("Testing that no user is found with this username", async () => {
 test("Should get notifications list", async () => {
     const login = await request(app)
         .post("/auth/login")
-        .send({ email_or_username: userOne.username, password: userOne.password })
+        .send({ email_or_username: userOne.email, password: userOne.password })
         .expect(200);
 
     const user = await getUser(userOne.email);
