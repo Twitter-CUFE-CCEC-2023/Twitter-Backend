@@ -120,7 +120,7 @@ beforeEach(async () => {
     
 });
 
-test("Should get following list", async () => {
+/*test("Should get following list", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
         username: "MostafaA",
@@ -140,10 +140,10 @@ test("Should get following list", async () => {
 
     const response = await request(app)
         .get("/following/list/" + userOne.username + "/1/2")
-        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .set("Authorization", Bearer  + user.tokens[0].token)
         .send()
         .expect(200);
-});
+});*/
 
 test('post a tweet' , async()=>{
     /*const signup = await request(app).post("/auth/signup").send({
@@ -163,15 +163,15 @@ test('post a tweet' , async()=>{
 
     const user = await getUser("MostafaA");*/
 
-    const login = await request(app)
+    /*const login = await request(app)
     .post("/auth/login")
     .send({ email_or_username: userOne.username, password: userOne.password })
-    .expect(200);
+    .expect(200);*/
 
     const user = await getUser(userOne.username);
 
     const response = await request(app).post('/status/tweet/post')
-    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .set("Authorization", `Bearer  {user.tokens[0].token}`)
     .send({
         content : "this is a tweet"
     }).expect(200);
