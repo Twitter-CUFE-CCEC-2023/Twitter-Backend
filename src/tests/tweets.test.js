@@ -92,6 +92,8 @@ const userThree = {
 beforeEach(async () => {
     await User.deleteMany({});
     await new User(userOne).save();
+    await new User(userTwo).save();
+    await new User(userThree).save();
     await Tweets.deleteMany({});
     await new Tweets(tweet1).save()
     await new Tweets(tweet2).save()
