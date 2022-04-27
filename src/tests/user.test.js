@@ -237,11 +237,6 @@ test("Should follow user", async () => {
         .post("/auth/login")
         .send({ email_or_username:"MostafaA" , password: "myPassw@ord123" })
         .expect(200);
-        const login1 = await request(app)
-        .post("/auth/login")
-        .send({ email_or_username:"ahmedelgarf94" , password: "25648ss" })
-        .expect(200);
-
     const user = await getUser("MostafaA");
     const user1 = await getUser("ahmedelgarf94");
     const response = await request(app)
