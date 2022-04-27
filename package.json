@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
@@ -21,7 +22,7 @@
   "description": "The backend for twitter clone college project",
   "version": "0.1.0",
   "main": "app.js",
-  "jest":{
+  "jest": {
     "testTimeout": 5000
   },
   "scripts": {

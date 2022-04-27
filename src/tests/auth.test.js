@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 
 const connectionurl = config.testConnectionString;
 
-getUser = async function (username_email) {
+async function getUser  (username_email) {
   const user = await User.find({
     $or: [{ email: username_email }, { username: username_email }],
   });
