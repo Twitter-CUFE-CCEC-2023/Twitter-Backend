@@ -264,7 +264,7 @@ test("Should give error message when you try to follow yourself", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                _id: userOne._id
+                id: userOne._id
             }
         )
         .expect(400);
