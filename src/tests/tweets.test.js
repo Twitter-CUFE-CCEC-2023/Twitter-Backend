@@ -12,7 +12,7 @@ require("dotenv").config();
 
 const connectionurl = config.testConnectionString;
 
-beforeAll(() => {
+beforeAll(async() => {
     mongoose.connect(
         connectionurl,
         {
@@ -25,6 +25,8 @@ beforeAll(() => {
             }
         }
     );
+    await User.deleteMany({});
+    await Tweets.deleteMany({});
 });
 
 
@@ -33,6 +35,7 @@ afterAll(() => {
 });
 
 const userOneId = new mongoose.Types.ObjectId();
+const userTwoId = new mongoose.Types.ObjectId();
 
 id = new mongoose.Types.ObjectId()
 id2 = new mongoose.Types.ObjectId()
@@ -46,6 +49,18 @@ const userOne = {
     password: "myPassw@ord123",
     gender: "Male",
     tokens: [{ token: jwt.sign({ _id: userOneId }, " " + process.env.JWT_SECRET) }],
+    isVerified: true
+}
+
+const userTwo = {
+    _id: userTwoId,
+    name: "Ahmed Elgarf",
+    username: "elgarf",
+    birth_date: "1999-10-10T00:00:00.000Z",
+    email: "elgarf@gmail.com",
+    password: "TTFTTSTTD",
+    gender: "Male",
+    tokens: [{ token: jwt.sign({ _id: userTwoId }, " " + process.env.JWT_SECRET) }],
     isVerified: true
 }
 
@@ -112,13 +127,13 @@ const userOne = {
     password: "myPassw@ord123",
 }*/
 
-beforeEach(async () => {
-    await User.deleteMany({});
-    await new User(userOne).save();
+/*beforeEach(async () => {
+    //await User.deleteMany({});
+    //await new User(userOne).save();
     //await new User(userTwo).save();
-    await Tweets.deleteMany({});
+    //await Tweets.deleteMany({});
     
-});
+});*/
 
 /*test("Should get following list", async () => {
     const signup = await request(app).post("/auth/signup").send({
@@ -163,19 +178,58 @@ test('post a tweet' , async()=>{
 
     const user = await getUser("MostafaA");*/
 
-    /*const login = await request(app)
+    const signup = await request(app).post("/auth/signup").send({
+        email: userOne.email,
+        username: userOne.username,
+        password: userOne.password,
+        name: userOne.name,
+        gender: userOne.gender,
+        birth_date: userOne.birth_date,
+        isVerified: userOne.isVerified
+    }).expect(200);
+
+    const login = await request(app)
     .post("/auth/login")
     .send({ email_or_username: userOne.username, password: userOne.password })
-    .expect(200);*/
+    .expect(200);
 
     const user = await getUser(userOne.username);
 
     const response = await request(app).post('/status/tweet/post')
-    .set("Authorization", `Bearer  {user.tokens[0].token}`)
+    .set("Authorization", "Bearer " + user.tokens[0].token)
     .send({
         content : "this is a tweet"
     }).expect(200);
 })
+
+test('get user tweets', async=>{
+
+    const signup = await request(app).post("/auth/signup").send({
+        email: userTwo.email,
+        username: userTwo.username,
+        password: userTwo.password,
+        name: userTwo.name,
+        gender: userTwo.gender,
+        birth_date: userTwo.birth_date,
+        isVerified: userTwo.isVerified
+    }).expect(200);
+
+    const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userTwo.username, password: userTwo.password })
+    .expect(200);
+
+    const user = await getUser(userTwo.username);
+
+    const response = await request(app).post("/status/tweets/list/" + userOne.username + "/1/10")
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({
+        content : "this is a tweet"
+    }).expect(200);
+
+})
+
+
 
 /*test('getting a tweet and the writing user from the tweet id', async()=>{
     await request(app).get('/status/tweet/' + id).send({}).expect(200)
