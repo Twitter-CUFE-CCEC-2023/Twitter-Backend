@@ -252,7 +252,7 @@ test("Should follow user", async () => {
         )
         .expect(200);
 });
-test("Should give error message when you try to follow yourself", async () => {
+test("Should give error message when the user is invalid", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -264,10 +264,10 @@ test("Should give error message when you try to follow yourself", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                id: userOne._id
+                id: new mongoose.Types.ObjectId()
             }
         )
-        .expect(400);
+        .expect(404);
 });
 test("Should unfollow user", async () => {
     const login = await request(app)
