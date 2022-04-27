@@ -47,14 +47,47 @@ const tweet2 = {
     content: "I am the second tweet"
 }
 
+const userOneId = new mongoose.Types.ObjectId();
+const userTwoId = new mongoose.Types.ObjectId();
+const userThreeId = new mongoose.Types.ObjectId();
+
 const userOne = {
-    _id: id2,
-    name:"Amr Zaki",
-    username: "zikaaaaaa",
-    dateOfBirth: "2000-01-01T00:00:00.000Z",
+    _id: userOneId,
+    name: "Amr Zaki",
+    username: "zikaaaaa",
+    birth_date: "2000-01-01T00:00:00.000Z",
     email: "zika@gmail.com",
     password: "myPassw@ord123",
+    followers: [userTwoId],
+    followings: [userTwoId],
+    gender: "Male",
+    isVerified: true
 }
+
+const userTwo = {
+    _id: userTwoId,
+    name: "Ahmed Elgarf",
+    username: "elgarf",
+    birth_date: "1999-10-10T00:00:00.000Z",
+    email: "elgarf@gmail.com",
+    password: "TTFTTSTTD",
+    followers: [userOneId],
+    followings: [userOneId],
+    gender: "Male",
+    isVerified: true
+}
+
+const userThree = {
+    _id: userThreeId,
+    name: "Ammar yasser",
+    username: "ElDr.Ammar",
+    birth_date: "1999-10-10T00:00:00.000Z",
+    email: "ammar@gmail.com",
+    password: "ammaryasserEng",
+    gender: "Male",
+    isVerified: true
+}
+
 
 beforeEach(async () => {
     await User.deleteMany({});
@@ -77,3 +110,48 @@ test('deleting a tweet', async()=>{
         id:id
     }).expect(200)
 })
+
+test("Should like a tweet", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/status/like")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                tweetId: tweet1._id
+            }
+        )
+        .expect(200);
+});
+
+test("Should unlike a tweet", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/status/like")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                tweetId: tweet1._id
+            }
+        )
+        .expect(200);
+        const unfollow = await request(app)
+        .post("/status/unlike")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                tweetId: tweet1._id
+            }
+        )
+        .expect(200);
+});
