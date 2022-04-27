@@ -203,7 +203,7 @@ test("Testing that no user is found with this username", async () => {
         .expect(404);
 });
 
-test("Should get notifications list", async () => {
+test("Should get tweets in home timeline", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -211,9 +211,9 @@ test("Should get notifications list", async () => {
 
     const user = await getUser(userOne.username);
     const response = await request(app)
-        .get("/notifications/list/1/2")
+        .get("/home/1/2")
         .set("Authorization", "Bearer " + user.tokens[0].token)
-        .send({})
+        .send()
         .expect(200);
 });
 
