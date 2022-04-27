@@ -247,7 +247,7 @@ test("Should follow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                _id: userThree._id
+                id: userThree._id
             }
         )
         .expect(200);
