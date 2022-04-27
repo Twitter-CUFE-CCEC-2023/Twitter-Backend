@@ -207,7 +207,7 @@ test("Should get notifications list", async () => {
 
     const user = await getUser(userOne.username);
     const response = await request(app)
-        .get("/notifications/list")
+        .get("/notifications/list/1/2")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send()
         .expect(200);
