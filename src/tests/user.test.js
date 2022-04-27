@@ -36,6 +36,7 @@ const userTwo = {
     followers: [userOneId],
     followings: [userOneId],
     gender: "Male",
+    isVerified:true
 }
 
 const notificationOne = {
