@@ -89,23 +89,6 @@ beforeEach(async () => {
     await new notificationModel(notificationTwo).save();
 });
 
-
-
-
-/*test("Should get following list", async () => {
-    const response = await request(app)
-        .get("/following/list/" + userOne.username)
-        .send()
-        .expect(200);
-});*/
-
-/*test("Testing that no user is found with this username", async () => {
-    const response = await request(app)
-        .get("/following/list/me5aaaaa")
-        .send()
-        .expect(404);
-});*/
-
 test("Should get followers list", async () => {
     const signup = await request(app).post("/auth/signup").send({
       email: "mostafa.abdelbrr@hotmail.com",
@@ -130,28 +113,3 @@ test("Should get followers list", async () => {
         .send()
         .expect(200);
 });
-
-/*test("Testing that no user is found with this username", async () => {
-    const response = await request(app)
-        .get("/following/list/drammar")
-        .send()
-        .expect(404);
-});
-
-test("Should get notifications list", async () => {
-    const response = await request(app)
-        .get("/notifications/list")
-        .send({
-            userId: userOneId,
-        })
-        .expect(200);
-});
-
-test("Testing when sending Invalid ID", async () => {
-    const response = await request(app)
-        .get("/notifications/list")
-        .send({
-            userId: "5e9f8f9f8b70b6ccc7a22cdf",
-        })
-        .expect(500);
-});*/
