@@ -227,12 +227,12 @@ test("Should follow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                username: userTwo._id
+                _id: userTwo._id
             }
         )
         .expect(200);
 });
-test("Should follow user", async () => {
+test("Should give error message when you try to follow yourself", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -244,7 +244,24 @@ test("Should follow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                username: userTwo._id
+                _id: userOne._id
+            }
+        )
+        .expect(400);
+});
+test("Should unfollow user", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                _id: userTwo._id
             }
         )
         .expect(200);
@@ -253,7 +270,7 @@ test("Should follow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                username: userTwo._id
+                _id: userTwo._id
             }
         )
         .expect(200);
