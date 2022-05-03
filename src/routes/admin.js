@@ -6,7 +6,7 @@ const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
-router.post("/dashboard/ban",auth, async (req, res) => {
+router.post("/dashboard/ban", auth, async (req, res) => {
   const banuser = new banUser(req.body);
   const updates = Object.keys(req.body);
   const allowedUpdates = [
@@ -43,7 +43,7 @@ router.post("/dashboard/ban",auth, async (req, res) => {
   }
 });
 
-router.post("/dashboard/unban",auth, async (req, res) => {
+router.post("/dashboard/unban", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["userId", "isBanned"];
   const isValidOperation = updates.every((update) =>
@@ -77,7 +77,7 @@ router.post("/dashboard/unban",auth, async (req, res) => {
   }
 });
 
-router.get("/dashboard/users",auth, async (req, res) => {
+router.get("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["location", "gender"];
   const isValidOperation = updates.every((update) =>
@@ -128,166 +128,638 @@ router.get("/dashboard/users",auth, async (req, res) => {
       message: "Users have been retrived successfully",
     });
   } catch (e) {
-    res.status(500).send({message: "Internal server error"});
+    res.status(500).send({ message: "Internal server error" });
   }
 });
 
-router.get("/dashboard/tweets",auth, async (req, res) => {
-  let count = 0;
-  let now = new Date();
-  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
-  try {
-    if (req.body.start_date && req.body.end_date) {
-      count = await Tweet.count({
-        createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-      });
-    } else if (req.body.start_date) {
-      count = await Tweet.count({
-        createdAt: { $gte: req.body.start_date, $lte: now },
-      });
-    } else if (req.body.end_date) {
-      count = await Tweet.count({
-        createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-      });
-    } else {
-      count = await Tweet.count({
-        createdAt: { $lte: now, $gte: lastWeeek },
-      });
-    }
+// router.get("/dashboard/tweets",auth, async (req, res) => {
+//   let count = 0;
+//   let now = new Date();
+//   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+//   if (req.body.start_date > req.body.end_date) {
+//     return res.status(400).send({ error: "Invalid filters!" });
+//   }
+//   try {
+//     if (req.body.start_date && req.body.end_date) {
+//       count = await Tweet.count({
+//         createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//       });
+//     } else if (req.body.start_date) {
+//       count = await Tweet.count({
+//         createdAt: { $gte: req.body.start_date, $lte: now },
+//       });
+//     } else if (req.body.end_date) {
+//       count = await Tweet.count({
+//         createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//       });
+//     } else {
+//       count = await Tweet.count({
+//         createdAt: { $lte: now, $gte: lastWeeek },
+//       });
+//     }
 
-    res.status(200).send({
-      count: count,
-      message: "Tweets counted successfully",
-    });
-  } catch (e) {
-    res.status(500).send({"message": "Internal server error"});
-  }
-});
+//     res.status(200).send({
+//       count: count,
+//       message: "Tweets counted successfully",
+//     });
+//   } catch (e) {
+//     res.status(500).send({"message": "Internal server error"});
+//   }
+// });
 
-router.get("/dashboard/retweets",auth, async (req, res) => {
-  let count = 0;
-  let now = new Date();
-  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
-  try {
-    if (req.body.start_date && req.body.end_date) {
-      count = await Tweet.count({
-        createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-        isRetweeted: true,
-      });
-    } else if (req.body.start_date) {
-      count = await Tweet.count({
-        createdAt: { $gte: req.body.start_date, $lte: now },
-        isRetweeted: true,
-      });
-    } else if (req.body.end_date) {
-      count = await Tweet.count({
-        createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-        isRetweeted: true,
-      });
-    } else {
-      count = await Tweet.count({
-        createdAt: { $lte: now, $gte: lastWeeek },
-        isRetweeted: true,
-      });
-    }
-    res.status(200).send({
-      count: count,
-      message: "Retweets counted successfully",
-    });
-  } catch (e) {
-    res.status(500).send({message: "Internal server error"});
-  }
-});
+// router.get("/dashboard/retweets", auth, async (req, res) => {
+//   let count = null;
+//   let avg = null;
+//   let days = null;
+//   let now = new Date();
+//   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+//   if (req.body.start_date > req.body.end_date) {
+//     return res.status(400).send({ error: "Invalid filters!" });
+//   }
+//   try {
+//     const _idGender = await User.find({
+//       gender: req.body.gender,
+//     }).select("_id");
 
-router.get("/dashboard/likes",auth, async (req, res) => {
-  let count = 0;
-  let now = new Date();
-  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
-  try {
-    if (req.body.start_date && req.body.end_date) {
-      count = await Like.count({
-        createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-      });
-    } else if (req.body.start_date) {
-      count = await Like.count({
-        createdAt: { $gte: req.body.start_date, $lte: now },
-      });
-    } else if (req.body.end_date) {
-      count = await Like.count({
-        createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-      });
-    } else {
-      count = await Like.count({
-        createdAt: { $lte: now, $gte: lastWeeek },
-      });
-    }
+//     const _idLocation = await User.find({
+//       location: req.body.location,
+//     }).select("_id");
 
-    res.status(200).send({
-      count: count,
-      message: "Likes counted successfully",
-    });
-  } catch (e) {
-    res.status(500).send({message: "Internal server error"});
-  }
-});
+//     const _idBoth = await User.find({
+//       gender: req.body.gender,
+//       location: req.body.location,
+//     }).select("_id");
 
-router.get("/dashboard/tweets-per-gender",auth, async (req, res) => {
+//     if (req.body.location && req.body.gender) {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idBoth,
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idBoth,
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idBoth,
+//           isRetweet: true,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idBoth,
+//           isRetweet: true,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       }
+//     } else if (req.body.location) {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idLocation,
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idLocation,
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idLocation,
+//           isRetweet: true,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idLocation,
+//           isRetweet: true,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       }
+//     } else if (req.body.gender) {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idGender,
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idGender,
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idGender,
+//           isRetweet: true,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           userId: _idGender,
+//           isRetweet: true,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         }).populate({
+//           path: "userId",
+//         });
+//         avg = count / days;
+//       }
+//     } else {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           isRetweet: true,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           isRetweet: true,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           isRetweet: true,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         });
+//         avg = count / days;
+//       }
+//     }
+//     res.status(200).send({
+//       count: count,
+//       avgPerDay: avg,
+//       message: "Retweets counted successfully",
+//     });
+//   } catch (e) {
+//     res.status(500).send({ message: "Internal server error" });
+//   }
+// });
+
+// router.get("/dashboard/likes", auth, async (req, res) => {
+//   let count = null;
+//   let avg = null;
+//   let days = null;
+//   let now = new Date();
+//   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+//   if (req.body.start_date > req.body.end_date) {
+//     return res.status(400).send({ error: "Invalid filters!" });
+//   }
+//   try {
+//     const userGender = await User.find({
+//       gender: req.body.gender,
+//     }).select("username");
+
+//     const userLocation = await User.find({
+//       location: req.body.location,
+//     }).select("username");
+
+//     const userBoth = await User.find({
+//       gender: req.body.gender,
+//       location: req.body.location,
+//     }).select("username");
+
+//     if (req.body.location && req.body.gender) {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userBoth,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userBoth,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userBoth,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userBoth,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       }
+//     } else if (req.body.location) {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userLocation,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userLocation,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userLocation,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userLocation,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       }
+//     } else if (req.body.gender) {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userGender,
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userGender,
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userGender,
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           likerUsername: userGender,
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         }).populate({
+//           path: "likerUsername",
+//         });
+//         avg = count / days;
+//       }
+//     } else {
+//       if (req.body.start_date && req.body.end_date) {
+//         days = (req.body.end_date - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+//         });
+//         avg = count / days;
+//       } else if (req.body.start_date) {
+//         days = (now - req.body.start_date) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           createdAt: { $gte: req.body.start_date, $lte: now },
+//         });
+//         avg = count / days;
+//       } else if (req.body.end_date) {
+//         days = (req.body.end_date - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+//         });
+//         avg = count / days;
+//       } else {
+//         days = (now - lastWeeek) / 1000 / 60 / 60 / 24;
+//         count = await Tweet.count({
+//           createdAt: { $lte: now, $gte: lastWeeek },
+//         });
+//         avg = count / days;
+//       }
+//     }
+
+//     res.status(200).send({
+//       count: count,
+//       message: "Likes counted successfully",
+//     });
+//   } catch (e) {
+//     res.status(500).send({ message: "Internal server error" });
+//   }
+// });
+///////////////////////////////////////////////Tweets////////////////////////////////////////////////////////////
+router.get("/dashboard/tweets", auth, async (req, res) => {
   let count = null;
+  let avg = null;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+  lastWeeek = new Date(lastWeeek);
+
+  const oneDay = 1000 * 60 * 60 * 24;
+  let diffInTime = null;
+  let diffInDays = null;
   if (req.body.start_date > req.body.end_date) {
     return res.status(400).send({ error: "Invalid filters!" });
   }
   try {
-    const _id = await User.find({
+    const _idGender = await User.find({
       gender: req.body.gender,
     }).select("_id");
 
-    if (req.body.start_date && req.body.end_date) {
-      count = await Tweet.count({
-        userId: _id,
-        createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-      }).populate({
-        path: "userId",
-      });
-    } else if (req.body.start_date) {
-      count = await Tweet.count({
-        userId: _id,
-        createdAt: { $gte: req.body.start_date, $lte: now },
-      }).populate({
-        path: "userId",
-      });
-    } else if (req.body.end_date) {
-      count = await Tweet.count({
-        userId: _id,
-        createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-      }).populate({
-        path: "userId",
-      });
+    const _idLocation = await User.find({
+      location: req.body.location,
+    }).select("_id");
+
+    const _idBoth = await User.find({
+      gender: req.body.gender,
+      location: req.body.location,
+    }).select("_id");
+
+    if (req.body.location && req.body.gender) {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+
+        count = await Tweet.count({
+          userId: _idBoth,
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idBoth,
+          createdAt: { $gte: req.body.start_date, $lte: now },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idBoth,
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idBoth,
+          createdAt: { $lte: now, $gte: lastWeeek },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      }
+    } else if (req.body.location) {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idLocation,
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idLocation,
+          createdAt: { $gte: req.body.start_date, $lte: now },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idLocation,
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idLocation,
+          createdAt: { $lte: now, $gte: lastWeeek },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      }
+    } else if (req.body.gender) {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idGender,
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idGender,
+          createdAt: { $gte: req.body.start_date, $lte: now },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idGender,
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          userId: _idGender,
+          createdAt: { $lte: now, $gte: lastWeeek },
+        }).populate({
+          path: "userId",
+        });
+        avg = count / diffInDays;
+      }
     } else {
-      count = await Tweet.count({
-        userId: _id,
-        createdAt: { $lte: now, $gte: lastWeeek },
-      }).populate({
-        path: "userId",
-      });
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          createdAt: { $gte: req.body.start_date, $lte: now },
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Tweet.count({
+          createdAt: { $lte: now, $gte: lastWeeek },
+        });
+        avg = count / diffInDays;
+      }
     }
 
     res.status(200).send({
       count: count,
+      avgPerDay: avg,
       message: "Tweets counted successfully",
     });
   } catch (e) {
-    res.status(500).send({message: "Internal server error"});
+    res.status(500).send({ message: e.message });
   }
 });
 
