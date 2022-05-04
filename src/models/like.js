@@ -10,7 +10,7 @@ const LikeSchema = new Schema(
       ref: "user",
     },
     userId: {
-      type:String,
+      type: Schema.Types.ObjectId,
       required: true,
       index: true,
       ref: "user"
