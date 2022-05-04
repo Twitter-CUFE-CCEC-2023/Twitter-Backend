@@ -14,6 +14,5 @@ USER node
 WORKDIR /usr/src/app
 COPY --chown=node:node --from=builder /usr/src/app/node_modules /usr/src/app/node_modules
 COPY --chown=node:node . /usr/src/app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 80 443
 CMD ["npm", "start"]
