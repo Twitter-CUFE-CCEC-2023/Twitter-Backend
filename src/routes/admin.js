@@ -361,211 +361,211 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Likes////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// router.get("/dashboard/likes", auth, async (req, res) => {
-//   let count = null;
-//   let avg = null;
-//   let now = new Date();
-//   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
-//   lastWeeek = new Date(lastWeeek);
-//   const oneDay = 1000 * 60 * 60 * 24;
-//   let diffInTime = null;
-//   let diffInDays = null;
-//   if (req.body.start_date > req.body.end_date) {
-//     return res.status(400).send({ error: "Invalid filters!" });
-//   }
-//   try {
-//     const _idGender = await User.find({
-//       gender: req.body.gender,
-//     }).select("_id");
+router.get("/dashboard/likes", auth, async (req, res) => {
+  let count = null;
+  let avg = null;
+  let now = new Date();
+  let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
+  lastWeeek = new Date(lastWeeek);
+  const oneDay = 1000 * 60 * 60 * 24;
+  let diffInTime = null;
+  let diffInDays = null;
+  if (req.body.start_date > req.body.end_date) {
+    return res.status(400).send({ error: "Invalid filters!" });
+  }
+  try {
+    const _idGender = await User.find({
+      gender: req.body.gender,
+    }).select("_id");
 
-//     const _idLocation = await User.find({
-//       location: req.body.location,
-//     }).select("_id");
+    const _idLocation = await User.find({
+      location: req.body.location,
+    }).select("_id");
 
-//     const _idBoth = await User.find({
-//       gender: req.body.gender,
-//       location: req.body.location,
-//     }).select("_id");
-//     if (req.body.location && req.body.gender) {
-//       if (req.body.start_date && req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime =
-//           req.body.end_date.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
+    const _idBoth = await User.find({
+      gender: req.body.gender,
+      location: req.body.location,
+    }).select("_id");
+    if (req.body.location && req.body.gender) {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
 
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-//           userId:_idBoth,
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.start_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: now },
-//           userId:_idBoth,
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-//           userId:_idBoth,
-//         });
-//         avg = count / diffInDays;
-//       } else {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $lte: now, $gte: lastWeeek },
-//           userId:_idBoth,
-//         });
-//         avg = count / diffInDays;
-//       }
-//     } else if (req.body.location) {
-//       if (req.body.start_date && req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime =
-//           req.body.end_date.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-//           userId:_idLocation,
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.start_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: now },
-//           userId:_idLocation,
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-//           userId:_idLocation,
-//         });
-//         avg = count / diffInDays;
-//       } else {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $lte: now, $gte: lastWeeek },
-//           userId:_idLocation,
-//         });
-//         avg = count / diffInDays;
-//       }
-//     } else if (req.body.gender) {
-//       if (req.body.start_date && req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime =
-//           req.body.end_date.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-//           userId:_idGender,
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.start_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.find({
-//           createdAt: { $gte: req.body.start_date, $lte: now },
-//           userId:_idGender,
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-//           userId:_idGender,
-//         });
-//         avg = count / diffInDays;
-//       } else {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $lte: now, $gte: lastWeeek },
-//           userId:_idGender,
-//         });
-//         avg = count / diffInDays;
-//       }
-//     } else {
-//       if (req.body.start_date && req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime =
-//           req.body.end_date.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.start_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - req.body.start_date.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: req.body.start_date, $lte: now },
-//         });
-//         avg = count / diffInDays;
-//       } else if (req.body.end_date) {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-//         });
-//         avg = count / diffInDays;
-//       } else {
-//         req.body.start_date = new Date(req.body.start_date);
-//         req.body.end_date = new Date(req.body.end_date);
-//         diffInTime = now.getTime() - lastWeeek.getTime();
-//         diffInDays = Math.round(diffInTime / oneDay);
-//         count = await Like.count({
-//           createdAt: { $lte: now, $gte: lastWeeek },
-//         });
-//         avg = count / diffInDays;
-//       }
-//     }
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+          userId:_idBoth,
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: now },
+          userId:_idBoth,
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+          userId:_idBoth,
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $lte: now, $gte: lastWeeek },
+          userId:_idBoth,
+        });
+        avg = count / diffInDays;
+      }
+    } else if (req.body.location) {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+          userId:_idLocation,
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: now },
+          userId:_idLocation,
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+          userId:_idLocation,
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $lte: now, $gte: lastWeeek },
+          userId:_idLocation,
+        });
+        avg = count / diffInDays;
+      }
+    } else if (req.body.gender) {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+          userId:_idGender,
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.find({
+          createdAt: { $gte: req.body.start_date, $lte: now },
+          userId:_idGender,
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+          userId:_idGender,
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $lte: now, $gte: lastWeeek },
+          userId:_idGender,
+        });
+        avg = count / diffInDays;
+      }
+    } else {
+      if (req.body.start_date && req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime =
+          req.body.end_date.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
+        });
+        avg = count / diffInDays;
+      } else if (req.body.start_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - req.body.start_date.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: req.body.start_date, $lte: now },
+        });
+        avg = count / diffInDays;
+      } else if (req.body.end_date) {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
+        });
+        avg = count / diffInDays;
+      } else {
+        req.body.start_date = new Date(req.body.start_date);
+        req.body.end_date = new Date(req.body.end_date);
+        diffInTime = now.getTime() - lastWeeek.getTime();
+        diffInDays = Math.round(diffInTime / oneDay);
+        count = await Like.count({
+          createdAt: { $lte: now, $gte: lastWeeek },
+        });
+        avg = count / diffInDays;
+      }
+    }
 
-//     res.status(200).send({
-//       count: count,
-//       avgPerDay: avg,
-//       message: "Likes counted successfully",
-//     });
-//   } catch (e) {
-//     res.status(500).send({ message: e.message });
-//   }
-// });
+    res.status(200).send({
+      count: count,
+      avgPerDay: avg,
+      message: "Likes counted successfully",
+    });
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Tweets////////////////////////////////////////////////////////////
