@@ -12,6 +12,11 @@
           "hostPort": 80,
           "protocol": "tcp",
           "containerPort": 80
+        },
+        {
+          "hostPort": 443,
+          "protocol": "tcp",
+          "containerPort": 443
         }
       ],
       "command": null,
@@ -29,7 +34,7 @@
       "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "430017309159.dkr.ecr.us-east-1.amazonaws.com/backend:0d732c4da14749de9e485371a27b8008b0992b1a",
+      "image": "231860476938.dkr.ecr.us-east-1.amazonaws.com/backend",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -56,7 +61,7 @@
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:430017309159:task-definition/DeploymentContainerBackend:4",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:231860476938:task-definition/DeploymentContainerBackend:2",
   "family": "DeploymentContainerBackend",
   "requiresAttributes": [
     {
@@ -73,7 +78,7 @@
   "networkMode": null,
   "runtimePlatform": null,
   "cpu": "1024",
-  "revision": 4,
+  "revision": 2,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
