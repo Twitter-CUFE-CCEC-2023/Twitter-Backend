@@ -137,6 +137,7 @@ router.post("/status/like", auth, async (req, res) => {
     const like = new Like({
       tweetId: req.body.id,
       likerUsername: req.user.username,
+      userId: req.user._id,
     });
     await like.save();
 
@@ -191,7 +192,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
       "replied_to_tweet",
       "mentions",
       "media_urls",
-      "notify",
+      "notify"
     ];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)

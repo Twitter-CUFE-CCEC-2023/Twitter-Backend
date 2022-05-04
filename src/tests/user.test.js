@@ -23,7 +23,6 @@ const userOne = {
     followers: [userTwoId],
     followings: [userTwoId],
     gender: "Male",
-    tokens: [{ token: jwt.sign({ _id: userOneId }, " " + process.env.JWT_SECRET) }],
     isVerified: true
 }
 
@@ -37,7 +36,19 @@ const userTwo = {
     followers: [userOneId],
     followings: [userOneId],
     gender: "Male",
-    tokens: [{ token: jwt.sign({ _id: userTwoId }, " " + process.env.JWT_SECRET) }]
+    isVerified: true
+}
+
+const userThreeId = new mongoose.Types.ObjectId();
+const userThree = {
+    _id: userThreeId,
+    name: "Ammar yasser",
+    username: "ElDr.Ammar",
+    birth_date: "1999-10-10T00:00:00.000Z",
+    email: "ammar@gmail.com",
+    password: "ammaryasserEng",
+    gender: "Male",
+    isVerified: true
 }
 
 const notificationOne = {
@@ -85,13 +96,10 @@ beforeEach(async () => {
     await notificationModel.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
+    await new User(userThree).save();
     await new notificationModel(notificationOne).save();
     await new notificationModel(notificationTwo).save();
 });
-
-
-
-
 
 
 test("Testing that no user is found with this username", async () => {
@@ -113,7 +121,7 @@ test("Testing that no user is found with this username", async () => {
     const user = await getUser("MostafaA");
     const response = await request(app)
         .get("/follower/list/me5aaaaa/1/2")
-        .set("Authorization", "Bearer " + login.body.token)
+        .set("Authorization", "Bearer " + user.tokens[0].token)
         .send()
         .expect(404);
 });
@@ -191,7 +199,35 @@ test("Testing that no user is found with this username", async () => {
         .expect(404);
 });
 
+test("Should get home timeline", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .get("/home/1/2")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send({})
+        .expect(200);
+});
+
 test("Should get notifications list", async () => {
+  const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
+
+  const user = await getUser(userOne.username);
+  const response = await request(app)
+    .get("/notifications/list/1/2")
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({})
+    .expect(200);
+});
+
+test("Should follow user", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
         username: "MostafaA",
@@ -201,21 +237,22 @@ test("Should get notifications list", async () => {
         birth_date: "2000-01-01T00:00:00.000Z",
         isVerified: true
     }).expect(200);
-
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
         .expect(200);
-
     const user = await getUser("MostafaA");
     const response = await request(app)
-        .get("/notifications/list")
+        .post("/user/follow")
         .set("Authorization", "Bearer " + user.tokens[0].token)
-        .send()
+        .send(
+            {
+                id: userThree._id
+            }
+        )
         .expect(200);
 });
-
-test("Should follow user", async () => {
+test("Should give error message when the user is invalid", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -227,27 +264,10 @@ test("Should follow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                _id: userTwo._id
+                id: new mongoose.Types.ObjectId()
             }
         )
-        .expect(200);
-});
-test("Should give error message when you try to follow yourself", async () => {
-    const login = await request(app)
-        .post("/auth/login")
-        .send({ email_or_username: userOne.email, password: userOne.password })
-        .expect(200);
-
-    const user = await getUser(userOne.username);
-    const response = await request(app)
-        .post("/user/follow")
-        .set("Authorization", "Bearer " + user.tokens[0].token)
-        .send(
-            {
-                _id: userOne._id
-            }
-        )
-        .expect(400);
+        .expect(404);
 });
 test("Should unfollow user", async () => {
     const login = await request(app)
@@ -261,16 +281,16 @@ test("Should unfollow user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                _id: userTwo._id
+                id: userThree._id
             }
         )
         .expect(200);
-        const unfollow = await request(app)
+    const unfollow = await request(app)
         .post("/user/unfollow")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                _id: userTwo._id
+                id: userThree._id
             }
         )
         .expect(200);

@@ -174,16 +174,7 @@ UserSchema.statics.checkConflict = async function (email) {
 UserSchema.statics.verifyCreds = async function (username_email, password) {
   const user = await User.findOne({
     $or: [{ email: username_email }, { username: username_email }],
-  })
-    .populate({ path: "roleId", select: "name" })
-    .populate({
-      path: "monthDayBirthAccessId",
-      select: "name",
-    })
-    .populate({
-      path: "yearBirthAccessId",
-      select: "name",
-    });
+  });
 
   if (
     user &&
