@@ -137,6 +137,7 @@ router.post("/status/like", auth, async (req, res) => {
     const like = new Like({
       tweetId: req.body.id,
       likerUsername: req.user.username,
+      userId: req.user._id,
     });
     await like.save();
 
