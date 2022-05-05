@@ -12,6 +12,7 @@ const connectionurl = config.testConnectionString;
 
 const userOneId = new mongoose.Types.ObjectId();
 const userTwoId = new mongoose.Types.ObjectId();
+const userThreeId = new mongoose.Types.ObjectId();
 
 const userOne = {
     _id: userOneId,
@@ -39,7 +40,6 @@ const userTwo = {
     isVerified: true
 }
 
-const userThreeId = new mongoose.Types.ObjectId();
 const userThree = {
     _id: userThreeId,
     name: "Ammar yasser",
@@ -199,7 +199,7 @@ test("Testing that no user is found with this username", async () => {
         .expect(404);
 });
 
-test("Should get home timeline", async () => {
+test("Should get tweets in home timeline", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -294,6 +294,48 @@ test("Should unfollow user", async () => {
             }
         )
         .expect(200);
+});
+test("Should get user information", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+    const user = await getUser("MostafaA");
+    const response = await request(app)
+        .get("/info/" + userThree.username)
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(200);
+});
+test("Should return error for unvalid user", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+    const user = await getUser("MostafaA");
+    const response = await request(app)
+        .get("/info/" + new mongoose.Types.ObjectId())
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(404);
 });
 /*test("Testing when sending Invalid ID", async () => {
     const response = await request(app)
