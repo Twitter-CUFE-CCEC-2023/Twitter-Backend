@@ -390,4 +390,39 @@ router.post("/add-subscription", auth, async (req, res) => {
   }
 });
 
+router.put("/user/update-profile", auth, async (req, res) => {
+  const user1 = req.user;
+  const allowedUpdates = [
+    "name",
+    "birth_date",
+    "profile_picture",
+    "location",
+    "bio",
+    "website",
+  ];
+  const updates = Object.keys(req.body);
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+  if (!isValidOperation) {
+    invalidUpdates = updates.filter((update) => !allowedUpdates.includes(update));
+    return res.status(400).send({ message: "Invalid updates! " + "You can't change the following: "+invalidUpdates });
+  }
+  try {
+    const user = await userModel.findByIdAndUpdate(
+      user1._id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    const gen_user = await userModel.generateUserObject(user);
+    validUpdates = updates.filter((update) => allowedUpdates.includes(update));
+    res.status(200).send({
+      user: gen_user,
+      message: "User updated successfully "+"The following have been updated: "+validUpdates,
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
 module.exports = router;
