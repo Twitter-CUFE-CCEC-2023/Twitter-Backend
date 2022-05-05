@@ -174,7 +174,7 @@ UserSchema.statics.checkConflict = async function (email) {
 UserSchema.statics.verifyCreds = async function (username_email, password) {
   const user = await User.findOne({
     $or: [{ email: username_email }, { username: username_email }],
-  });
+  }).populate("roleId");
 
   if (
     user &&
@@ -286,7 +286,7 @@ UserSchema.statics.generateUserObject = async function (user) {
       .find({ likerUsername: user.username })
       .countDocuments();
     const banInfo = await banUserModel.findOne({ userId: user._id });
-
+    
     const userObj = {
       id: user._id,
       name: user.name,
