@@ -5,9 +5,12 @@ const tweetModel = require("./../models/tweet");
 const userModel = require("./../models/user.js");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
-const { default: mongoose } = require("mongoose");
-const { get } = require("express/lib/response");
+const UserVapidKeys = require("../models/userVapidKeys");
+const NotificationSubscription = require("../models/notificationsSub");
+const { detect } = require("detect-browser");
 require("./../models/constants/notificationType.js");
+
+const browser = detect();
 
 router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
   try {
@@ -65,22 +68,24 @@ router.get(
   auth,
   async (req, res) => {
     try {
-    const _username = req.params.username;
-    if (
-      req.params.page != undefined &&
-      (isNaN(req.params.page) || req.params.page <= 0)
-    ) {
-      return res.status(400).send({ message: "Invalid page number" });
-    }
-    if (
-      (isNaN(req.params.count) || req.params.count <= 0) &&
-      req.params.count != undefined
-    ) {
-      return res.status(400).send({ message: "Invalid count per page number" });
-    }
-    const count =
-      req.params.count != undefined ? parseInt(req.params.count) : 10;
-    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+      const _username = req.params.username;
+      if (
+        req.params.page != undefined &&
+        (isNaN(req.params.page) || req.params.page <= 0)
+      ) {
+        return res.status(400).send({ message: "Invalid page number" });
+      }
+      if (
+        (isNaN(req.params.count) || req.params.count <= 0) &&
+        req.params.count != undefined
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Invalid count per page number" });
+      }
+      const count =
+        req.params.count != undefined ? parseInt(req.params.count) : 10;
+      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
       const user = await userModel.findOne({
         username: _username,
@@ -126,22 +131,24 @@ router.get(
   auth,
   async (req, res) => {
     try {
-    const _username = req.params.username;
-    if (
-      req.params.page != undefined &&
-      (isNaN(req.params.page) || req.params.page <= 0)
-    ) {
-      return res.status(400).send({ message: "Invalid page number" });
-    }
-    if (
-      (isNaN(req.params.count) || req.params.count <= 0) &&
-      req.params.count != undefined
-    ) {
-      return res.status(400).send({ message: "Invalid count per page number" });
-    }
-    const count =
-      req.params.count != undefined ? parseInt(req.params.count) : 10;
-    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+      const _username = req.params.username;
+      if (
+        req.params.page != undefined &&
+        (isNaN(req.params.page) || req.params.page <= 0)
+      ) {
+        return res.status(400).send({ message: "Invalid page number" });
+      }
+      if (
+        (isNaN(req.params.count) || req.params.count <= 0) &&
+        req.params.count != undefined
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Invalid count per page number" });
+      }
+      const count =
+        req.params.count != undefined ? parseInt(req.params.count) : 10;
+      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
       const user = await userModel.findOne({
         username: _username,
@@ -320,6 +327,66 @@ router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
     });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/vapid-key", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const vapidKeys = await UserVapidKeys.findOne({ userId: userId });
+    if (vapidKeys) {
+      return res.status(200).send({
+        publicKey: vapidKeys.publicKey,
+      });
+    } else {
+      return res.status(404).send({
+        message: "Vapid keys not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
+router.get("/subscription", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const subscription = await NotificationSubscription.findOne({
+      userId: userId,
+    });
+    if (subscription) {
+      return res.status(200).send({
+        subscription: subscription.subscription,
+      });
+    } else {
+      return res.status(404).send({
+        message: "Subscription not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
+router.post("/add-subscription", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const subscription = req.body.subscription;
+
+    const userSub = new NotificationSubscription({
+      userId: userId,
+      subscription: subscription,
+      browser: browser.name,
+      version: browser.version,
+      os: browser.os,
+    });
+    console.log(userSub);
+    await userSub.save();
+    res.status(200).send({
+      message: "Subscription added successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
   }
 });
 
