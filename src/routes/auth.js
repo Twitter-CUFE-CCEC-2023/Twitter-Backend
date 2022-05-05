@@ -1,6 +1,8 @@
 const express = require("express");
 const User = require("../models/user.js");
+const UserVapidKeys = require("../models/userVapidKeys.js");
 const auth = require("../middleware/auth");
+const webPush = require("web-push");
 
 const router = express.Router();
 
@@ -15,6 +17,15 @@ router.post("/auth/signup", async (req, res) => {
       if (!savedUser) {
         return res.status(400).send({ error: "User not saved" });
       }
+
+      const vapidKeys = webPush.generateVAPIDKeys();
+      const userVapidKeys = new UserVapidKeys({
+        userId: savedUser._id,
+        publicKey: vapidKeys.publicKey,
+        privateKey: vapidKeys.privateKey,
+      });
+      await userVapidKeys.save();
+
       await user.sendVerifyEmail(user.email, user.verificationCode);
       const userObj = await User.generateUserObject(savedUser);
       res.status(200).send({
