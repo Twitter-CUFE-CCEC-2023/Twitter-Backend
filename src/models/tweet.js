@@ -124,8 +124,8 @@ TweetSchema.statics.getTweetReplies = async function (tweet, username) {
   const replyTweets = await Tweet.find({ parentId: tweet.id });
   tweet.replies = [];
   for (let i = 0; i < replyTweets.length; i++) {
-    const tweet = replyTweets[i];
-    const tweetObject = await Tweet.getTweetObject(tweet, username);
+    const tweetReply = replyTweets[i];
+    const tweetObject = await Tweet.getTweetObject(tweetReply, username);
     tweet.replies.push(tweetObject);
   }
   return tweet;

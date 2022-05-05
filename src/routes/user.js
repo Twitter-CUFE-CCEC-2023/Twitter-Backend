@@ -9,21 +9,25 @@ const { default: mongoose } = require("mongoose");
 const { get } = require("express/lib/response");
 require("./../models/constants/notificationType.js");
 
-router.get("/notifications/list/:page/:count", auth, async (req, res) => {
+router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
   try {
     const user = req.user;
-    const username = user["username"];
-    let count = 10;
-
-    if (isNaN(req.params.page) || req.params.page <= 0) {
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
       return res.status(400).send({ message: "Invalid page number" });
     }
-
-    if (!isNaN(req.params.count) && req.params.count >= 0) {
-      count = req.params.count;
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
     }
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    const page = parseInt(req.params.page);
     const result = await notificationModel
       .find({ userId: user._id })
       .sort({ createdAt: -1 })
@@ -56,105 +60,127 @@ router.get("/notifications/list/:page/:count", auth, async (req, res) => {
   }
 });
 
-router.get("/follower/list/:username/:page/:count", auth, async (req, res) => {
-  const _username = req.params.username;
-  let count = 10;
-
-  try {
-    if (isNaN(req.params.page) || req.params.page <= 0) {
+router.get(
+  "/follower/list/:username/:page?/:count?",
+  auth,
+  async (req, res) => {
+    try {
+    const _username = req.params.username;
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
       return res.status(400).send({ message: "Invalid page number" });
     }
-
-    if (!isNaN(req.params.count) && req.params.count >= 0) {
-      count = req.params.count;
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
     }
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    const page = parseInt(req.params.page);
-    const user = await userModel.findOne({
-      username: _username,
-    });
-    if (!user) {
-      return res.status(404).send({ message: "User not found" });
-    }
-
-    const userFollowers = await userModel
-      .findOne({
+      const user = await userModel.findOne({
         username: _username,
-      })
-      .select("followers -_id")
-      .populate({
-        path: "followers",
-      })
-      .skip(count * (page - 1))
-      .limit(count);
+      });
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
 
-    if (!userFollowers) {
-      return res.status(404).send({ message: "Followers not found" });
-    }
+      const userFollowers = await userModel
+        .findOne({
+          username: _username,
+        })
+        .select("followers -_id")
+        .populate({
+          path: "followers",
+        })
+        .skip(count * (page - 1))
+        .limit(count);
 
-    const followers = [];
-    for (let i = 0; i < userFollowers.followers.length; i++) {
-      const userFollower = await userModel.generateUserObject(
-        userFollowers.followers[i]
-      );
-      userFollower.is_followed = req.user.followings.includes(userFollower.id);
-      followers.push(userFollower);
+      if (!userFollowers) {
+        return res.status(404).send({ message: "Followers not found" });
+      }
+
+      const followers = [];
+      for (let i = 0; i < userFollowers.followers.length; i++) {
+        const userFollower = await userModel.generateUserObject(
+          userFollowers.followers[i]
+        );
+        userFollower.is_followed = req.user.followings.includes(
+          userFollower.id
+        );
+        followers.push(userFollower);
+      }
+      res.status(200).send({ followers: followers });
+    } catch (error) {
+      res.status(500).send("Internal server Error");
     }
-    res.status(200).send({ followers: followers });
-  } catch (error) {
-    res.status(500).send("Internal server Error");
   }
-});
+);
 
-router.get("/following/list/:username/:page/:count", auth, async (req, res) => {
-  const _username = req.params.username;
-  let count = 10;
-
-  try {
-    if (isNaN(req.params.page) || req.params.page <= 0) {
+router.get(
+  "/following/list/:username/:page?/:count?",
+  auth,
+  async (req, res) => {
+    try {
+    const _username = req.params.username;
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
       return res.status(400).send({ message: "Invalid page number" });
     }
-
-    if (!isNaN(req.params.count) && req.params.count >= 0) {
-      count = req.params.count;
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
     }
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    const page = parseInt(req.params.page);
-    const user = await userModel.findOne({
-      username: _username,
-    });
-    if (!user) {
-      return res.status(404).send({ message: "User not found" });
-    }
-
-    const userFollowings = await userModel
-      .findOne({
+      const user = await userModel.findOne({
         username: _username,
-      })
-      .select("followings -_id")
-      .populate({
-        path: "followings",
-      })
-      .skip(count * (page - 1))
-      .limit(count);
+      });
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
 
-    if (!userFollowings) {
-      return res.status(404).send({ message: "Followings not found" });
-    }
+      const userFollowings = await userModel
+        .findOne({
+          username: _username,
+        })
+        .select("followings -_id")
+        .populate({
+          path: "followings",
+        })
+        .skip(count * (page - 1))
+        .limit(count);
 
-    const followings = [];
-    for (let i = 0; i < userFollowings.followings.length; i++) {
-      const userFollowing = await userModel.generateUserObject(
-        userFollowings.followings[i]
-      );
-      userFollowing.is_followed = req.user.followings.includes(userFollowing.id);
-      followings.push(userFollowing);
+      if (!userFollowings) {
+        return res.status(404).send({ message: "Followings not found" });
+      }
+
+      const followings = [];
+      for (let i = 0; i < userFollowings.followings.length; i++) {
+        const userFollowing = await userModel.generateUserObject(
+          userFollowings.followings[i]
+        );
+        userFollowing.is_followed = req.user.followings.includes(
+          userFollowing.id
+        );
+        followings.push(userFollowing);
+      }
+      res.status(200).send({ followings: followings });
+    } catch (error) {
+      res.status(500).send({ message: "Internal Server Error" });
     }
-    res.status(200).send({ followings: followings });
-  } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
   }
-});
+);
 
 router.get("/info/:username", auth, async (req, res) => {
   const _username = req.params.username;
@@ -255,20 +281,23 @@ router.post("/user/unfollow", auth, async (req, res) => {
   }
 });
 
-router.get("/liked/list/:username/:page/:count", auth, async (req, res) => {
+router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
   try {
-    const _username = req.params.username;
-    let count = 10;
-
-    if (isNaN(req.params.page) || req.params.page <= 0) {
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
       return res.status(400).send({ message: "Invalid page number" });
     }
-
-    if (!isNaN(req.params.count) && req.params.count >= 0) {
-      count = req.params.count;
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
     }
-
-    const page = parseInt(req.params.page);
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
     const tweets = await Like.find({ likerUsername: req.params.username })
       .sort({ createdAt: -1 })
       .populate({

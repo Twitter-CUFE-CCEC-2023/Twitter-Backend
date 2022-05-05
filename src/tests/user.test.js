@@ -102,10 +102,6 @@ beforeEach(async () => {
 });
 
 
-
-
-
-
 test("Testing that no user is found with this username", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
@@ -213,8 +209,22 @@ test("Should get tweets in home timeline", async () => {
     const response = await request(app)
         .get("/home/1/2")
         .set("Authorization", "Bearer " + user.tokens[0].token)
-        .send()
+        .send({})
         .expect(200);
+});
+
+test("Should get notifications list", async () => {
+  const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
+
+  const user = await getUser(userOne.username);
+  const response = await request(app)
+    .get("/notifications/list/1/2")
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({})
+    .expect(200);
 });
 
 test("Should follow user", async () => {

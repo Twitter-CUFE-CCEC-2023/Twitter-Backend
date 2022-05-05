@@ -1,0 +1,111 @@
+name: CICD
+
+on:
+  push:
+    branches: [ production ]
+  pull_request:
+    branches: [ production ]
+
+env:
+      AWS_REGION: us-east-1                  
+      ECR_REPOSITORY: backend         
+      ECS_SERVICE: backendService                 
+      ECS_CLUSTER: backendCluster                  
+      ECS_TASK_DEFINITION: ./task-definition.json 
+                                                   
+      CONTAINER_NAME: backendContainer           
+                                                  
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'   
+    - run: npm ci
+    - run: CI=false npm run build --if-present
+  #tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #    - uses: actions/checkout@v3
+  #    - name: Set up Python 3.10
+  #      uses: actions/setup-python@v3
+  #      with:
+  #        python-version: "3.10"
+  #    - name: Install dependencies
+  #      run: |
+  #        python -m pip install --upgrade pip
+  #        pip install flake8 pytest
+  #        pip install selenium==3.141.0
+  #        pip3 install html-testRunner==1.2.1
+  #        pip install Jinja2==3.0.1
+  #        pip install MarkupSafe==2.0.1
+  #        pip install urllib3==1.26.5
+
+  #        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+  #    - name: Lint with flake8
+  #      run: |       
+  #        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+  #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  #   - name: Test with pytest
+  #      run: |
+  #        CI=false python Testing/TestSuite.py 
+  #        CI=false python Testing/WebsiteMain.py 
+ 
+  deploy:
+        name: Deploy
+        runs-on: ubuntu-latest
+        environment: production
+
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ env.AWS_REGION }}
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Build, tag, and push image to Amazon ECR
+          id: build-image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            # Build a docker container and
+            # push it to ECR so that it can
+            # be deployed to ECS.
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        - name: Fill in the new image ID in the Amazon ECS task definition
+          id: task-def
+          uses: aws-actions/amazon-ecs-render-task-definition@v1
+          with:
+            task-definition: ${{ env.ECS_TASK_DEFINITION }}
+            container-name: ${{ env.CONTAINER_NAME }}
+            image: ${{ steps.build-image.outputs.image }}
+
+        - name: Deploy Amazon ECS task definition
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          with:
+            task-definition: ${{ steps.task-def.outputs.task-definition }}
+            service: ${{ env.ECS_SERVICE }}
+            cluster: ${{ env.ECS_CLUSTER }}
+            wait-for-service-stability: true 

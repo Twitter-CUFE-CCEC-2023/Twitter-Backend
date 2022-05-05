@@ -5,6 +5,10 @@ const config = require("../config");
 const Tweets = require("../models/tweet");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const jwt = require("jsonwebtoken");
+const notificationModel = require("./../models/notification.js");
+require("dotenv").config();
+
 
 const connectionurl = config.testConnectionString;
 
@@ -104,8 +108,7 @@ beforeEach(async () => {
     await new User(userTwo).save();
     await new User(userThree).save();
     await Tweets.deleteMany({});
-    await new Tweets(tweet1).save()
-    await new Tweets(tweet2).save()
+    
 });
 
 /*test('getting a tweet and the writing user from the tweet id', async()=>{

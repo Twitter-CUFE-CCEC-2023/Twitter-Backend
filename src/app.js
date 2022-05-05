@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const config = require('./config');
 
 const adminRoutes = require("./routes/admin");
@@ -9,10 +10,12 @@ const timelineRoutes = require("./routes/timeline");
 const authRoutes = require("./routes/auth");
 
 const app = express();
-const port = process.env.Port || 3000;
+const port = 80;
 const connectionurl = config.cloudConnectString;
 
 app.use(express.json());
+app.use(cors());
+
 app.use(adminRoutes);
 app.use(userRoutes);
 app.use(tweetRoutes);
@@ -28,7 +31,7 @@ app.listen(port, () => {
     },
     (error, result) => {
       if (error) {
-        console.log("Error in connecting to database");
+        console.log(error);
       } else {
         console.log("Database connected successfully");
       }

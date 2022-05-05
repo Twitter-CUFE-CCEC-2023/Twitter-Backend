@@ -205,17 +205,24 @@ router.put("/auth/update-password", auth, async (req, res) => {
 
 router.put("/auth/verify-credentials", async (req, res) => {
   try {
-    if (req.body.id && req.body.verificationCode) {
-      const user = await User.getUserByID(req.body.id);
+    if (req.body.email_or_username && req.body.verificationCode) {
+      const user = await User.findOne({
+        $or: [
+          { email: req.body.email_or_username },
+          { username: req.body.email_or_username },
+        ],
+      });
       if (user) {
         if (
           user.verificationCode == req.body.verificationCode &&
           new Date() < user.verificationCodeExpiration
         ) {
-          const userVerified = await User.updateOne(
+          const userVerified = await User.findByIdAndUpdate(
             { _id: user._id },
             { $set: { isVerified: true } }
-          );
+          , {
+            new: true
+          });
           if (!userVerified) {
             throw new Error();
           }

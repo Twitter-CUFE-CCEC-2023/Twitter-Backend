@@ -1,13 +1,18 @@
 {
   "devDependencies": {
     "jest": "^27.5.1",
+    "jest-html-reporter": "^3.4.2",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "detect-browser": "^5.3.0",
     "dotenv": "^16.0.0",
+    "ejs": "^3.1.7",
     "express": "^4.17.3",
+    "express-static": "^1.2.6",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.5.0",
@@ -16,14 +21,25 @@
     "nodemailer": "^6.7.3",
     "npm": "^8.6.0",
     "test": "^0.6.0",
-    "validator": "^13.7.0"
+    "validator": "^13.7.0",
+    "web-push": "^3.5.0"
   },
   "name": "twitter-backend",
   "description": "The backend for twitter clone college project",
   "version": "0.1.0",
   "main": "app.js",
   "jest": {
-    "testTimeout": 5000
+    "testTimeout": 5000,
+    "coverageDirectory": "./test-report",
+    "reporters": [
+      "default",
+      [
+        "./node_modules/jest-html-reporter",
+        {
+          "pageTitle": "Test Report"
+        }
+      ]
+    ]
   },
   "scripts": {
     "dev": "nodemon src/app.js",
@@ -42,5 +58,10 @@
   "homepage": "https://github.com/Twitter-CUFE-CCEC-2023/Twitter-Backend#readme",
   "mdSeed": {
     "seedersFolder": "seeders"
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Your test suite",
+    "outputPath": "test-report.html",
+    "includeFailureMsg": true
   }
 }
