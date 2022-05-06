@@ -348,11 +348,13 @@ router.get("/vapid-key", auth, async (req, res) => {
   }
 });
 
-router.get("/subscription", auth, async (req, res) => {
+router.get("/subscription/:browser/:version", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const subscription = await NotificationSubscription.findOne({
       userId: userId,
+      browser: req.params.browser,
+      version: req.params.version,
     });
     if (subscription) {
       return res.status(200).send({
