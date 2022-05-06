@@ -15,11 +15,6 @@ const NotificationsSubSchema = new Schema(
       required: true,
       trim: true,
     },
-    os: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     version: {
       type: String,
       required: true,

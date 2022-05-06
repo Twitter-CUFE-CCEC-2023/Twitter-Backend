@@ -372,13 +372,14 @@ router.post("/add-subscription", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const subscription = req.body.subscription;
+    const browserName = req.body.browser;
+    const browserVersion = req.body.version;
 
     const userSub = new NotificationSubscription({
       userId: userId,
       subscription: subscription,
-      browser: browser.name,
-      version: browser.version,
-      os: browser.os,
+      browser: browserName,
+      version: browserVersion,
     });
     console.log(userSub);
     await userSub.save();
@@ -405,20 +406,31 @@ router.put("/user/update-profile", auth, async (req, res) => {
     allowedUpdates.includes(update)
   );
   if (!isValidOperation) {
-    invalidUpdates = updates.filter((update) => !allowedUpdates.includes(update));
-    return res.status(400).send({ message: "Invalid updates! " + "You can't change the following: "+invalidUpdates });
+    invalidUpdates = updates.filter(
+      (update) => !allowedUpdates.includes(update)
+    );
+    return res
+      .status(400)
+      .send({
+        message:
+          "Invalid updates! " +
+          "You can't change the following: " +
+          invalidUpdates,
+      });
   }
   try {
-    const user = await userModel.findByIdAndUpdate(
-      user1._id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const user = await userModel.findByIdAndUpdate(user1._id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     const gen_user = await userModel.generateUserObject(user);
     validUpdates = updates.filter((update) => allowedUpdates.includes(update));
     res.status(200).send({
       user: gen_user,
-      message: "User updated successfully "+"The following have been updated: "+validUpdates,
+      message:
+        "User updated successfully " +
+        "The following have been updated: " +
+        validUpdates,
     });
   } catch (error) {
     res.status(500).send(error.toString());
