@@ -263,8 +263,8 @@ router.post("/user/unfollow", auth, async (req, res) => {
     return res.status(400).send({ error: "You are not following this user" });
   }
   try {
-    const _followeruser = user1.followings.filter((id) => id == user2._id);
-    const _followinguser = user2.followers.filter((id) => id == user1._id);
+    const _followeruser = user1.followings.filter((id) => id != user2._id.toString());
+    const _followinguser = user2.followers.filter((id) => id != user1._id.toString());
     const followerUser = await userModel.findByIdAndUpdate(
       user1._id,
       { followings: _followeruser },
@@ -396,7 +396,8 @@ router.put("/user/update-profile", auth, async (req, res) => {
   const allowedUpdates = [
     "name",
     "birth_date",
-    "profile_picture",
+    "profile_image_url",
+    "cover_image_url",
     "location",
     "bio",
     "website",
