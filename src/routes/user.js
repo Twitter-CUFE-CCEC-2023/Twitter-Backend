@@ -395,8 +395,8 @@ router.put("/user/update-profile", auth, async (req, res) => {
   const allowedUpdates = [
     "name",
     "birth_date",
-    "profile_picture",
-    "cover_picture",
+    "profile_image_url",
+    "cover_image_url",
     "location",
     "bio",
     "website",
