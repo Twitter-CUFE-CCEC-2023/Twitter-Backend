@@ -155,7 +155,7 @@ router.put("/auth/reset-password", async (req, res) => {
       req.body.email_or_username
     );
     if (user) {
-      if (user.resetPasswordCode == req.body.resetPasswordCode) {
+      if (user.resetPasswordCode == req.body.resetPasswordCode && user.resetPasswordCodeExpiration > Date.now()) {
         user.password = req.body.password;
         await user.save();
         // await user.sendVerifyResetEmail(user.email, user.verificationCode);
