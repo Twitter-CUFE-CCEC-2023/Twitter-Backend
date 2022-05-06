@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 require("./user");
 
-const browser = detect();
-
 const NotificationsSubSchema = new Schema(
   {
     userId: {
