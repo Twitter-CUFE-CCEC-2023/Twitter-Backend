@@ -150,7 +150,7 @@ router.post("/status/like", auth, async (req, res) => {
       message: "Like is added successfully",
     });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.toString() });
   }
 });
 
