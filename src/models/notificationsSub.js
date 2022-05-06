@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const webPush = require("web-push");
-const { detect } = require("detect-browser");
-const UserVapidKeys = require("./userVapidKeys");
 require("./user");
 
 const browser = detect();
@@ -39,43 +36,6 @@ const NotificationsSubSchema = new Schema(
     timestamps: true,
   }
 );
-
-NotificationsSubSchema.statics.sendNotification = async function (
-  userId,
-  title,
-  body
-) {
-  const vapidKeys = await UserVapidKeys.findOne({ userId: userId});
-  if (!vapidKeys) {
-    return null;
-  }
-  const payload = {
-    title: title,
-    body: body,
-  };
-  const options = {
-    vapidDetails: {
-      subject: "mailto:noreply@twittcloneteamone.xyz",
-      publicKey: vapidKeys.publicKey,
-      privateKey: vapidKeys.privateKey,
-    },
-  };
-  const subscription = await NotificationsSub.findOne({
-    userId: userId,
-    browser: browser.name,
-    os: browser.os,
-    version: browser.version,
-  });
-
-  if (subscription) {
-    console.log(subscription);
-    webPush.sendNotification(
-      subscription.subscription,
-      JSON.stringify(payload),
-      options
-    );
-  }
-};
 
 const NotificationsSubModel = mongoose.model(
   "notificationsSub",

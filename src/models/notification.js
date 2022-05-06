@@ -1,7 +1,14 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const UserVapidKeys = require("./userVapidKeys");
+const webPush = require("web-push");
+const NotificationSub = require("./notificationsSub");
+const { detect } = require("detect-browser");
+
 require("./user");
 require("./tweet");
+
+const browser = detect();
 
 const NotificationSchema = new Schema(
   {
@@ -69,6 +76,43 @@ NotificationSchema.statics.getNotificationObject = async function (
     created_at: notification.createdAt,
   };
   return notificationObject;
+};
+
+NotificationSchema.statics.sendNotification = async function (
+  userId,
+  title,
+  body
+) {
+  const vapidKeys = await UserVapidKeys.findOne({ userId: userId });
+  if (!vapidKeys) {
+    return null;
+  }
+  const payload = {
+    title: title,
+    body: body,
+  };
+  const options = {
+    vapidDetails: {
+      subject: "mailto:noreply@twittcloneteamone.xyz",
+      publicKey: vapidKeys.publicKey,
+      privateKey: vapidKeys.privateKey,
+    },
+  };
+  const subscription = await NotificationSub.findOne({
+    userId: userId,
+    browser: browser.name,
+    os: browser.os,
+    version: browser.version,
+  });
+
+  if (subscription) {
+    console.log(subscription);
+    webPush.sendNotification(
+      subscription.subscription,
+      JSON.stringify(payload),
+      options
+    );
+  }
 };
 
 const Notification = mongoose.model("notification", NotificationSchema);

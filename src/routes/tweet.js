@@ -3,7 +3,7 @@ const Tweet = require("../models/tweet");
 const User = require("../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
-const NotificationSub = require("../models/notificationsSub");
+const Notification = require("../models/notification");
 const router = express.Router();
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
@@ -143,7 +143,7 @@ router.post("/status/like", auth, async (req, res) => {
     await like.save();
 
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
-    await NotificationSub.sendNotification(tweetObj.user.id, "You have recieved a new notification", `${req.user.username} liked your tweet`);
+    await Notification.sendNotification(tweetObj.user.id, "You have recieved a new notification", `${req.user.username} liked your tweet`);
 
     res.status(200).send({
       tweet: tweetObj,
