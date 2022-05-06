@@ -45,7 +45,7 @@ NotificationsSubSchema.statics.sendNotification = async function (
   title,
   body
 ) {
-  const vapidKeys = await UserVapidKeys.findOne({ userId: req.user._id });
+  const vapidKeys = await UserVapidKeys.findOne({ userId: userId});
   if (!vapidKeys) {
     return null;
   }
