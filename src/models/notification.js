@@ -59,7 +59,11 @@ NotificationSchema.statics.getNotificationObject = async function (
 
   if (notification.tweetId != null) {
     const Tweet = mongoose.model("tweet");
-    tweet = await Tweet.getTweetObject(notification.tweetId, notification.userId.username, false);
+    tweet = await Tweet.getTweetObject(
+      notification.tweetId,
+      notification.userId.username,
+      false
+    );
   }
   if (notification.relatedUserId != null) {
     const User = mongoose.model("user");
@@ -98,20 +102,19 @@ NotificationSchema.statics.sendNotification = async function (
       privateKey: vapidKeys.privateKey,
     },
   };
-  const subscription = await NotificationSub.findOne({
+  const subscription = await NotificationSub.find({
     userId: userId,
-    browser: browser.name,
-    os: browser.os,
-    version: browser.version,
   });
 
   if (subscription) {
-    console.log(subscription);
-    webPush.sendNotification(
-      subscription.subscription,
-      JSON.stringify(payload),
-      options
-    );
+    for (let i = 0; i < subscription.length; i++) {
+      const sub = subscription[i];
+      webPush.sendNotification(
+        sub.subscription,
+        JSON.stringify(payload),
+        options
+      );
+    }
   }
 };
 
