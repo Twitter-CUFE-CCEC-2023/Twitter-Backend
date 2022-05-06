@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const webPush = require("web-push");
 const { detect } = require("detect-browser");
+const UserVapidKeys = require("./userVapidKeys");
 require("./user");
 
 const browser = detect();
