@@ -1,6 +1,5 @@
 const express = require("express");
 const User = require("../models/user.js");
-const UserVapidKeys = require("../models/userVapidKeys.js");
 const auth = require("../middleware/auth");
 
 const router = express.Router();

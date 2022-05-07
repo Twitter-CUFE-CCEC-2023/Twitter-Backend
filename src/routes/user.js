@@ -9,8 +9,6 @@ const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
 require("./../models/constants/notificationType.js");
 
-const browser = detect();
-
 router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
   try {
     const user = req.user;

@@ -2,12 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const webPush = require("web-push");
 const NotificationSub = require("./notificationsSub");
-const { detect } = require("detect-browser");
 
 require("./user");
 require("./tweet");
-
-const browser = detect();
 
 const NotificationSchema = new Schema(
   {
