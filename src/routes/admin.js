@@ -15,6 +15,7 @@ router.post("/dashboard/ban", auth, async (req, res) => {
     "banDuration",
     "reason",
     "isPermanent",
+    "accessToken", 
   ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
@@ -171,7 +172,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
 
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
           isRetweeted: true,
         });
@@ -182,7 +183,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInTime = now.getTime() - req.body.start_date.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: now },
           isRetweeted: true,
         });
@@ -193,7 +194,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
           isRetweeted: true,
         });
@@ -204,7 +205,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInTime = now.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $lte: now, $gte: lastWeeek },
           isRetweeted: true,
         });
@@ -396,7 +397,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
 
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       } else if (req.body.start_date) {
@@ -406,7 +407,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: now },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       } else if (req.body.end_date) {
@@ -416,7 +417,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       } else {
@@ -426,7 +427,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $lte: now, $gte: lastWeeek },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       }
@@ -439,7 +440,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       } else if (req.body.start_date) {
@@ -449,7 +450,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: now },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       } else if (req.body.end_date) {
@@ -459,7 +460,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       } else {
@@ -469,7 +470,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $lte: now, $gte: lastWeeek },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       }
@@ -482,7 +483,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       } else if (req.body.start_date) {
@@ -492,7 +493,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.find({
           createdAt: { $gte: req.body.start_date, $lte: now },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       } else if (req.body.end_date) {
@@ -502,7 +503,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       } else {
@@ -512,7 +513,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $lte: now, $gte: lastWeeek },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       }
@@ -605,7 +606,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
 
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
         });
         avg = count / diffInDays;
@@ -615,7 +616,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInTime = now.getTime() - req.body.start_date.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: now },
         });
         avg = count / diffInDays;
@@ -625,7 +626,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
         });
         avg = count / diffInDays;
@@ -635,7 +636,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInTime = now.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $lte: now, $gte: lastWeeek },
         });
         avg = count / diffInDays;
