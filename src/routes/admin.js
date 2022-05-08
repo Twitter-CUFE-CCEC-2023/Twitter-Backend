@@ -3,6 +3,7 @@ const banUser = require("../models/banUser");
 const User = require("../models/user");
 const Tweet = require("../models/tweet");
 const Like = require("../models/like");
+const UserRole = require("../models/constants/userRole");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.post("/dashboard/ban", auth, async (req, res) => {
     "banDuration",
     "reason",
     "isPermanent",
-    "accessToken", 
+    "accessToken",
   ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
@@ -24,21 +25,27 @@ router.post("/dashboard/ban", auth, async (req, res) => {
     return res.status(400).send({ message: "Invalid updates!" });
   }
   try {
-    banuser.save();
-    const user = await User.findByIdAndUpdate(
-      req.body.userId,
-      { isBanned: true },
-      { new: true, runValidators: true }
-    );
+    const adminId = await UserRole.find({
+      name: "Admin",
+    }).select("_id");
 
-    if (!user) {
-      return res.status(404).send({ message: "User is not found" });
-    }
+    if (adminId[0]._id.equals(req.user.roleId)) {
+      const user = await User.findByIdAndUpdate(
+        req.body.userId,
+        { isBanned: true },
+        { new: true, runValidators: true }
+      );
 
-    res.status(200).send({
-      user: user,
-      message: "User Banned successfully",
-    });
+      if (!user) {
+        return res.status(404).send({ message: "User is not found" });
+      }
+
+      banuser.save();
+      res.status(200).send({
+        user: user,
+        message: "User Banned successfully",
+      });
+    } else return res.status(401).send({ message: "You are not authorized" });
   } catch (e) {
     res.status(500).send({ message: "Internal server error" });
   }
@@ -46,7 +53,7 @@ router.post("/dashboard/ban", auth, async (req, res) => {
 
 router.post("/dashboard/unban", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["userId", "isBanned"];
+  const allowedUpdates = ["userId", "isBanned", "accessToken"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -54,25 +61,30 @@ router.post("/dashboard/unban", auth, async (req, res) => {
     return res.status(400).send({ error: "Invalid updates!" });
   }
   try {
-    const user = await User.findByIdAndUpdate(
-      req.body.userId,
-      { isBanned: false },
-      { new: true, runValidators: true }
-    );
-    const banuser = await banUser.deleteOne({ userId: req.body.userId });
+    const adminId = await UserRole.find({
+      name: "Admin",
+    }).select("_id");
+    if (adminId[0]._id.equals(req.user.roleId)) {
+      const user = await User.findByIdAndUpdate(
+        req.body.userId,
+        { isBanned: false },
+        { new: true, runValidators: true }
+      );
+      const banuser = await banUser.deleteOne({ userId: req.body.userId });
 
-    if (!user) {
-      return res.status(404).send({ message: "User is not found" });
-    }
+      if (!user) {
+        return res.status(404).send({ message: "User is not found" });
+      }
 
-    if (!banuser) {
-      return res.status(404).send({ message: "User is not banned" });
-    }
+      if (!banuser) {
+        return res.status(404).send({ message: "User is not banned" });
+      }
 
-    res.status(200).send({
-      user: user,
-      message: "User was unbanned successfully",
-    });
+      res.status(200).send({
+        user: user,
+        message: "User was unbanned successfully",
+      });
+    } else return res.status(401).send({ message: "You are not authorized" });
   } catch (e) {
     res.status(500).send({ message: "Internal server error" });
   }
@@ -80,7 +92,7 @@ router.post("/dashboard/unban", auth, async (req, res) => {
 
 router.get("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["location", "gender"];
+  const allowedUpdates = ["location", "gender", "accessToken"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
