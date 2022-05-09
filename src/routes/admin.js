@@ -92,7 +92,7 @@ router.post("/dashboard/unban", auth, async (req, res) => {
 
 router.get("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["location", "gender", "accessToken"];
+  const allowedUpdates = ["location", "gender", "accessToken","count"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -100,7 +100,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
     return res.status(400).send({ error: "Invalid filters!" });
   }
   let user = null;
-  const count = 10;
+  const count = req.body.count || 20;
   const page = 1;
   try {
     if (
@@ -138,6 +138,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
     }
     res.status(200).send({
       user: user,
+      count: user.length,
       message: "Users have been retrived successfully",
     });
   } catch (e) {
