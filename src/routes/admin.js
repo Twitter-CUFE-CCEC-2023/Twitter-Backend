@@ -92,7 +92,7 @@ router.post("/dashboard/unban", auth, async (req, res) => {
 
 router.get("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["location", "gender", "accessToken","count"];
+  const allowedUpdates = ["location", "gender", "accessToken", "count", "page"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -100,8 +100,9 @@ router.get("/dashboard/users", auth, async (req, res) => {
     return res.status(400).send({ error: "Invalid filters!" });
   }
   let user = null;
+  let userCount = null;
   const count = req.body.count || 20;
-  const page = 1;
+  const page = req.body.page || 1;
   try {
     if (
       req.body.location != "" &&
@@ -109,23 +110,27 @@ router.get("/dashboard/users", auth, async (req, res) => {
       req.body.location &&
       req.body.gender
     ) {
+      let gender = req.body.gender;
+      let location = req.body.location;
       user = await User.find({
-        location: req.body.location,
-        gender: req.body.gender,
+        location: location,
+        gender: gender,
       })
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
     } else if (req.body.location != "" && req.body.location) {
+      let location = req.body.location;
       user = await User.find({
-        location: req.body.location,
+        location: location,
       })
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
     } else if (req.body.gender != "" && req.body.gender) {
+      let gender = req.body.gender;
       user = await User.find({
-        gender: req.body.gender,
+        gender: gender,
       })
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
@@ -136,9 +141,36 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .skip(count * (page - 1))
         .limit(count);
     }
+
+    if (
+      req.body.location != "" &&
+      req.body.gender != "" &&
+      req.body.location &&
+      req.body.gender
+    ) {
+      let gender = req.body.gender;
+      let location = req.body.location;
+      userCount = await User.count({
+        location: location,
+        gender: gender,
+      });
+    } else if (req.body.location != "" && req.body.location) {
+      let location = req.body.location;
+      userCount = await User.count({
+        location: location,
+      });
+    } else if (req.body.gender != "" && req.body.gender) {
+      let gender = req.body.gender;
+      userCount = await User.count({
+        gender: gender,
+      });
+    } else {
+      userCount = await User.count({});
+    }
+
     res.status(200).send({
       user: user,
-      count: user.length,
+      count: userCount,
       message: "Users have been retrived successfully",
     });
   } catch (e) {
