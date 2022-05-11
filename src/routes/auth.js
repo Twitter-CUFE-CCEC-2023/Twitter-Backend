@@ -98,14 +98,28 @@ router.post("/auth/signup", async (req, res) => {
         return res.status(400).send({ error: "User not saved" });
       }
 
-      await user.sendVerifyEmail(user.email, user.verificationCode);
+      if (req.body.password) {
+        await user.sendVerifyEmail(user.email, user.verificationCode);
+      }
       const userObj = await User.generateUserObject(savedUser);
       res.status(200).send({
         user: userObj,
         message: "User Signed up successfully",
       });
     } else {
-      res.status(409).send({ message: "User already exists" });
+      const user = await User.getUserByUsernameOrEmail(
+        req.body.email
+      );
+      if (req.body.password && !user.password) {
+        user.password = req.body.password;
+        const savedUser = await user.save();
+        if (!savedUser) {
+          return res.status(400).send({ error: "User not saved" });
+        }
+      }
+      else {
+        res.status(409).send({ message: "User already exists" });
+      }
     }
   } catch (err) {
     if (err.name == "ValidationError") {
@@ -268,10 +282,7 @@ router.put("/auth/reset-password", async (req, res) => {
 router.put("/auth/update-password", auth, async (req, res) => {
   try {
     const user = req.user;
-    const verifiedUser = await User.verifyCreds(
-      user.email,
-      req.body.old_password
-    );
+    const verifiedUser = await User.yCreds(user.email, req.body.old_password);
     if (verifiedUser) {
       user.password = req.body.new_password;
       await user.save();
