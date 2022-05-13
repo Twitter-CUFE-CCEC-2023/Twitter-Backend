@@ -47,6 +47,16 @@ test("Test: normal user signup", async () => {
     .send({
       email: "mostafa.abdelbrr@hotmail.com",
       username: "MostafaA",
+      password: "",
+      name: "Mostafa Abdelbrr",
+      gender: "male",
+      birth_date: "2000-01-01T00:00:00.000Z",
+    })
+  const response2 = await request(app)
+    .post("/auth/signup")
+    .send({
+      email: "mostafa.abdelbrr@hotmail.com",
+      username: "MostafaA",
       password: "myPassw@ord123",
       name: "Mostafa Abdelbrr",
       gender: "male",
@@ -157,7 +167,7 @@ test("Test: user verification.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
-    password: "myPassw@ord123",
+    password: "",
     name: "Mostafa Abdelbrr",
     gender: "male",
     birth_date: "2000-01-01T00:00:00.000Z",
