@@ -249,6 +249,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
         content: `${req.user.username} has posted a new tweet`,
         relatedUserId: req.user._id,
         notificationTypeId: NotificationType.followingTweet._id,
+        tweetId: tweet._id,
       });
       await notification.save();
     }
