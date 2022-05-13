@@ -178,8 +178,8 @@ router.post("/dashboard/users", auth, async (req, res) => {
 ///////////////////////////////////////////////Retweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post("/dashboard/retweets", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
@@ -187,9 +187,9 @@ router.post("/dashboard/retweets", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
@@ -404,17 +404,18 @@ router.post("/dashboard/retweets", auth, async (req, res) => {
 ///////////////////////////////////////////////Likes////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post("/dashboard/likes", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
+  console.log(req.body.start_date);
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
@@ -613,8 +614,8 @@ router.post("/dashboard/likes", auth, async (req, res) => {
 ///////////////////////////////////////////////Tweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post("/dashboard/tweets", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
@@ -622,9 +623,9 @@ router.post("/dashboard/tweets", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
