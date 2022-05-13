@@ -241,12 +241,12 @@ router.post("/status/tweet/post", auth, async (req, res) => {
 
     for (let i = 0; i < userFollowers.length; i++) {
       await Notification.sendNotification(
-        userFollowers[i]._id,
+        userFollowers[i],
         "You have recieved a new notification",
         `${req.user.username} has posted a new tweet`
       );
       const notification = new Notification({
-        userId: userFollowers[i]._id,
+        userId: userFollowers[i],
         content: `${req.user.username} has posted a new tweet`,
         relatedUserId: req.user._id,
         notificationTypeId: NotificationType.followingTweet._id,
