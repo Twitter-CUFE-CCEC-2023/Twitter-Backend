@@ -237,8 +237,8 @@ router.post("/status/tweet/post", auth, async (req, res) => {
     });
     await tweet.save();
 
-    const userFollowers = await User.findById(req.user._id).select("followers -_id");
-
+    const user = await User.findById(req.user._id).select("followers -_id");
+    const userFollowers = user.followers;
     for (let i = 0; i < userFollowers.length; i++) {
       await Notification.sendNotification(
         userFollowers[i],
