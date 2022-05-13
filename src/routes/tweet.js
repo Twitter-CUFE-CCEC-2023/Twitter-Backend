@@ -144,7 +144,6 @@ router.post("/status/like", auth, async (req, res) => {
     await like.save();
 
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
-    
     await Notification.sendNotification(
       tweetObj.user.id,
       "You have recieved a new notification",
@@ -158,7 +157,6 @@ router.post("/status/like", auth, async (req, res) => {
       tweetId: tweetObj._id,
     });
     await notification.save();
-
     res.status(200).send({
       tweet: tweetObj,
       message: "Like is added successfully",
