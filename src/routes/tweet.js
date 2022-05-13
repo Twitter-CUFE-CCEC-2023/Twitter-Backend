@@ -3,11 +3,12 @@ const Tweet = require("../models/tweet");
 const User = require("../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
+const cors = require("../middleware/cors");
 const Notification = require("../models/notification");
 const NotificationType = require("./../../seed-data/constants/notificationType");
 const router = express.Router();
 
-router.delete("/status/tweet/delete", auth, async (req, res) => {
+router.delete("/status/tweet/delete", cors, auth, async (req, res) => {
   try {
     const tweet = await Tweet.findByIdAndDelete(req.body.id);
     if (!tweet) {
@@ -29,6 +30,7 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
 
 router.get(
   "/status/tweets/list/:username/:page?/:count?",
+  cors,
   auth,
   async (req, res) => {
     try {
@@ -89,7 +91,7 @@ router.get(
   }
 );
 
-router.get("/status/tweet/:id", auth, async (req, res) => {
+router.get("/status/tweet/:id", cors, auth, async (req, res) => {
   try {
     const tweet = await Tweet.findById(req.params.id).populate({
       path: "userId",
@@ -120,7 +122,7 @@ router.get("/status/tweet/:id", auth, async (req, res) => {
   }
 });
 
-router.post("/status/like", auth, async (req, res) => {
+router.post("/status/like", cors, auth, async (req, res) => {
   try {
     ExistingLike = await Like.findOne({
       tweetId: req.body.id,
@@ -166,7 +168,7 @@ router.post("/status/like", auth, async (req, res) => {
   }
 });
 
-router.delete("/status/unlike", auth, async (req, res) => {
+router.delete("/status/unlike", cors, auth, async (req, res) => {
   try {
     const like = await Like.findOne({
       tweetId: req.body.id,
@@ -199,7 +201,7 @@ router.delete("/status/unlike", auth, async (req, res) => {
   }
 });
 
-router.post("/status/tweet/post", auth, async (req, res) => {
+router.post("/status/tweet/post", cors, auth, async (req, res) => {
   try {
     const updates = Object.keys(req.body);
     const allowedUpdates = [
@@ -262,7 +264,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
   }
 });
 
-router.post("/status/retweet", auth, async (req, res) => {
+router.post("/status/retweet", cors, auth, async (req, res) => {
   try {
     const user = req.user;
     const tweet = await Tweet.findById(req.body.id);

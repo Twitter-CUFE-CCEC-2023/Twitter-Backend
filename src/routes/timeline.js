@@ -1,10 +1,11 @@
 const express = require("express");
-const tweetModel = require("../models/tweet");
-const userModel = require("../models/user");
+const Tweet = require("../models/tweet");
+require("../models/user");
 const auth = require("../middleware/auth");
+const cors = require("../middleware/cors");
 const router = express.Router();
 
-router.get("/home/:page?/:count?", auth, async (req, res) => {
+router.get("/home/:page?/:count?", cors, auth, async (req, res) => {
   try {
     if ( req.params.page != undefined && (isNaN(req.params.page) || req.params.page <= 0) ) {
       return res.status(400).send({ message: "Invalid page number" });
@@ -16,7 +17,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
     const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
     
     const usersIds = [req.user._id, ...req.user.followings];
-    const result = await tweetModel
+    const result = await Tweet
       .find({ userId: { $in: usersIds } })
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
@@ -26,7 +27,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
       });
     const tweets = [];
     for (let i = 0; i < result.length; i++) {
-      const tweet = await tweetModel.getTweetObject(
+      const tweet = await Tweet.getTweetObject(
         result[i],
         req.user.username
       );
@@ -38,7 +39,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", cors, async (req, res) => {
   // const user = await userModel.findOne({}).select("username -_id");
   // console.log(user);
   res.status(200).send({"test": "check working"});

@@ -6,63 +6,71 @@ const Tweet = require("./../models/tweet");
 const User = require("./../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
+const cors = require("../middleware/cors");
 const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
 require("./../models/constants/notificationType");
 
-router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
-  try {
-    const user = req.user;
-    if (
-      req.params.page != undefined &&
-      (isNaN(req.params.page) || req.params.page <= 0)
-    ) {
-      return res.status(400).send({ message: "Invalid page number" });
-    }
-    if (
-      (isNaN(req.params.count) || req.params.count <= 0) &&
-      req.params.count != undefined
-    ) {
-      return res.status(400).send({ message: "Invalid count per page number" });
-    }
-    const count =
-      req.params.count != undefined ? parseInt(req.params.count) : 10;
-    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+router.get(
+  "/notifications/list/:page?/:count?",
+  cors,
+  auth,
+  async (req, res) => {
+    try {
+      const user = req.user;
+      if (
+        req.params.page != undefined &&
+        (isNaN(req.params.page) || req.params.page <= 0)
+      ) {
+        return res.status(400).send({ message: "Invalid page number" });
+      }
+      if (
+        (isNaN(req.params.count) || req.params.count <= 0) &&
+        req.params.count != undefined
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Invalid count per page number" });
+      }
+      const count =
+        req.params.count != undefined ? parseInt(req.params.count) : 10;
+      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    const result = await Notification
-      .find({ userId: user._id })
-      .sort({ createdAt: -1 })
-      .skip(count * (page - 1))
-      .limit(count)
-      .populate({
-        path: "relatedUserId",
-      })
-      .populate({
-        path: "notificationTypeId",
-      })
-      .populate({
-        path: "tweetId",
-      });
+      const result = await Notification.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .skip(count * (page - 1))
+        .limit(count)
+        .populate({
+          path: "relatedUserId",
+        })
+        .populate({
+          path: "notificationTypeId",
+        })
+        .populate({
+          path: "tweetId",
+        });
 
-    if (!result) {
-      res.status(404).send({ error_message: "Notifications not found" });
-    }
+      if (!result) {
+        res.status(404).send({ error_message: "Notifications not found" });
+      }
 
-    const notifications = [];
-    for (let i = 0; i < result.length; i++) {
-      const notificationObject = await Notification.getNotificationObject(
-        result[i]
-      );
-      notifications.push(notificationObject);
+      const notifications = [];
+      for (let i = 0; i < result.length; i++) {
+        const notificationObject = await Notification.getNotificationObject(
+          result[i]
+        );
+        notifications.push(notificationObject);
+      }
+      res.status(200).send({ notifications: notifications });
+    } catch (err) {
+      res.status(500).send(err.toString());
     }
-    res.status(200).send({ notifications: notifications });
-  } catch (err) {
-    res.status(500).send(err.toString());
   }
-});
+);
 
 router.get(
   "/follower/list/:username/:page?/:count?",
+  cors,
   auth,
   async (req, res) => {
     try {
@@ -92,10 +100,9 @@ router.get(
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowers = await User
-        .findOne({
-          username: _username,
-        })
+      const userFollowers = await User.findOne({
+        username: _username,
+      })
         .select("followers -_id")
         .populate({
           path: "followers",
@@ -126,6 +133,7 @@ router.get(
 
 router.get(
   "/following/list/:username/:page?/:count?",
+  cors,
   auth,
   async (req, res) => {
     try {
@@ -155,10 +163,9 @@ router.get(
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowings = await User
-        .findOne({
-          username: _username,
-        })
+      const userFollowings = await User.findOne({
+        username: _username,
+      })
         .select("followings -_id")
         .populate({
           path: "followings",
@@ -187,7 +194,7 @@ router.get(
   }
 );
 
-router.get("/info/:username", auth, async (req, res) => {
+router.get("/info/:username", cors, auth, async (req, res) => {
   const _username = req.params.username;
   try {
     if (_username === req.user.username) {
@@ -206,7 +213,7 @@ router.get("/info/:username", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-router.post("/user/follow", auth, async (req, res) => {
+router.post("/user/follow", cors, auth, async (req, res) => {
   const user1 = req.user;
   const user2 = await User.findOne({
     username: req.body.username,
@@ -238,17 +245,17 @@ router.post("/user/follow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    
+
     await Notification.sendNotification(
       user2._id,
       "You have received a new notification",
-      `${user1.username} started following you`,
+      `${user1.username} started following you`
     );
     const notification = new Notification({
       userId: user2._id,
       content: `${user1.username} started following you`,
       relatedUserId: user1._id,
-      notificationTypeId: NotificationType.follow._id
+      notificationTypeId: NotificationType.follow._id,
     });
     await notification.save();
 
@@ -261,7 +268,7 @@ router.post("/user/follow", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-router.post("/user/unfollow", auth, async (req, res) => {
+router.post("/user/unfollow", cors, auth, async (req, res) => {
   const user1 = req.user;
   const user2 = await User.findOne({
     username: req.body.username,
@@ -301,7 +308,7 @@ router.post("/user/unfollow", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
+router.get("/liked/list/:username/:page?/:count?", cors, auth, async (req, res) => {
   try {
     if (
       req.params.page != undefined &&
@@ -343,7 +350,7 @@ router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
   }
 });
 
-router.get("/vapid-key", auth, async (req, res) => {
+router.get("/vapid-key", cors, auth, async (req, res) => {
   try {
     const vapidKeys = webPush.generateVAPIDKeys();
     if (vapidKeys) {
@@ -361,7 +368,7 @@ router.get("/vapid-key", auth, async (req, res) => {
   }
 });
 
-router.post("/add-subscription", auth, async (req, res) => {
+router.post("/add-subscription", cors, auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const subscription = req.body.subscription;
@@ -390,7 +397,7 @@ router.post("/add-subscription", auth, async (req, res) => {
   }
 });
 
-router.put("/user/update-profile", auth, async (req, res) => {
+router.put("/user/update-profile", cors, auth, async (req, res) => {
   const user1 = req.user;
   const allowedUpdates = [
     "name",
