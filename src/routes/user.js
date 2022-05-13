@@ -6,7 +6,6 @@ const Tweet = require("./../models/tweet");
 const User = require("./../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
-const cors = require("../middleware/cors");
 const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
 require("./../models/constants/notificationType");

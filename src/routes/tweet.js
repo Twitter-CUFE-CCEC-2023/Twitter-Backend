@@ -3,7 +3,6 @@ const Tweet = require("../models/tweet");
 const User = require("../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
-const cors = require("../middleware/cors");
 const Notification = require("../models/notification");
 const NotificationType = require("./../../seed-data/constants/notificationType");
 const router = express.Router();

@@ -2,7 +2,6 @@ const express = require("express");
 const Tweet = require("../models/tweet");
 require("../models/user");
 const auth = require("../middleware/auth");
-const cors = require("../middleware/cors");
 const router = express.Router();
 
 router.get("/home/:page?/:count?", auth, async (req, res) => {

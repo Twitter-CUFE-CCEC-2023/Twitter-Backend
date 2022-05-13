@@ -5,7 +5,6 @@ const Tweet = require("../models/tweet");
 const Like = require("../models/like");
 const UserRole = require("../models/constants/userRole");
 const auth = require("../middleware/auth");
-const cors = require("../middleware/cors");
 const router = express.Router();
 
 router.post("/dashboard/ban", auth, async (req, res) => {
