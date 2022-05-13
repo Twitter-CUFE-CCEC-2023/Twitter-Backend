@@ -9,7 +9,7 @@ const timelineRoutes = require("./routes/timeline");
 const authRoutes = require("./routes/auth");
 
 const app = express();
-const port = process.env.Port || 3000;
+const port = 3000;
 const connectionurl = config.cloudConnectString;
 
 app.use(express.json());
