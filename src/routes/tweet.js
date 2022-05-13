@@ -4,6 +4,7 @@ const User = require("../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
+const NotificationType = require("./../../seed-data/constants/notificationType");
 const router = express.Router();
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
@@ -143,8 +144,20 @@ router.post("/status/like", auth, async (req, res) => {
     await like.save();
 
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
-    await Notification.sendNotification(tweetObj.user.id, "You have recieved a new notification", `${req.user.username} liked your tweet`);
-
+    if (tweetObj.user.username == req.user.username) {
+      await Notification.sendNotification(
+        tweetObj.user.id,
+        "You have recieved a new notification",
+        `${req.user.username} liked your tweet`
+      );
+      const notification = new Notification({
+        userId: tweetObj.user.id,
+        content: `${req.user.username} liked your tweet`,
+        relatedUserId: req.user._id,
+        notificationTypeId: NotificationType.like._id,
+      });
+      await notification.save();
+    }
     res.status(200).send({
       tweet: tweetObj,
       message: "Like is added successfully",
@@ -195,7 +208,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
       "replied_to_tweet",
       "mentions",
       "media_urls",
-      "notify"
+      "notify",
     ];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)
@@ -218,10 +231,27 @@ router.post("/status/tweet/post", auth, async (req, res) => {
       mentions: req.body.mentions,
       //attachment_urls	: req.body.urls,
       //media_ids	: req.body.media_ids,
-      //notify : req.body.notify
     });
     await tweet.save();
 
+    const userFollowers = await User.findById(req.user._id).populate({
+      path: "followers",
+      select: "username",
+    });
+    for (let i = 0; i < userFollowers.followers.length; i++) {
+      await Notification.sendNotification(
+        userFollowers.followers[i]._id,
+        "You have recieved a new notification",
+        `${req.user.username} has posted a new tweet`
+      );
+      const notification = new Notification({
+        userId: userFollowers.followers[i]._id,
+        content: `${req.user.username} has posted a new tweet`,
+        relatedUserId: req.user._id,
+        notificationTypeId: NotificationType.followingTweet._id,
+      });
+      await notification.save();
+    }
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
     res.status(200).send({
       tweet: tweetObj,

@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const notificationModel = require("./../models/notification.js");
-const tweetModel = require("./../models/tweet");
-const userModel = require("./../models/user.js");
+const Notification = require("./../models/notification");
+const NotificationType = require("./../../seed-data/constants/notificationType");
+const Tweet = require("./../models/tweet");
+const User = require("./../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
-require("./../models/constants/notificationType.js");
+require("./../models/constants/notificationType");
 
 router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
   try {
@@ -28,7 +29,7 @@ router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
       req.params.count != undefined ? parseInt(req.params.count) : 10;
     const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    const result = await notificationModel
+    const result = await Notification
       .find({ userId: user._id })
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
@@ -49,7 +50,7 @@ router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
 
     const notifications = [];
     for (let i = 0; i < result.length; i++) {
-      const notificationObject = await notificationModel.getNotificationObject(
+      const notificationObject = await Notification.getNotificationObject(
         result[i]
       );
       notifications.push(notificationObject);
@@ -84,14 +85,14 @@ router.get(
         req.params.count != undefined ? parseInt(req.params.count) : 10;
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-      const user = await userModel.findOne({
+      const user = await User.findOne({
         username: _username,
       });
       if (!user) {
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowers = await userModel
+      const userFollowers = await User
         .findOne({
           username: _username,
         })
@@ -108,7 +109,7 @@ router.get(
 
       const followers = [];
       for (let i = 0; i < userFollowers.followers.length; i++) {
-        const userFollower = await userModel.generateUserObject(
+        const userFollower = await User.generateUserObject(
           userFollowers.followers[i]
         );
         userFollower.is_followed = req.user.followings.includes(
@@ -147,14 +148,14 @@ router.get(
         req.params.count != undefined ? parseInt(req.params.count) : 10;
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-      const user = await userModel.findOne({
+      const user = await User.findOne({
         username: _username,
       });
       if (!user) {
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowings = await userModel
+      const userFollowings = await User
         .findOne({
           username: _username,
         })
@@ -171,7 +172,7 @@ router.get(
 
       const followings = [];
       for (let i = 0; i < userFollowings.followings.length; i++) {
-        const userFollowing = await userModel.generateUserObject(
+        const userFollowing = await User.generateUserObject(
           userFollowings.followings[i]
         );
         userFollowing.is_followed = req.user.followings.includes(
@@ -190,25 +191,24 @@ router.get("/info/:username", auth, async (req, res) => {
   const _username = req.params.username;
   try {
     if (_username === req.user.username) {
-      const userObj = await userModel.generateUserObject(req.user);
+      const userObj = await User.generateUserObject(req.user);
       return res.status(200).send({ user: userObj });
     }
-    const user = await userModel.findOne({
+    const user = await User.findOne({
       username: _username,
     });
     if (!user) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    const userObj = await userModel.generateUserObject(user);
+    const userObj = await User.generateUserObject(user);
     res.status(200).send({ user: userObj });
   } catch (error) {
     res.status(500).send(error.toString());
   }
 });
-
 router.post("/user/follow", auth, async (req, res) => {
   const user1 = req.user;
-  const user2 = await userModel.findOne({
+  const user2 = await User.findOne({
     username: req.body.username,
   });
   if (!user2) {
@@ -225,12 +225,12 @@ router.post("/user/follow", auth, async (req, res) => {
   try {
     const _followeruser = user1.followings.concat(user2._id);
     const _followinguser = user2.followers.concat(user1._id);
-    const followerUser = await userModel.findByIdAndUpdate(
+    const followerUser = await User.findByIdAndUpdate(
       user1._id,
       { followings: _followeruser },
       { new: true, runValidators: true }
     );
-    const followingUser = await userModel.findByIdAndUpdate(
+    const followingUser = await User.findByIdAndUpdate(
       user2._id,
       { followers: _followinguser },
       { new: true, runValidators: true }
@@ -238,7 +238,21 @@ router.post("/user/follow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    const user = await userModel.generateUserObject(followingUser);
+    
+    await Notification.sendNotification(
+      user2._id,
+      "You have received a new notification",
+      `${user1.username} started following you`,
+    );
+    const notification = new Notification({
+      userId: user2._id,
+      content: `${user1.username} started following you`,
+      relatedUserId: user1._id,
+      notificationTypeId: NotificationType.follow._id
+    });
+    await notification.save();
+
+    const user = await User.generateUserObject(followingUser);
     res.status(200).send({
       user: user,
       message: "User Followed successfully",
@@ -247,10 +261,9 @@ router.post("/user/follow", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-
 router.post("/user/unfollow", auth, async (req, res) => {
   const user1 = req.user;
-  const user2 = await userModel.findOne({
+  const user2 = await User.findOne({
     username: req.body.username,
   });
   if (!user2) {
@@ -266,12 +279,12 @@ router.post("/user/unfollow", auth, async (req, res) => {
     const _followinguser = user2.followers.filter(
       (id) => id != user1._id.toString()
     );
-    const followerUser = await userModel.findByIdAndUpdate(
+    const followerUser = await User.findByIdAndUpdate(
       user1._id,
       { followings: _followeruser },
       { new: true, runValidators: true }
     );
-    const followingUser = await userModel.findByIdAndUpdate(
+    const followingUser = await User.findByIdAndUpdate(
       user2._id,
       { followers: _followinguser },
       { new: true, runValidators: true }
@@ -279,7 +292,7 @@ router.post("/user/unfollow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error: "User not found" });
     }
-    const user = await userModel.generateUserObject(followingUser);
+    const user = await User.generateUserObject(followingUser);
     res.status(200).send({
       user: user,
       message: "User Unfollowed successfully",
@@ -288,7 +301,6 @@ router.post("/user/unfollow", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-
 router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
   try {
     if (
@@ -316,7 +328,7 @@ router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
 
     const likedTweets = [];
     for (let i = 0; i < tweets.length; i++) {
-      const tweet = await tweetModel.getTweetObject(
+      const tweet = await Tweet.getTweetObject(
         tweets[i].tweetId,
         req.user.username
       );
@@ -405,11 +417,11 @@ router.put("/user/update-profile", auth, async (req, res) => {
     });
   }
   try {
-    const user = await userModel.findByIdAndUpdate(user1._id, req.body, {
+    const user = await User.findByIdAndUpdate(user1._id, req.body, {
       new: true,
       runValidators: true,
     });
-    const gen_user = await userModel.generateUserObject(user);
+    const gen_user = await User.generateUserObject(user);
     validUpdates = updates.filter((update) => allowedUpdates.includes(update));
     res.status(200).send({
       user: gen_user,
