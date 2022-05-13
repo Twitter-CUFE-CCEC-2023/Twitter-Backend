@@ -8,7 +8,7 @@ const auth = require("../middleware/auth");
 const cors = require("../middleware/cors");
 const router = express.Router();
 
-router.post("/dashboard/ban", cors, auth, async (req, res) => {
+router.post("/dashboard/ban", auth, async (req, res) => {
   const banuser = new banUser(req.body);
   const updates = Object.keys(req.body);
   const allowedUpdates = [
@@ -52,7 +52,7 @@ router.post("/dashboard/ban", cors, auth, async (req, res) => {
   }
 });
 
-router.post("/dashboard/unban", cors,auth, async (req, res) => {
+router.post("/dashboard/unban", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["userId", "isBanned", "accessToken"];
   const isValidOperation = updates.every((update) =>
@@ -91,7 +91,7 @@ router.post("/dashboard/unban", cors,auth, async (req, res) => {
   }
 });
 
-router.post("/dashboard/users", cors, auth, async (req, res) => {
+router.post("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["location", "gender", "accessToken", "count", "page"];
   const isValidOperation = updates.every((update) =>
@@ -105,10 +105,7 @@ router.post("/dashboard/users", cors, auth, async (req, res) => {
   const count = req.body.count || 20;
   const page = req.body.page || 1;
   try {
-    if (
-      req.body.location &&
-      req.body.gender
-    ) {
+    if (req.body.location && req.body.gender) {
       let gender = req.body.gender;
       let location = req.body.location;
       user = await User.find({
@@ -141,10 +138,7 @@ router.post("/dashboard/users", cors, auth, async (req, res) => {
         .limit(count);
     }
 
-    if (
-      req.body.location &&
-      req.body.gender
-    ) {
+    if (req.body.location && req.body.gender) {
       let gender = req.body.gender;
       let location = req.body.location;
       userCount = await User.count({
@@ -178,7 +172,7 @@ router.post("/dashboard/users", cors, auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Retweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.post("/dashboard/retweets", cors, auth, async (req, res) => {
+router.post("/dashboard/retweets", auth, async (req, res) => {
   let count = 0;
   let avg = 0;
   let now = new Date();
@@ -404,7 +398,7 @@ router.post("/dashboard/retweets", cors, auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Likes////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.post("/dashboard/likes", cors, auth, async (req, res) => {
+router.post("/dashboard/likes", auth, async (req, res) => {
   let count = 0;
   let avg = 0;
   let now = new Date();
@@ -614,7 +608,7 @@ router.post("/dashboard/likes", cors, auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Tweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.post("/dashboard/tweets", cors, auth, async (req, res) => {
+router.post("/dashboard/tweets", auth, async (req, res) => {
   let count = 0;
   let avg = 0;
   let now = new Date();

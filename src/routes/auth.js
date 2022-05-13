@@ -36,7 +36,7 @@ passport.use(
 );
 
 router.get(
-  "/auth/google",cors,
+  "/auth/google",
   passport.authenticate("google", {
     scope: ["openid", "email", "profile"],
     session: false,
@@ -45,7 +45,7 @@ router.get(
 
 router.get(
   "/auth/google/callback",
-  cors,
+
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     console.log("Google Auth.");
@@ -90,7 +90,7 @@ router.get(
   }
 );
 
-router.post("/auth/signup",cors, async (req, res) => {
+router.post("/auth/signup", async (req, res) => {
   try {
     const user = new User(req.body);
 
@@ -109,17 +109,14 @@ router.post("/auth/signup",cors, async (req, res) => {
         message: "User Signed up successfully",
       });
     } else {
-      const user = await User.getUserByUsernameOrEmail(
-        req.body.email
-      );
+      const user = await User.getUserByUsernameOrEmail(req.body.email);
       if (req.body.password && !user.password) {
         user.password = req.body.password;
         const savedUser = await user.save();
         if (!savedUser) {
           return res.status(400).send({ error: "User not saved" });
         }
-      }
-      else {
+      } else {
         res.status(409).send({ message: "User already exists" });
       }
     }
@@ -132,7 +129,7 @@ router.post("/auth/signup",cors, async (req, res) => {
   }
 });
 
-router.post("/auth/resend-verification",cors,  async (req, res) => {
+router.post("/auth/resend-verification", async (req, res) => {
   try {
     if (req.body.email_or_username) {
       const user = await User.getUserByUsernameOrEmail(
@@ -159,7 +156,7 @@ router.post("/auth/resend-verification",cors,  async (req, res) => {
 });
 
 // login route
-router.post("/auth/login",cors, async (req, res) => {
+router.post("/auth/login", async (req, res) => {
   const user = await User.verifyCreds(
     req.body.email_or_username,
     req.body.password
@@ -204,7 +201,7 @@ router.post("/auth/login",cors, async (req, res) => {
   }
 });
 
-router.post("/auth/send-reset-password",cors, async (req, res) => {
+router.post("/auth/send-reset-password", async (req, res) => {
   try {
     if (req.body.email_or_username) {
       const user = await User.getUserByUsernameOrEmail(
@@ -247,7 +244,7 @@ router.post("/auth/send-reset-password",cors, async (req, res) => {
 });
 
 // Reset password
-router.put("/auth/reset-password",cors, async (req, res) => {
+router.put("/auth/reset-password", async (req, res) => {
   try {
     const user = await User.getUserByUsernameOrEmail(
       req.body.email_or_username
@@ -281,7 +278,7 @@ router.put("/auth/reset-password",cors, async (req, res) => {
   }
 });
 
-router.put("/auth/update-password",cors, auth, async (req, res) => {
+router.put("/auth/update-password", auth, async (req, res) => {
   try {
     const user = req.user;
     const verifiedUser = await User.yCreds(user.email, req.body.old_password);
@@ -302,7 +299,7 @@ router.put("/auth/update-password",cors, auth, async (req, res) => {
   }
 });
 
-router.put("/auth/verify-credentials",cors, async (req, res) => {
+router.put("/auth/verify-credentials", async (req, res) => {
   try {
     if (req.body.email_or_username && req.body.verificationCode) {
       const user = await User.findOne({

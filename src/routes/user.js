@@ -13,7 +13,7 @@ require("./../models/constants/notificationType");
 
 router.get(
   "/notifications/list/:page?/:count?",
-  cors,
+
   auth,
   async (req, res) => {
     try {
@@ -70,7 +70,7 @@ router.get(
 
 router.get(
   "/follower/list/:username/:page?/:count?",
-  cors,
+
   auth,
   async (req, res) => {
     try {
@@ -133,7 +133,7 @@ router.get(
 
 router.get(
   "/following/list/:username/:page?/:count?",
-  cors,
+
   auth,
   async (req, res) => {
     try {
@@ -194,7 +194,7 @@ router.get(
   }
 );
 
-router.get("/info/:username", cors, auth, async (req, res) => {
+router.get("/info/:username", auth, async (req, res) => {
   const _username = req.params.username;
   try {
     if (_username === req.user.username) {
@@ -213,7 +213,7 @@ router.get("/info/:username", cors, auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-router.post("/user/follow", cors, auth, async (req, res) => {
+router.post("/user/follow", auth, async (req, res) => {
   const user1 = req.user;
   const user2 = await User.findOne({
     username: req.body.username,
@@ -268,7 +268,7 @@ router.post("/user/follow", cors, auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-router.post("/user/unfollow", cors, auth, async (req, res) => {
+router.post("/user/unfollow", auth, async (req, res) => {
   const user1 = req.user;
   const user2 = await User.findOne({
     username: req.body.username,
@@ -308,7 +308,7 @@ router.post("/user/unfollow", cors, auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-router.get("/liked/list/:username/:page?/:count?", cors, auth, async (req, res) => {
+router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
   try {
     if (
       req.params.page != undefined &&
@@ -350,7 +350,7 @@ router.get("/liked/list/:username/:page?/:count?", cors, auth, async (req, res) 
   }
 });
 
-router.get("/vapid-key", cors, auth, async (req, res) => {
+router.get("/vapid-key", auth, async (req, res) => {
   try {
     const vapidKeys = webPush.generateVAPIDKeys();
     if (vapidKeys) {
@@ -368,7 +368,7 @@ router.get("/vapid-key", cors, auth, async (req, res) => {
   }
 });
 
-router.post("/add-subscription", cors, auth, async (req, res) => {
+router.post("/add-subscription", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const subscription = req.body.subscription;
@@ -397,7 +397,7 @@ router.post("/add-subscription", cors, auth, async (req, res) => {
   }
 });
 
-router.put("/user/update-profile", cors, auth, async (req, res) => {
+router.put("/user/update-profile", auth, async (req, res) => {
   const user1 = req.user;
   const allowedUpdates = [
     "name",
