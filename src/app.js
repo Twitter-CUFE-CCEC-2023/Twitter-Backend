@@ -12,9 +12,13 @@ const authRoutes = require("./routes/auth");
 const app = express();
 const port = 80;
 const connectionurl = config.cloudConnectString;
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://www.twittercloneteamone.tk"],
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(adminRoutes);
 app.use(userRoutes);
