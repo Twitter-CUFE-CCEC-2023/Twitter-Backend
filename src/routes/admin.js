@@ -178,8 +178,8 @@ router.post("/dashboard/users", auth, async (req, res) => {
 ///////////////////////////////////////////////Retweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post("/dashboard/retweets", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
@@ -404,8 +404,8 @@ router.post("/dashboard/retweets", auth, async (req, res) => {
 ///////////////////////////////////////////////Likes////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post("/dashboard/likes", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
@@ -614,8 +614,8 @@ router.post("/dashboard/likes", auth, async (req, res) => {
 ///////////////////////////////////////////////Tweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.post("/dashboard/tweets", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
