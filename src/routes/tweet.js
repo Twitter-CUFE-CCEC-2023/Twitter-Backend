@@ -144,20 +144,23 @@ router.post("/status/like", auth, async (req, res) => {
     });
     await like.save();
 
-    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
-    await Notification.sendNotification(
-      tweetObj.user.id,
-      "You have recieved a new notification",
-      `${req.user.username} liked your tweet`
-    );
-    const notification = new Notification({
-      userId: tweetObj.user.id,
-      content: `${req.user.username} liked your tweet`,
-      relatedUserId: req.user._id,
-      notificationTypeId: NotificationType.like._id,
-      tweetId: tweetObj._id,
-    });
-    await notification.save();
+    if (tweet.userId != req.user._id) {
+      const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
+      await Notification.sendNotification(
+        tweetObj.user.id,
+        "You have recieved a new notification",
+        `${req.user.username} liked your tweet`
+      );
+      const notification = new Notification({
+        userId: tweetObj.user.id,
+        content: `${req.user.username} liked your tweet`,
+        relatedUserId: req.user._id,
+        notificationTypeId: NotificationType.like._id,
+        tweetId: tweetObj.id,
+      });
+      await notification.save();
+    }
+
     res.status(200).send({
       tweet: tweetObj,
       message: "Like is added successfully",
