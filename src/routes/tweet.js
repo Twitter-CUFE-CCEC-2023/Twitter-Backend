@@ -237,18 +237,16 @@ router.post("/status/tweet/post", auth, async (req, res) => {
     });
     await tweet.save();
 
-    const userFollowers = await User.findById(req.user._id).populate({
-      path: "followers",
-      select: "username",
-    });
-    for (let i = 0; i < userFollowers.followers.length; i++) {
+    const userFollowers = await User.findById(req.user._id).select("followers -_id");
+
+    for (let i = 0; i < userFollowers.length; i++) {
       await Notification.sendNotification(
-        userFollowers.followers[i]._id,
+        userFollowers[i]._id,
         "You have recieved a new notification",
         `${req.user.username} has posted a new tweet`
       );
       const notification = new Notification({
-        userId: userFollowers.followers[i]._id,
+        userId: userFollowers[i]._id,
         content: `${req.user.username} has posted a new tweet`,
         relatedUserId: req.user._id,
         notificationTypeId: NotificationType.followingTweet._id,
