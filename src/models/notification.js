@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const UserVapidKeys = require("./userVapidKeys");
 const webPush = require("web-push");
 const NotificationSub = require("./notificationsSub");
-const { detect } = require("detect-browser");
 
 require("./user");
 require("./tweet");
-
-const browser = detect();
 
 const NotificationSchema = new Schema(
   {
@@ -59,7 +55,11 @@ NotificationSchema.statics.getNotificationObject = async function (
 
   if (notification.tweetId != null) {
     const Tweet = mongoose.model("tweet");
-    tweet = await Tweet.getTweetObject(notification.tweetId, notification.userId.username, false);
+    tweet = await Tweet.getTweetObject(
+      notification.tweetId,
+      notification.userId.username,
+      false
+    );
   }
   if (notification.relatedUserId != null) {
     const User = mongoose.model("user");
@@ -83,32 +83,25 @@ NotificationSchema.statics.sendNotification = async function (
   title,
   body
 ) {
-  const vapidKeys = await UserVapidKeys.findOne({ userId: userId });
-  if (!vapidKeys) {
+  const subs = await NotificationSub.find({ userId: userId });
+  if (!subs) {
     return null;
   }
   const payload = {
     title: title,
     body: body,
   };
-  const options = {
-    vapidDetails: {
-      subject: "mailto:noreply@twittcloneteamone.xyz",
-      publicKey: vapidKeys.publicKey,
-      privateKey: vapidKeys.privateKey,
-    },
-  };
-  const subscription = await NotificationSub.findOne({
-    userId: userId,
-    browser: browser.name,
-    os: browser.os,
-    version: browser.version,
-  });
+  for (let i = 0; i < subs.length; i++) {
+    const options = {
+      vapidDetails: {
+        subject: "mailto:noreply@twittcloneteamone.xyz",
+        publicKey: subs[i].publicKey,
+        privateKey: subs[i].privateKey,
+      },
+    };
 
-  if (subscription) {
-    console.log(subscription);
     webPush.sendNotification(
-      subscription.subscription,
+      subs[i].subscription,
       JSON.stringify(payload),
       options
     );

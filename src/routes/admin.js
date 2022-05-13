@@ -3,6 +3,7 @@ const banUser = require("../models/banUser");
 const User = require("../models/user");
 const Tweet = require("../models/tweet");
 const Like = require("../models/like");
+const UserRole = require("../models/constants/userRole");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.post("/dashboard/ban", auth, async (req, res) => {
     "banDuration",
     "reason",
     "isPermanent",
+    "accessToken",
   ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
@@ -23,21 +25,27 @@ router.post("/dashboard/ban", auth, async (req, res) => {
     return res.status(400).send({ message: "Invalid updates!" });
   }
   try {
-    banuser.save();
-    const user = await User.findByIdAndUpdate(
-      req.body.userId,
-      { isBanned: true },
-      { new: true, runValidators: true }
-    );
+    const adminId = await UserRole.find({
+      name: "Admin",
+    }).select("_id");
 
-    if (!user) {
-      return res.status(404).send({ message: "User is not found" });
-    }
+    if (adminId[0]._id.equals(req.user.roleId)) {
+      const user = await User.findByIdAndUpdate(
+        req.body.userId,
+        { isBanned: true },
+        { new: true, runValidators: true }
+      );
 
-    res.status(200).send({
-      user: user,
-      message: "User Banned successfully",
-    });
+      if (!user) {
+        return res.status(404).send({ message: "User is not found" });
+      }
+
+      banuser.save();
+      res.status(200).send({
+        user: user,
+        message: "User Banned successfully",
+      });
+    } else return res.status(401).send({ message: "You are not authorized" });
   } catch (e) {
     res.status(500).send({ message: "Internal server error" });
   }
@@ -45,7 +53,7 @@ router.post("/dashboard/ban", auth, async (req, res) => {
 
 router.post("/dashboard/unban", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["userId", "isBanned"];
+  const allowedUpdates = ["userId", "isBanned", "accessToken"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -53,25 +61,30 @@ router.post("/dashboard/unban", auth, async (req, res) => {
     return res.status(400).send({ error: "Invalid updates!" });
   }
   try {
-    const user = await User.findByIdAndUpdate(
-      req.body.userId,
-      { isBanned: false },
-      { new: true, runValidators: true }
-    );
-    const banuser = await banUser.deleteOne({ userId: req.body.userId });
+    const adminId = await UserRole.find({
+      name: "Admin",
+    }).select("_id");
+    if (adminId[0]._id.equals(req.user.roleId)) {
+      const user = await User.findByIdAndUpdate(
+        req.body.userId,
+        { isBanned: false },
+        { new: true, runValidators: true }
+      );
+      const banuser = await banUser.deleteOne({ userId: req.body.userId });
 
-    if (!user) {
-      return res.status(404).send({ message: "User is not found" });
-    }
+      if (!user) {
+        return res.status(404).send({ message: "User is not found" });
+      }
 
-    if (!banuser) {
-      return res.status(404).send({ message: "User is not banned" });
-    }
+      if (!banuser) {
+        return res.status(404).send({ message: "User is not banned" });
+      }
 
-    res.status(200).send({
-      user: user,
-      message: "User was unbanned successfully",
-    });
+      res.status(200).send({
+        user: user,
+        message: "User was unbanned successfully",
+      });
+    } else return res.status(401).send({ message: "You are not authorized" });
   } catch (e) {
     res.status(500).send({ message: "Internal server error" });
   }
@@ -79,7 +92,7 @@ router.post("/dashboard/unban", auth, async (req, res) => {
 
 router.get("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["location", "gender"];
+  const allowedUpdates = ["location", "gender", "accessToken", "count", "page"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -87,8 +100,9 @@ router.get("/dashboard/users", auth, async (req, res) => {
     return res.status(400).send({ error: "Invalid filters!" });
   }
   let user = null;
-  const count = 10;
-  const page = 1;
+  let userCount = null;
+  const count = req.body.count || 20;
+  const page = req.body.page || 1;
   try {
     if (
       req.body.location != "" &&
@@ -96,23 +110,27 @@ router.get("/dashboard/users", auth, async (req, res) => {
       req.body.location &&
       req.body.gender
     ) {
+      let gender = req.body.gender;
+      let location = req.body.location;
       user = await User.find({
-        location: req.body.location,
-        gender: req.body.gender,
+        location: location,
+        gender: gender,
       })
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
     } else if (req.body.location != "" && req.body.location) {
+      let location = req.body.location;
       user = await User.find({
-        location: req.body.location,
+        location: location,
       })
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
     } else if (req.body.gender != "" && req.body.gender) {
+      let gender = req.body.gender;
       user = await User.find({
-        gender: req.body.gender,
+        gender: gender,
       })
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
@@ -123,8 +141,36 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .skip(count * (page - 1))
         .limit(count);
     }
+
+    if (
+      req.body.location != "" &&
+      req.body.gender != "" &&
+      req.body.location &&
+      req.body.gender
+    ) {
+      let gender = req.body.gender;
+      let location = req.body.location;
+      userCount = await User.count({
+        location: location,
+        gender: gender,
+      });
+    } else if (req.body.location != "" && req.body.location) {
+      let location = req.body.location;
+      userCount = await User.count({
+        location: location,
+      });
+    } else if (req.body.gender != "" && req.body.gender) {
+      let gender = req.body.gender;
+      userCount = await User.count({
+        gender: gender,
+      });
+    } else {
+      userCount = await User.count({});
+    }
+
     res.status(200).send({
       user: user,
+      count: userCount,
       message: "Users have been retrived successfully",
     });
   } catch (e) {
@@ -171,7 +217,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
 
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
           isRetweeted: true,
         });
@@ -182,7 +228,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInTime = now.getTime() - req.body.start_date.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: now },
           isRetweeted: true,
         });
@@ -193,7 +239,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
           isRetweeted: true,
         });
@@ -204,7 +250,7 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
         diffInTime = now.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $lte: now, $gte: lastWeeek },
           isRetweeted: true,
         });
@@ -396,7 +442,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
 
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       } else if (req.body.start_date) {
@@ -406,7 +452,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: now },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       } else if (req.body.end_date) {
@@ -416,7 +462,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       } else {
@@ -426,7 +472,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $lte: now, $gte: lastWeeek },
-          userId:_idBoth,
+          userId: _idBoth,
         });
         avg = count / diffInDays;
       }
@@ -439,7 +485,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       } else if (req.body.start_date) {
@@ -449,7 +495,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: now },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       } else if (req.body.end_date) {
@@ -459,7 +505,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       } else {
@@ -469,7 +515,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $lte: now, $gte: lastWeeek },
-          userId:_idLocation,
+          userId: _idLocation,
         });
         avg = count / diffInDays;
       }
@@ -482,7 +528,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       } else if (req.body.start_date) {
@@ -492,7 +538,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.find({
           createdAt: { $gte: req.body.start_date, $lte: now },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       } else if (req.body.end_date) {
@@ -502,7 +548,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       } else {
@@ -512,7 +558,7 @@ router.get("/dashboard/likes", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Like.count({
           createdAt: { $lte: now, $gte: lastWeeek },
-          userId:_idGender,
+          userId: _idGender,
         });
         avg = count / diffInDays;
       }
@@ -605,7 +651,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInDays = Math.round(diffInTime / oneDay);
 
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: req.body.end_date },
         });
         avg = count / diffInDays;
@@ -615,7 +661,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInTime = now.getTime() - req.body.start_date.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: req.body.start_date, $lte: now },
         });
         avg = count / diffInDays;
@@ -625,7 +671,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInTime = req.body.end_date.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $gte: lastWeeek, $lte: req.body.end_date },
         });
         avg = count / diffInDays;
@@ -635,7 +681,7 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
         diffInTime = now.getTime() - lastWeeek.getTime();
         diffInDays = Math.round(diffInTime / oneDay);
         count = await Tweet.count({
-          userId:_idBoth,
+          userId: _idBoth,
           createdAt: { $lte: now, $gte: lastWeeek },
         });
         avg = count / diffInDays;

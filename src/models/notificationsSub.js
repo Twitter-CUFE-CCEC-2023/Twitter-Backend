@@ -10,18 +10,16 @@ const NotificationsSubSchema = new Schema(
       index: true,
       ref: "user",
     },
-    browser: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    version: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     subscription: {
       type: Object,
+      required: true,
+    },
+    privateKey: {
+      type: String,
+      required: true,
+    },
+    publicKey: {
+      type: String,
       required: true,
     },
   },

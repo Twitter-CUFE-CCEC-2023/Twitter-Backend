@@ -5,12 +5,9 @@ const tweetModel = require("./../models/tweet");
 const userModel = require("./../models/user.js");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
-const UserVapidKeys = require("../models/userVapidKeys");
 const NotificationSubscription = require("../models/notificationsSub");
-const { detect } = require("detect-browser");
+const webPush = require("web-push");
 require("./../models/constants/notificationType.js");
-
-const browser = detect();
 
 router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
   try {
@@ -263,8 +260,12 @@ router.post("/user/unfollow", auth, async (req, res) => {
     return res.status(400).send({ error: "You are not following this user" });
   }
   try {
-    const _followeruser = user1.followings.filter((id) => id != user2._id.toString());
-    const _followinguser = user2.followers.filter((id) => id != user1._id.toString());
+    const _followeruser = user1.followings.filter(
+      (id) => id != user2._id.toString()
+    );
+    const _followinguser = user2.followers.filter(
+      (id) => id != user1._id.toString()
+    );
     const followerUser = await userModel.findByIdAndUpdate(
       user1._id,
       { followings: _followeruser },
@@ -332,35 +333,15 @@ router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
 
 router.get("/vapid-key", auth, async (req, res) => {
   try {
-    const userId = req.user._id;
-    const vapidKeys = await UserVapidKeys.findOne({ userId: userId });
+    const vapidKeys = webPush.generateVAPIDKeys();
     if (vapidKeys) {
       return res.status(200).send({
         publicKey: vapidKeys.publicKey,
+        privateKey: vapidKeys.privateKey,
       });
     } else {
-      return res.status(404).send({
-        message: "Vapid keys not found",
-      });
-    }
-  } catch (error) {
-    res.status(500).send(error.toString());
-  }
-});
-
-router.get("/subscription", auth, async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const subscription = await NotificationSubscription.findOne({
-      userId: userId,
-    });
-    if (subscription) {
-      return res.status(200).send({
-        subscription: subscription.subscription,
-      });
-    } else {
-      return res.status(404).send({
-        message: "Subscription not found",
+      return res.status(500).send({
+        message: "Vapid keys could not be generated",
       });
     }
   } catch (error) {
@@ -372,20 +353,26 @@ router.post("/add-subscription", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const subscription = req.body.subscription;
-    const browserName = req.body.browser;
-    const browserVersion = req.body.version;
+    const publicKey = req.body.publicKey;
+    const privateKey = req.body.privateKey;
 
     const userSub = new NotificationSubscription({
       userId: userId,
       subscription: subscription,
-      browser: browserName,
-      version: browserVersion,
+      publicKey: publicKey,
+      privateKey: privateKey,
     });
     console.log(userSub);
-    await userSub.save();
-    res.status(200).send({
-      message: "Subscription added successfully",
-    });
+    const saved = await userSub.save();
+    if (saved) {
+      return res
+        .status(200)
+        .send({ message: "Subscription added successfully" });
+    } else {
+      return res
+        .status(500)
+        .send({ message: "Subscription could not be added" });
+    }
   } catch (error) {
     res.status(500).send(error.toString());
   }
@@ -410,14 +397,12 @@ router.put("/user/update-profile", auth, async (req, res) => {
     invalidUpdates = updates.filter(
       (update) => !allowedUpdates.includes(update)
     );
-    return res
-      .status(400)
-      .send({
-        message:
-          "Invalid updates! " +
-          "You can't change the following: " +
-          invalidUpdates,
-      });
+    return res.status(400).send({
+      message:
+        "Invalid updates! " +
+        "You can't change the following: " +
+        invalidUpdates,
+    });
   }
   try {
     const user = await userModel.findByIdAndUpdate(user1._id, req.body, {
