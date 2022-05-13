@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const config = require('./config');
+const config = require("./config");
 
 const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
@@ -14,7 +14,11 @@ const port = 80;
 const connectionurl = config.cloudConnectString;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://www.twittercloneteamone.tk"],
+  })
+);
 
 app.use(adminRoutes);
 app.use(userRoutes);
