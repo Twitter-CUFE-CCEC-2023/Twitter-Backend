@@ -90,7 +90,7 @@ router.post("/dashboard/unban", auth, async (req, res) => {
   }
 });
 
-router.get("/dashboard/users", auth, async (req, res) => {
+router.post("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["location", "gender", "accessToken", "count", "page"];
   const isValidOperation = updates.every((update) =>
@@ -105,8 +105,6 @@ router.get("/dashboard/users", auth, async (req, res) => {
   const page = req.body.page || 1;
   try {
     if (
-      req.body.location != "" &&
-      req.body.gender != "" &&
       req.body.location &&
       req.body.gender
     ) {
@@ -119,7 +117,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
-    } else if (req.body.location != "" && req.body.location) {
+    } else if (req.body.location) {
       let location = req.body.location;
       user = await User.find({
         location: location,
@@ -127,7 +125,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
-    } else if (req.body.gender != "" && req.body.gender) {
+    } else if (req.body.gender) {
       let gender = req.body.gender;
       user = await User.find({
         gender: gender,
@@ -143,8 +141,6 @@ router.get("/dashboard/users", auth, async (req, res) => {
     }
 
     if (
-      req.body.location != "" &&
-      req.body.gender != "" &&
       req.body.location &&
       req.body.gender
     ) {
@@ -154,12 +150,12 @@ router.get("/dashboard/users", auth, async (req, res) => {
         location: location,
         gender: gender,
       });
-    } else if (req.body.location != "" && req.body.location) {
+    } else if (req.body.location) {
       let location = req.body.location;
       userCount = await User.count({
         location: location,
       });
-    } else if (req.body.gender != "" && req.body.gender) {
+    } else if (req.body.gender) {
       let gender = req.body.gender;
       userCount = await User.count({
         gender: gender,
