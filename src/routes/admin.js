@@ -187,9 +187,9 @@ router.post("/dashboard/retweets", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
@@ -412,9 +412,10 @@ router.post("/dashboard/likes", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
+  console.log(req.body.start_date);
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
@@ -622,9 +623,9 @@ router.post("/dashboard/tweets", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
