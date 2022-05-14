@@ -30,16 +30,16 @@ const upload = multer({
   },
 });
 
-// function checkFileType(file, cb) {
-//   const filetypes = /jpeg|jpg|png|gif|pdf|docx|doc|ppt|mp4|mpeg/;
-//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-//   const mimetype = filetypes.test(file.mimetype);
-//   if (mimetype && extname) {
-//     return cb(null, true);
-//   } else {
-//     cb("Error: Unsupported file type");
-//   }
-// }
+function checkFileType(file, cb) {
+  const filetypes = /jpeg|jpg|png|gif|pdf|docx|doc|ppt|mp4|mpeg/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb("Error: Unsupported file type");
+  }
+}
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
   try {
