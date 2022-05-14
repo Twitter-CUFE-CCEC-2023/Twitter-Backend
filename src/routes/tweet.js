@@ -10,36 +10,36 @@ const path = require("path");
 const config = require("./../config");
 const router = express.Router();
 
-const maxFileSize = 50 * 1024 * 1024;
+// const maxFileSize = 50 * 1024 * 1024;
 
-const storage = multer.diskStorage({
-  destination: config.uploadPath,
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: config.uploadPath,
+//   filename: function (req, file, cb) {
+//     cb(
+//       null,
+//       file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+//     );
+//   },
+// });
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: maxFileSize },
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
-});
+// const upload = multer({
+//   storage: storage,
+//   limits: { fileSize: maxFileSize },
+//   fileFilter: function (req, file, cb) {
+//     checkFileType(file, cb);
+//   },
+// });
 
-function checkFileType(file, cb) {
-  const filetypes = /jpeg|jpg|png|gif|pdf|docx|doc|ppt|mp4|mpeg/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb("Error: Unsupported file type");
-  }
-}
+// function checkFileType(file, cb) {
+//   const filetypes = /jpeg|jpg|png|gif|pdf|docx|doc|ppt|mp4|mpeg/;
+//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+//   const mimetype = filetypes.test(file.mimetype);
+//   if (mimetype && extname) {
+//     return cb(null, true);
+//   } else {
+//     cb("Error: Unsupported file type");
+//   }
+// }
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
   try {
@@ -237,7 +237,7 @@ router.delete("/status/unlike", auth, async (req, res) => {
   }
 });
 
-router.post("/status/tweet/post", auth, upload.single('file'), async (req, res) => {
+router.post("/status/tweet/post", auth,  async (req, res) => {
   try {
     console.log(req.file);
 
