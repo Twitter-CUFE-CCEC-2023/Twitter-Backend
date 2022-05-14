@@ -443,25 +443,22 @@ router.put("/user/update-profile", auth, async (req, res) => {
   }
 });
 
-router.get(
-  "/search/:username",
-  auth,
-  async (req, res) => {
-    try {
-      const _username = req.params.username;
-      const users = await User.find({ });
-      if (users.length == 0) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      const gen_users = [];
-      for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-        if (user.username.includes(_username)){
-          const gen_user = await User.generateUserObject(user);
-          gen_users.push(gen_user);
-        }        
+router.get("/search/:username", auth, async (req, res) => {
+  try {
+    const _username = req.params.username;
+    const users = await User.find({});
+    if (users.length == 0) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const gen_users = [];
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      if (user.username.includes(_username)) {
+        const gen_user = await User.generateUserObject(user);
+        gen_users.push(gen_user);
       }
     }
+
     if (gen_users == 0) {
       return res.status(404).send({ message: "User not found" });
     }
