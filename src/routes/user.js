@@ -437,28 +437,11 @@ router.put("/user/update-profile", auth, async (req, res) => {
 
 
 router.get(
-  "/search/:username/:page?/:count?",
+  "/search/:username",
   auth,
   async (req, res) => {
     try {
       const _username = req.params.username;
-      if (
-        req.params.page != undefined &&
-        (isNaN(req.params.page) || req.params.page <= 0)
-      ) {
-        return res.status(400).send({ message: "Invalid page number" });
-      }
-      if (
-        (isNaN(req.params.count) || req.params.count <= 0) &&
-        req.params.count != undefined
-      ) {
-        return res
-          .status(400)
-          .send({ message: "Invalid count per page number" });
-      }
-      const count =
-        req.params.count != undefined ? parseInt(req.params.count) : 10;
-      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
       const users = await User.find({ });
       if (users.length == 0) {
         return res.status(404).send({ message: "User not found" });
