@@ -5,6 +5,7 @@ const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
 const NotificationType = require("./../../seed-data/constants/notificationType");
+const upload = require("../services/fileUpload");
 const router = express.Router();
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
@@ -203,15 +204,16 @@ router.delete("/status/unlike", auth, async (req, res) => {
   }
 });
 
-router.post("/status/tweet/post", auth, async (req, res) => {
+router.post("/status/tweet/post", auth, upload.single('image'), async (req, res) => {
   try {
+    console.log(req.file);
+    console.log(req.body);
     const updates = Object.keys(req.body);
     const allowedUpdates = [
       "content",
       "replied_to_tweet",
       "mentions",
       "media_urls",
-      "notify",
     ];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)
@@ -239,6 +241,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
 
     const user = await User.findById(req.user._id).select("followers -_id");
     const userFollowers = user.followers;
+    console.log(user);
     for (let i = 0; i < userFollowers.length; i++) {
       await Notification.sendNotification(
         userFollowers[i],
@@ -260,7 +263,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
       message: "Tweet posted successfully",
     });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(error.toString());
   }
 });
 
