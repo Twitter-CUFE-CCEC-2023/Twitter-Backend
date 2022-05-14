@@ -6,6 +6,9 @@ const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
 const NotificationType = require("./../../seed-data/constants/notificationType");
 const upload = require('../services/fileUpload');
+require("multer");
+require("path");
+require("./../config");
 const router = express.Router();
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
@@ -207,7 +210,7 @@ router.delete("/status/unlike", auth, async (req, res) => {
 router.post("/status/tweet/post", auth, upload.single('file'), async (req, res) => {
   try {
     console.log(req.file);
-    
+
     const updates = Object.keys(req.body);
     const allowedUpdates = [
       "content",
