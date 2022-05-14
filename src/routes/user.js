@@ -537,4 +537,26 @@ router.post("/check-user", async (req, res) => {
   }
 });
 
+router.get("/get-locations", async (req, res) => {
+  //select users grouped by location
+  try {
+    const users = await User.find({});
+    const locations = [];
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      if (user.location != "") {
+        if (!locations.includes(user.location)) {
+          locations.push(user.location);
+        }
+      }
+    }
+    res.status(200).send({
+      locations: locations,
+      message: "Locations have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
