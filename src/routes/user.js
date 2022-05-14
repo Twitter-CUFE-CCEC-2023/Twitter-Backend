@@ -116,10 +116,8 @@ router.get(
       const followers = [];
       for (let i = 0; i < userFollowers.followers.length; i++) {
         const userFollower = await User.generateUserObject(
-          userFollowers.followers[i]
-        );
-        userFollower.is_followed = req.user.followings.includes(
-          userFollower.id
+          userFollowers.followers[i],
+          req.user.username
         );
         followers.push(userFollower);
       }
@@ -179,10 +177,8 @@ router.get(
       const followings = [];
       for (let i = 0; i < userFollowings.followings.length; i++) {
         const userFollowing = await User.generateUserObject(
-          userFollowings.followings[i]
-        );
-        userFollowing.is_followed = req.user.followings.includes(
-          userFollowing.id
+          userFollowings.followings[i],
+          req.user.username
         );
         followings.push(userFollowing);
       }
@@ -206,7 +202,7 @@ router.get("/info/:username", auth, async (req, res) => {
     if (!user) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    const userObj = await User.generateUserObject(user);
+    const userObj = await User.generateUserObject(user, req.user.username);
     res.status(200).send({ user: userObj });
   } catch (error) {
     res.status(500).send(error.toString());
@@ -258,7 +254,7 @@ router.post("/user/follow", auth, async (req, res) => {
     });
     await notification.save();
 
-    const user = await User.generateUserObject(followingUser);
+    const user = await User.generateUserObject(followingUser, req.user.username);
     res.status(200).send({
       user: user,
       message: "User Followed successfully",
@@ -298,7 +294,7 @@ router.post("/user/unfollow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error: "User not found" });
     }
-    const user = await User.generateUserObject(followingUser);
+    const user = await User.generateUserObject(followingUser, req.user.username);
     res.status(200).send({
       user: user,
       message: "User Unfollowed successfully",
@@ -427,7 +423,7 @@ router.put("/user/update-profile", auth, async (req, res) => {
       new: true,
       runValidators: true,
     });
-    const gen_user = await User.generateUserObject(user);
+    const gen_user = await User.generateUserObject(user, req.user.username);
     validUpdates = updates.filter((update) => allowedUpdates.includes(update));
     res.status(200).send({
       user: gen_user,
@@ -441,51 +437,46 @@ router.put("/user/update-profile", auth, async (req, res) => {
   }
 });
 
-
-router.get(
-  "/search/:username/:page?/:count?",
-  auth,
-  async (req, res) => {
-    try {
-      const _username = req.params.username;
-      if (
-        req.params.page != undefined &&
-        (isNaN(req.params.page) || req.params.page <= 0)
-      ) {
-        return res.status(400).send({ message: "Invalid page number" });
-      }
-      if (
-        (isNaN(req.params.count) || req.params.count <= 0) &&
-        req.params.count != undefined
-      ) {
-        return res
-          .status(400)
-          .send({ message: "Invalid count per page number" });
-      }
-      const count =
-        req.params.count != undefined ? parseInt(req.params.count) : 10;
-      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
-      const users = await User.find({ });
-      if (users.length == 0) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      const gen_users = [];
-      for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-        if (user.username.includes(_username)){
-          const gen_user = await User.generateUserObject(user);
-          gen_users.push(gen_user);
-        }        
-      }
-      if (gen_users == 0) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      res.status(200).send({ users: gen_users, message: "Users have been retrieved successfully" });
-    } catch (error) {
-      res.status(500).send({ message: "Internal Server Error" });
+router.get("/search/:username/:page?/:count?", auth, async (req, res) => {
+  try {
+    const _username = req.params.username;
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
+      return res.status(400).send({ message: "Invalid page number" });
     }
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
+    }
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+    const users = await User.find({});
+    if (users.length == 0) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const gen_users = [];
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      if (user.username.includes(_username)) {
+        const gen_user = await User.generateUserObject(user, req.user.username);
+        gen_users.push(gen_user);
+      }
+    }
+    if (gen_users == 0) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    res.status(200).send({
+      users: gen_users,
+      message: "Users have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
   }
-);
-
+});
 
 module.exports = router;
