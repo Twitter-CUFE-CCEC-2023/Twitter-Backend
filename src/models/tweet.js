@@ -97,7 +97,7 @@ TweetSchema.statics.getTweetObject = async function (
   if (withUserInfo) {
     const User = mongoose.model("user");
     const user = await User.findOne({ username: tweet.username });
-    userObject = await User.generateUserObject(user);
+    userObject = await User.generateUserObject(user, username);
   }
 
   const tweetInfo = {

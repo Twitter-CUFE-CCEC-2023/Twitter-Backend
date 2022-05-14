@@ -6,8 +6,41 @@ const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
 const mongoose = require("mongoose");
 const NotificationType = require("./../../seed-data/constants/notificationType");
-
+const multer = require("multer");
+const path = require("path");
+const config = require("./../config");
 const router = express.Router();
+
+const maxFileSize = 50 * 1024 * 1024;
+
+const storage = multer.diskStorage({
+  destination: config.uploadPath,
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: maxFileSize },
+  fileFilter: function (req, file, cb) {
+    checkFileType(file, cb);
+  },
+});
+
+function checkFileType(file, cb) {
+  const filetypes = /jpeg|jpg|png|gif|pdf|docx|doc|ppt|mp4|mpeg/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb("Error: Unsupported file type");
+  }
+}
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
   try {
@@ -31,6 +64,7 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
 
 router.get(
   "/status/tweets/list/:username/:page?/:count?",
+
   auth,
   async (req, res) => {
     try {
@@ -145,8 +179,10 @@ router.post("/status/like", auth, async (req, res) => {
     });
     await like.save();
 
-    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
-    if (tweet.userId != req.user._id) {
+    console.log(tweet.username);
+    console.log(req.user.username);
+    if (tweet.userId !== req.user._id) {
+      const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
       await Notification.sendNotification(
         tweetObj.user.id,
         "You have recieved a new notification",
@@ -157,10 +193,11 @@ router.post("/status/like", auth, async (req, res) => {
         content: `${req.user.username} liked your tweet`,
         relatedUserId: req.user._id,
         notificationTypeId: NotificationType.like._id,
-        tweetId: tweetObj._id,
+        tweetId: tweetObj.id,
       });
       await notification.save();
     }
+
     res.status(200).send({
       tweet: tweetObj,
       message: "Like is added successfully",
@@ -203,9 +240,12 @@ router.delete("/status/unlike", auth, async (req, res) => {
   }
 });
 
-router.post("/status/tweet/post", auth, async (req, res) => {
+router.post("/status/tweet/post", auth, upload.single('file'),  async (req, res) => {
   try {
+    console.log(req.file);
+
     const updates = Object.keys(req.body);
+
     const allowedUpdates = [
       "content",
       "replied_to_tweet",
@@ -237,18 +277,16 @@ router.post("/status/tweet/post", auth, async (req, res) => {
     });
     await tweet.save();
 
-    const userFollowers = await User.findById(req.user._id).populate({
-      path: "followers",
-      select: "username",
-    });
-    for (let i = 0; i < userFollowers.followers.length; i++) {
+    const user = await User.findById(req.user._id).select("followers -_id");
+    const userFollowers = user.followers;
+    for (let i = 0; i < userFollowers.length; i++) {
       await Notification.sendNotification(
-        userFollowers.followers[i]._id,
+        userFollowers[i],
         "You have recieved a new notification",
         `${req.user.username} has posted a new tweet`
       );
       const notification = new Notification({
-        userId: userFollowers.followers[i]._id,
+        userId: userFollowers[i],
         content: `${req.user.username} has posted a new tweet`,
         relatedUserId: req.user._id,
         notificationTypeId: NotificationType.followingTweet._id,
@@ -260,9 +298,10 @@ router.post("/status/tweet/post", auth, async (req, res) => {
     res.status(200).send({
       tweet: tweetObj,
       message: "Tweet posted successfully",
+      path: req.file.path
     });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(error.toString());
   }
 });
 

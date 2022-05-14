@@ -1,7 +1,6 @@
 const express = require("express");
 const User = require("../models/user.js");
 const auth = require("../middleware/auth");
-const webPush = require("web-push");
 const config = require("../config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -44,6 +43,7 @@ router.get(
 
 router.get(
   "/auth/google/callback",
+
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     console.log("Google Auth.");
@@ -107,17 +107,14 @@ router.post("/auth/signup", async (req, res) => {
         message: "User Signed up successfully",
       });
     } else {
-      const user = await User.getUserByUsernameOrEmail(
-        req.body.email
-      );
+      const user = await User.getUserByUsernameOrEmail(req.body.email);
       if (req.body.password && !user.password) {
         user.password = req.body.password;
         const savedUser = await user.save();
         if (!savedUser) {
           return res.status(400).send({ error: "User not saved" });
         }
-      }
-      else {
+      } else {
         res.status(409).send({ message: "User already exists" });
       }
     }

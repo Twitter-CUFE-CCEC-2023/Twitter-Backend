@@ -10,59 +10,66 @@ const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
 require("./../models/constants/notificationType");
 
-router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
-  try {
-    const user = req.user;
-    if (
-      req.params.page != undefined &&
-      (isNaN(req.params.page) || req.params.page <= 0)
-    ) {
-      return res.status(400).send({ message: "Invalid page number" });
-    }
-    if (
-      (isNaN(req.params.count) || req.params.count <= 0) &&
-      req.params.count != undefined
-    ) {
-      return res.status(400).send({ message: "Invalid count per page number" });
-    }
-    const count =
-      req.params.count != undefined ? parseInt(req.params.count) : 10;
-    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+router.get(
+  "/notifications/list/:page?/:count?",
 
-    const result = await Notification
-      .find({ userId: user._id })
-      .sort({ createdAt: -1 })
-      .skip(count * (page - 1))
-      .limit(count)
-      .populate({
-        path: "relatedUserId",
-      })
-      .populate({
-        path: "notificationTypeId",
-      })
-      .populate({
-        path: "tweetId",
-      });
+  auth,
+  async (req, res) => {
+    try {
+      const user = req.user;
+      if (
+        req.params.page != undefined &&
+        (isNaN(req.params.page) || req.params.page <= 0)
+      ) {
+        return res.status(400).send({ message: "Invalid page number" });
+      }
+      if (
+        (isNaN(req.params.count) || req.params.count <= 0) &&
+        req.params.count != undefined
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Invalid count per page number" });
+      }
+      const count =
+        req.params.count != undefined ? parseInt(req.params.count) : 10;
+      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    if (!result) {
-      res.status(404).send({ error_message: "Notifications not found" });
-    }
+      const result = await Notification.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .skip(count * (page - 1))
+        .limit(count)
+        .populate({
+          path: "relatedUserId",
+        })
+        .populate({
+          path: "notificationTypeId",
+        })
+        .populate({
+          path: "tweetId",
+        });
 
-    const notifications = [];
-    for (let i = 0; i < result.length; i++) {
-      const notificationObject = await Notification.getNotificationObject(
-        result[i]
-      );
-      notifications.push(notificationObject);
+      if (!result) {
+        res.status(404).send({ error_message: "Notifications not found" });
+      }
+
+      const notifications = [];
+      for (let i = 0; i < result.length; i++) {
+        const notificationObject = await Notification.getNotificationObject(
+          result[i]
+        );
+        notifications.push(notificationObject);
+      }
+      res.status(200).send({ notifications: notifications });
+    } catch (err) {
+      res.status(500).send(err.toString());
     }
-    res.status(200).send({ notifications: notifications });
-  } catch (err) {
-    res.status(500).send(err.toString());
   }
-});
+);
 
 router.get(
   "/follower/list/:username/:page?/:count?",
+
   auth,
   async (req, res) => {
     try {
@@ -92,10 +99,9 @@ router.get(
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowers = await User
-        .findOne({
-          username: _username,
-        })
+      const userFollowers = await User.findOne({
+        username: _username,
+      })
         .select("followers -_id")
         .populate({
           path: "followers",
@@ -110,10 +116,8 @@ router.get(
       const followers = [];
       for (let i = 0; i < userFollowers.followers.length; i++) {
         const userFollower = await User.generateUserObject(
-          userFollowers.followers[i]
-        );
-        userFollower.is_followed = req.user.followings.includes(
-          userFollower.id
+          userFollowers.followers[i],
+          req.user.username
         );
         followers.push(userFollower);
       }
@@ -126,6 +130,7 @@ router.get(
 
 router.get(
   "/following/list/:username/:page?/:count?",
+
   auth,
   async (req, res) => {
     try {
@@ -155,10 +160,9 @@ router.get(
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowings = await User
-        .findOne({
-          username: _username,
-        })
+      const userFollowings = await User.findOne({
+        username: _username,
+      })
         .select("followings -_id")
         .populate({
           path: "followings",
@@ -173,10 +177,8 @@ router.get(
       const followings = [];
       for (let i = 0; i < userFollowings.followings.length; i++) {
         const userFollowing = await User.generateUserObject(
-          userFollowings.followings[i]
-        );
-        userFollowing.is_followed = req.user.followings.includes(
-          userFollowing.id
+          userFollowings.followings[i],
+          req.user.username
         );
         followings.push(userFollowing);
       }
@@ -200,7 +202,7 @@ router.get("/info/:username", auth, async (req, res) => {
     if (!user) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    const userObj = await User.generateUserObject(user);
+    const userObj = await User.generateUserObject(user, req.user.username);
     res.status(200).send({ user: userObj });
   } catch (error) {
     res.status(500).send(error.toString());
@@ -238,21 +240,24 @@ router.post("/user/follow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    
+
     await Notification.sendNotification(
       user2._id,
       "You have received a new notification",
-      `${user1.username} started following you`,
+      `${user1.username} started following you`
     );
     const notification = new Notification({
       userId: user2._id,
       content: `${user1.username} started following you`,
       relatedUserId: user1._id,
-      notificationTypeId: NotificationType.follow._id
+      notificationTypeId: NotificationType.follow._id,
     });
     await notification.save();
 
-    const user = await User.generateUserObject(followingUser);
+    const user = await User.generateUserObject(
+      followingUser,
+      req.user.username
+    );
     res.status(200).send({
       user: user,
       message: "User Followed successfully",
@@ -292,7 +297,10 @@ router.post("/user/unfollow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error: "User not found" });
     }
-    const user = await User.generateUserObject(followingUser);
+    const user = await User.generateUserObject(
+      followingUser,
+      req.user.username
+    );
     res.status(200).send({
       user: user,
       message: "User Unfollowed successfully",
@@ -421,7 +429,7 @@ router.put("/user/update-profile", auth, async (req, res) => {
       new: true,
       runValidators: true,
     });
-    const gen_user = await User.generateUserObject(user);
+    const gen_user = await User.generateUserObject(user, req.user.username);
     validUpdates = updates.filter((update) => allowedUpdates.includes(update));
     res.status(200).send({
       user: gen_user,
@@ -434,7 +442,6 @@ router.put("/user/update-profile", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-
 
 router.get(
   "/search/:username",
@@ -454,15 +461,91 @@ router.get(
           gen_users.push(gen_user);
         }        
       }
-      if (gen_users == 0) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      res.status(200).send({ users: gen_users, message: "Users have been retrieved successfully" });
-    } catch (error) {
-      res.status(500).send({ message: "Internal Server Error" });
     }
+    if (gen_users == 0) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    res.status(200).send({
+      users: gen_users,
+      message: "Users have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
   }
-);
+});
 
+router.put("/read-notification", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const notificationId = req.body.notificationId;
+    const notification = await Notification.findById(notificationId);
+    if (notification.userId != userId) {
+      return res.status(401).send({ message: "Unauthorized" });
+    }
+    const notificationRead = await Notification.findByIdAndUpdate(
+      notificationId,
+      {
+        isRead: true,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    const notificationObject = await Notification.getNotificationObject(
+      notificationRead
+    );
+    res.status(200).send({
+      message: "Notification has been read successfully",
+      notification: notificationObject,
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.post("/check-user", async (req, res) => {
+  try {
+    const email_or_username = req.body.email_or_username;
+    const user = await User.findOne({
+      $or: [{ email: email_or_username }, { username: email_or_username }],
+    });
+    if (user) {
+      return res.status(200).send({
+        message: "User found",
+        is_found: true,
+      });
+    } else {
+      return res.status(404).send({
+        message: "User not found",
+        is_found: false,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/get-locations", async (req, res) => {
+  //select users grouped by location
+  try {
+    const users = await User.find({});
+    const locations = [];
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      if (user.location != "") {
+        if (!locations.includes(user.location)) {
+          locations.push(user.location);
+        }
+      }
+    }
+    res.status(200).send({
+      locations: locations,
+      message: "Locations have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
 
 module.exports = router;
