@@ -7,6 +7,8 @@ const tweetModel = require("./tweet");
 const likeModel = require("./like");
 const banUserModel = require("./banUser");
 const transporter = require("../services/email");
+const generator = require("generate-password");
+const genUsername = require("unique-username-generator");
 require("./constants/birthInformationAccess");
 require("./constants/userRole");
 
@@ -38,17 +40,14 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
       minLength: 8,
       trim: true,
     },
     birth_date: {
       type: Date,
-      required: true,
     },
     gender: {
       type: String,
-      required: true,
     },
     phone_number: {
       type: String,
@@ -161,6 +160,30 @@ UserSchema.pre("save", async function (next) {
   user.verificationCode = verificationCode;
   next();
 });
+
+UserSchema.statics.googleAuth = async function (profile) {
+  let user = await await User.findOne({ email: user.username }).populate(
+    "roleId"
+  );
+  if (!user) {
+    user = new User();
+    user.username = genUsername.generateUsername(profile._json.email, 3, 14);
+    user.email = profile._json.email;
+    user.name = profile._json.name;
+    user.isVerified = true;
+    user.profile_picture = profile._json.picture;
+    user.password = generator.generate({
+      length: 16,
+      numbers: true,
+      symbols: true,
+      strict: true,
+    });
+    await user.save();
+    return await User.findOne({ email: user.username }).populate("roleId");
+  } else {
+    return user;
+  }
+};
 
 UserSchema.statics.checkConflict = async function (email) {
   const user = await User.findOne({ email });
@@ -286,7 +309,7 @@ UserSchema.statics.generateUserObject = async function (user) {
       .find({ likerUsername: user.username })
       .countDocuments();
     const banInfo = await banUserModel.findOne({ userId: user._id });
-    
+
     const userObj = {
       id: user._id,
       name: user.name,

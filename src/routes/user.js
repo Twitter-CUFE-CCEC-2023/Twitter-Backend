@@ -1,16 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const notificationModel = require("./../models/notification.js");
-const tweetModel = require("./../models/tweet");
-const userModel = require("./../models/user.js");
+const Notification = require("./../models/notification");
+const NotificationType = require("./../../seed-data/constants/notificationType");
+const Tweet = require("./../models/tweet");
+const User = require("./../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
-const UserVapidKeys = require("../models/userVapidKeys");
 const NotificationSubscription = require("../models/notificationsSub");
-const { detect } = require("detect-browser");
-require("./../models/constants/notificationType.js");
-
-const browser = detect();
+const webPush = require("web-push");
+require("./../models/constants/notificationType");
 
 router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
   try {
@@ -31,7 +29,7 @@ router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
       req.params.count != undefined ? parseInt(req.params.count) : 10;
     const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    const result = await notificationModel
+    const result = await Notification
       .find({ userId: user._id })
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
@@ -52,7 +50,7 @@ router.get("/notifications/list/:page?/:count?", auth, async (req, res) => {
 
     const notifications = [];
     for (let i = 0; i < result.length; i++) {
-      const notificationObject = await notificationModel.getNotificationObject(
+      const notificationObject = await Notification.getNotificationObject(
         result[i]
       );
       notifications.push(notificationObject);
@@ -87,14 +85,14 @@ router.get(
         req.params.count != undefined ? parseInt(req.params.count) : 10;
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-      const user = await userModel.findOne({
+      const user = await User.findOne({
         username: _username,
       });
       if (!user) {
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowers = await userModel
+      const userFollowers = await User
         .findOne({
           username: _username,
         })
@@ -111,7 +109,7 @@ router.get(
 
       const followers = [];
       for (let i = 0; i < userFollowers.followers.length; i++) {
-        const userFollower = await userModel.generateUserObject(
+        const userFollower = await User.generateUserObject(
           userFollowers.followers[i]
         );
         userFollower.is_followed = req.user.followings.includes(
@@ -150,14 +148,14 @@ router.get(
         req.params.count != undefined ? parseInt(req.params.count) : 10;
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-      const user = await userModel.findOne({
+      const user = await User.findOne({
         username: _username,
       });
       if (!user) {
         return res.status(404).send({ message: "User not found" });
       }
 
-      const userFollowings = await userModel
+      const userFollowings = await User
         .findOne({
           username: _username,
         })
@@ -174,7 +172,7 @@ router.get(
 
       const followings = [];
       for (let i = 0; i < userFollowings.followings.length; i++) {
-        const userFollowing = await userModel.generateUserObject(
+        const userFollowing = await User.generateUserObject(
           userFollowings.followings[i]
         );
         userFollowing.is_followed = req.user.followings.includes(
@@ -193,25 +191,24 @@ router.get("/info/:username", auth, async (req, res) => {
   const _username = req.params.username;
   try {
     if (_username === req.user.username) {
-      const userObj = await userModel.generateUserObject(req.user);
+      const userObj = await User.generateUserObject(req.user);
       return res.status(200).send({ user: userObj });
     }
-    const user = await userModel.findOne({
+    const user = await User.findOne({
       username: _username,
     });
     if (!user) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    const userObj = await userModel.generateUserObject(user);
+    const userObj = await User.generateUserObject(user);
     res.status(200).send({ user: userObj });
   } catch (error) {
     res.status(500).send(error.toString());
   }
 });
-
 router.post("/user/follow", auth, async (req, res) => {
   const user1 = req.user;
-  const user2 = await userModel.findOne({
+  const user2 = await User.findOne({
     username: req.body.username,
   });
   if (!user2) {
@@ -228,12 +225,12 @@ router.post("/user/follow", auth, async (req, res) => {
   try {
     const _followeruser = user1.followings.concat(user2._id);
     const _followinguser = user2.followers.concat(user1._id);
-    const followerUser = await userModel.findByIdAndUpdate(
+    const followerUser = await User.findByIdAndUpdate(
       user1._id,
       { followings: _followeruser },
       { new: true, runValidators: true }
     );
-    const followingUser = await userModel.findByIdAndUpdate(
+    const followingUser = await User.findByIdAndUpdate(
       user2._id,
       { followers: _followinguser },
       { new: true, runValidators: true }
@@ -241,7 +238,21 @@ router.post("/user/follow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error_message: "User not found" });
     }
-    const user = await userModel.generateUserObject(followingUser);
+    
+    await Notification.sendNotification(
+      user2._id,
+      "You have received a new notification",
+      `${user1.username} started following you`,
+    );
+    const notification = new Notification({
+      userId: user2._id,
+      content: `${user1.username} started following you`,
+      relatedUserId: user1._id,
+      notificationTypeId: NotificationType.follow._id
+    });
+    await notification.save();
+
+    const user = await User.generateUserObject(followingUser);
     res.status(200).send({
       user: user,
       message: "User Followed successfully",
@@ -250,10 +261,9 @@ router.post("/user/follow", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-
 router.post("/user/unfollow", auth, async (req, res) => {
   const user1 = req.user;
-  const user2 = await userModel.findOne({
+  const user2 = await User.findOne({
     username: req.body.username,
   });
   if (!user2) {
@@ -263,14 +273,18 @@ router.post("/user/unfollow", auth, async (req, res) => {
     return res.status(400).send({ error: "You are not following this user" });
   }
   try {
-    const _followeruser = user1.followings.filter((id) => id != user2._id.toString());
-    const _followinguser = user2.followers.filter((id) => id != user1._id.toString());
-    const followerUser = await userModel.findByIdAndUpdate(
+    const _followeruser = user1.followings.filter(
+      (id) => id != user2._id.toString()
+    );
+    const _followinguser = user2.followers.filter(
+      (id) => id != user1._id.toString()
+    );
+    const followerUser = await User.findByIdAndUpdate(
       user1._id,
       { followings: _followeruser },
       { new: true, runValidators: true }
     );
-    const followingUser = await userModel.findByIdAndUpdate(
+    const followingUser = await User.findByIdAndUpdate(
       user2._id,
       { followers: _followinguser },
       { new: true, runValidators: true }
@@ -278,7 +292,7 @@ router.post("/user/unfollow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error: "User not found" });
     }
-    const user = await userModel.generateUserObject(followingUser);
+    const user = await User.generateUserObject(followingUser);
     res.status(200).send({
       user: user,
       message: "User Unfollowed successfully",
@@ -287,7 +301,6 @@ router.post("/user/unfollow", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
-
 router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
   try {
     if (
@@ -315,7 +328,7 @@ router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
 
     const likedTweets = [];
     for (let i = 0; i < tweets.length; i++) {
-      const tweet = await tweetModel.getTweetObject(
+      const tweet = await Tweet.getTweetObject(
         tweets[i].tweetId,
         req.user.username
       );
@@ -332,35 +345,15 @@ router.get("/liked/list/:username/:page?/:count?", auth, async (req, res) => {
 
 router.get("/vapid-key", auth, async (req, res) => {
   try {
-    const userId = req.user._id;
-    const vapidKeys = await UserVapidKeys.findOne({ userId: userId });
+    const vapidKeys = webPush.generateVAPIDKeys();
     if (vapidKeys) {
       return res.status(200).send({
         publicKey: vapidKeys.publicKey,
+        privateKey: vapidKeys.privateKey,
       });
     } else {
-      return res.status(404).send({
-        message: "Vapid keys not found",
-      });
-    }
-  } catch (error) {
-    res.status(500).send(error.toString());
-  }
-});
-
-router.get("/subscription", auth, async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const subscription = await NotificationSubscription.findOne({
-      userId: userId,
-    });
-    if (subscription) {
-      return res.status(200).send({
-        subscription: subscription.subscription,
-      });
-    } else {
-      return res.status(404).send({
-        message: "Subscription not found",
+      return res.status(500).send({
+        message: "Vapid keys could not be generated",
       });
     }
   } catch (error) {
@@ -372,20 +365,26 @@ router.post("/add-subscription", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const subscription = req.body.subscription;
-    const browserName = req.body.browser;
-    const browserVersion = req.body.version;
+    const publicKey = req.body.publicKey;
+    const privateKey = req.body.privateKey;
 
     const userSub = new NotificationSubscription({
       userId: userId,
       subscription: subscription,
-      browser: browserName,
-      version: browserVersion,
+      publicKey: publicKey,
+      privateKey: privateKey,
     });
     console.log(userSub);
-    await userSub.save();
-    res.status(200).send({
-      message: "Subscription added successfully",
-    });
+    const saved = await userSub.save();
+    if (saved) {
+      return res
+        .status(200)
+        .send({ message: "Subscription added successfully" });
+    } else {
+      return res
+        .status(500)
+        .send({ message: "Subscription could not be added" });
+    }
   } catch (error) {
     res.status(500).send(error.toString());
   }
@@ -410,21 +409,19 @@ router.put("/user/update-profile", auth, async (req, res) => {
     invalidUpdates = updates.filter(
       (update) => !allowedUpdates.includes(update)
     );
-    return res
-      .status(400)
-      .send({
-        message:
-          "Invalid updates! " +
-          "You can't change the following: " +
-          invalidUpdates,
-      });
+    return res.status(400).send({
+      message:
+        "Invalid updates! " +
+        "You can't change the following: " +
+        invalidUpdates,
+    });
   }
   try {
-    const user = await userModel.findByIdAndUpdate(user1._id, req.body, {
+    const user = await User.findByIdAndUpdate(user1._id, req.body, {
       new: true,
       runValidators: true,
     });
-    const gen_user = await userModel.generateUserObject(user);
+    const gen_user = await User.generateUserObject(user);
     validUpdates = updates.filter((update) => allowedUpdates.includes(update));
     res.status(200).send({
       user: gen_user,
@@ -437,5 +434,35 @@ router.put("/user/update-profile", auth, async (req, res) => {
     res.status(500).send(error.toString());
   }
 });
+
+
+router.get(
+  "/search/:username",
+  auth,
+  async (req, res) => {
+    try {
+      const _username = req.params.username;
+      const users = await User.find({ });
+      if (users.length == 0) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      const gen_users = [];
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        if (user.username.includes(_username)){
+          const gen_user = await User.generateUserObject(user);
+          gen_users.push(gen_user);
+        }        
+      }
+      if (gen_users == 0) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      res.status(200).send({ users: gen_users, message: "Users have been retrieved successfully" });
+    } catch (error) {
+      res.status(500).send({ message: "Internal Server Error" });
+    }
+  }
+);
+
 
 module.exports = router;
