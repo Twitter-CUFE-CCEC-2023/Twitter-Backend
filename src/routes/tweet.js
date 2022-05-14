@@ -178,7 +178,9 @@ router.post("/status/like", auth, async (req, res) => {
     });
     await like.save();
 
-    if (tweet.userId != req.user._id) {
+    console.log(tweet.username);
+    console.log(req.user.username);
+    if (tweet.username !== req.user.username) {
       const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
       await Notification.sendNotification(
         tweetObj.user.id,
