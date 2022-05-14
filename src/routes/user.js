@@ -515,4 +515,26 @@ router.put("/read-notification", auth, async (req, res) => {
   }
 });
 
+router.post("/check-user", async (req, res) => {
+  try {
+    const email_or_username = req.body.email_or_username;
+    const user = await User.findOne({
+      $or: [{ email: email_or_username }, { username: email_or_username }],
+    });
+    if (user) {
+      return res.status(200).send({
+        message: "User found",
+        is_found: true,
+      });
+    } else {
+      return res.status(404).send({
+        message: "User not found",
+        is_found: false,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
