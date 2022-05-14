@@ -475,9 +475,12 @@ router.put("/read-notification", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const notificationId = req.body.notificationId;
-    const notification = await Notification.findById(notificationId);
-    if (notification.userId != userId) {
-      return res.status(401).send({ message: "Unauthorized" });
+    const notification = await Notification.findOne({
+      _id: notificationId,
+      userId: userId,
+    });
+    if (!notification) {
+      return res.status(404).send({ message: "Notifiction is not found" });
     }
     const notificationRead = await Notification.findByIdAndUpdate(
       notificationId,
