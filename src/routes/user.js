@@ -254,7 +254,10 @@ router.post("/user/follow", auth, async (req, res) => {
     });
     await notification.save();
 
-    const user = await User.generateUserObject(followingUser, req.user.username);
+    const user = await User.generateUserObject(
+      followingUser,
+      req.user.username
+    );
     res.status(200).send({
       user: user,
       message: "User Followed successfully",
@@ -294,7 +297,10 @@ router.post("/user/unfollow", auth, async (req, res) => {
     if (!followingUser || !followerUser) {
       return res.status(404).send({ error: "User not found" });
     }
-    const user = await User.generateUserObject(followingUser, req.user.username);
+    const user = await User.generateUserObject(
+      followingUser,
+      req.user.username
+    );
     res.status(200).send({
       user: user,
       message: "User Unfollowed successfully",
@@ -473,6 +479,36 @@ router.get("/search/:username/:page?/:count?", auth, async (req, res) => {
     res.status(200).send({
       users: gen_users,
       message: "Users have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.put("/read-notification", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const notificationId = req.body.notificationId;
+    const notification = await Notification.findById(notificationId);
+    if (notification.userId != userId) {
+      return res.status(401).send({ message: "Unauthorized" });
+    }
+    const notificationRead = await Notification.findByIdAndUpdate(
+      notificationId,
+      {
+        isRead: true,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    const notificationObject = await Notification.getNotificationObject(
+      notificationRead
+    );
+    res.status(200).send({
+      message: "Notification has been read successfully",
+      notification: notificationObject,
     });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });
