@@ -435,4 +435,51 @@ router.put("/user/update-profile", auth, async (req, res) => {
   }
 });
 
+
+router.get(
+  "/search/:username/:page?/:count?",
+  auth,
+  async (req, res) => {
+    try {
+      const _username = req.params.username;
+      if (
+        req.params.page != undefined &&
+        (isNaN(req.params.page) || req.params.page <= 0)
+      ) {
+        return res.status(400).send({ message: "Invalid page number" });
+      }
+      if (
+        (isNaN(req.params.count) || req.params.count <= 0) &&
+        req.params.count != undefined
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Invalid count per page number" });
+      }
+      const count =
+        req.params.count != undefined ? parseInt(req.params.count) : 10;
+      const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+      const users = await userModel.find({ });
+      if (users.length == 0) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      const gen_users = [];
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        if (user.username.includes(_username)){
+          const gen_user = await userModel.generateUserObject(user);
+          gen_users.push(gen_user);
+        }        
+      }
+      if (gen_users == 0) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      res.status(200).send({ users: gen_users, message: "Users have been retrieved successfully" });
+    } catch (error) {
+      res.status(500).send({ message: "Internal Server Error" });
+    }
+  }
+);
+
+
 module.exports = router;
