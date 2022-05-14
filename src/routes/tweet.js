@@ -242,6 +242,7 @@ router.post("/status/tweet/post", auth, upload.single('file'),  async (req, res)
     console.log(req.file);
 
     const updates = Object.keys(req.body);
+
     const allowedUpdates = [
       "content",
       "replied_to_tweet",
@@ -294,6 +295,7 @@ router.post("/status/tweet/post", auth, upload.single('file'),  async (req, res)
     res.status(200).send({
       tweet: tweetObj,
       message: "Tweet posted successfully",
+      path: req.file.path
     });
   } catch (error) {
     res.status(500).send(error.toString());
