@@ -18,7 +18,7 @@ passport.use(
     {
       clientID: config.googleClientID,
       clientSecret: config.googleClientSecret,
-      callbackURL: "https://www.twittercloneteamone.tk/auth/google/callback",
+      callbackURL: "https://backlb.twittercloneteamone.tk/auth/google/callback",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
       passReqToCallback: true,
     },
