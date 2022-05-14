@@ -5,6 +5,7 @@ const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
 const NotificationType = require("./../../seed-data/constants/notificationType");
+const upload = require('../services/fileUpload');
 const router = express.Router();
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
@@ -203,8 +204,10 @@ router.delete("/status/unlike", auth, async (req, res) => {
   }
 });
 
-router.post("/status/tweet/post", auth, async (req, res) => {
+router.post("/status/tweet/post", auth, upload.single('file'), async (req, res) => {
   try {
+    console.log(req.file);
+    
     const updates = Object.keys(req.body);
     const allowedUpdates = [
       "content",
@@ -260,7 +263,7 @@ router.post("/status/tweet/post", auth, async (req, res) => {
       message: "Tweet posted successfully",
     });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(error.toString());
   }
 });
 
