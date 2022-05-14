@@ -465,7 +465,7 @@ router.get(
       const count =
         req.params.count != undefined ? parseInt(req.params.count) : 10;
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
-      const users = await userModel.find({ });
+      const users = await User.find({ });
       if (users.length == 0) {
         return res.status(404).send({ message: "User not found" });
       }
@@ -473,7 +473,7 @@ router.get(
       for (let i = 0; i < users.length; i++) {
         const user = users[i];
         if (user.username.includes(_username)){
-          const gen_user = await userModel.generateUserObject(user);
+          const gen_user = await User.generateUserObject(user);
           gen_users.push(gen_user);
         }        
       }
