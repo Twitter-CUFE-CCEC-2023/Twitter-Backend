@@ -4,6 +4,7 @@ const User = require("../models/user");
 const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
+const mongoose = require("mongoose");
 const NotificationType = require("./../../seed-data/constants/notificationType");
 const multer = require("multer");
 const path = require("path");
@@ -325,12 +326,11 @@ router.post("/status/retweet", auth, async (req, res) => {
     }
 
     const retweet = new Tweet(tweet);
-    retweet._id = new mongoose.Types.ObjectId();
+    //retweet._id = new mongoose.Types.ObjectId();
     retweet.userId = user._id;
     retweet.username = user.username;
     retweet.parentId = tweet._id;
     retweet.isRetweeted = true;
-
     const saved = await retweet.save();
     if (!saved) {
       throw new Error();
@@ -343,5 +343,67 @@ router.post("/status/retweet", auth, async (req, res) => {
     return res.status(500).send({ message: "Internal Server Error" });
   }
 });
+
+router.get("/status/retweeters/:id/:page/:count",auth,async(req, res) => {
+  try{
+    if ( req.params.page != undefined && (isNaN(req.params.page) || req.params.page <= 0) ) {
+      return res.status(400).send({ message: "Invalid page number" });
+    }
+    if ( (isNaN(req.params.count) || req.params.count <= 0) && req.params.count != undefined ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
+    }
+    const count =  req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+
+    retweets = await Tweet.find({parentId: req.params.id, isRetweeted : true, quoteComment : null})
+              .select("userId")
+              .sort({
+                createdAt: -1,
+              })
+              .skip(count * (page - 1))
+              .limit(count);
+
+    if (!retweets) {
+      return res.status(404).send({ message: "Invalid Tweet Id" });
+    }
+
+    retweeters = [];
+
+    for (i = 0; i < retweets.length; i++)
+    {
+      user = await User.findById(retweets[i].userId)
+      retweeters.push(await User.findById(retweets[i].userId))
+    }
+    res.status(200).send({ 
+      retweeters: retweeters,
+      message: "Retweeters have been retrieved successfully"
+    });
+
+  } catch(e){
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+})
+
+router.delete("/status/unretweet", auth, async(req, res) => {
+  try{
+    tweetExist = await Tweet.findOne({ _id : req.body.id, isRetweeted : true, quoteComment : null})
+  
+    if(!tweetExist)
+    {
+      return res.status(400).send({ message: "tweet doesn't exist or not a retweet" });
+    }
+
+    await Tweet.findByIdAndDelete(req.body.id)
+
+    res.status(200).send({
+      tweet : tweetExist,
+      message: "tweet has been Unretweeted successfully"
+    });
+
+  }
+  catch (e){
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+})
 
 module.exports = router;
