@@ -283,7 +283,7 @@ UserSchema.methods.sendVerifyResetEmail = async function (
   resetPasswordCode
 ) {
   const mailOptions = {
-    from: "smtp.mailtrap.io",
+    from: "noreply@twittcloneteamone.xyz",
     to: email,
     subject: "Password reset email",
     text:
