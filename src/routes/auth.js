@@ -256,7 +256,8 @@ router.put("/auth/reset-password", async (req, res) => {
     if (user) {
       if (
         user.resetPasswordCode == req.body.resetPasswordCode &&
-        user.resetPasswordCodeExpiration > Date.now()
+        user.resetPasswordCodeExpiration > Date.now() &&
+        req.body.password
       ) {
         user.password = req.body.password;
         await user.save();
@@ -265,6 +266,14 @@ router.put("/auth/reset-password", async (req, res) => {
         res
           .status(200)
           .send({ message: "Password has been updated successfully." });
+      } else if (
+        user.resetPasswordCode == req.body.resetPasswordCode &&
+        user.resetPasswordCodeExpiration > Date.now() &&
+        !req.body.password
+      ) {
+        res
+          .status(200)
+          .send({ message: "Verification code is correct." });
       } else {
         res.status(401).send({ message: "The verification code is invalid." });
       }
