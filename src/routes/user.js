@@ -548,4 +548,20 @@ router.get("/get-locations", async (req, res) => {
   }
 });
 
+router.get("/count-notifications", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const notificationsCount = await Notification.find({
+      userId: userId,
+      isRead: false,
+    }).count();
+    res.status(200).send({
+      count: notificationsCount,
+      message: "Notification count has been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
