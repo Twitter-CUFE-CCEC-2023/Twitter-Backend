@@ -115,9 +115,13 @@ router.post("/auth/signup", async (req, res) => {
         const savedUser = await user.save();
         if (!savedUser) {
           return res.status(400).send({ error: "User not saved" });
+        } else {
+          res.status(200).send({
+            user: userObj,
+            message: "Sign up is complete and password was added successfully",
+          });
         }
-      }
-      else {
+      } else {
         res.status(409).send({ message: "User already exists" });
       }
     }
