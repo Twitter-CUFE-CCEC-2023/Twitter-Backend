@@ -548,7 +548,7 @@ router.get("/get-locations", async (req, res) => {
   }
 });
 
-router.get("/count-notifications", async (req, res) => {
+router.get("/count-notifications", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const notificationsCount = await Notification.find({
@@ -560,7 +560,7 @@ router.get("/count-notifications", async (req, res) => {
       message: "Notification count has been retrieved successfully",
     });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(error.toString());
   }
 });
 
