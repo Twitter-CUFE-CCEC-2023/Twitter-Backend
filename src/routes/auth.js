@@ -128,7 +128,7 @@ router.post("/auth/signup", async (req, res) => {
     if (err.name == "ValidationError") {
       res.status(400).send(err.toString());
     } else {
-      res.status(500).send(err.toString() + "\n" + typeof err);
+      res.status(500).send(err.toString());
     }
   }
 });
