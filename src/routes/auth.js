@@ -98,7 +98,7 @@ router.post("/auth/signup", async (req, res) => {
         return res.status(400).send({ error: "User not saved" });
       }
 
-      if (req.body.password) {
+      if (!req.body.password) {
         await user.sendVerifyEmail(user.email, user.verificationCode);
       }
       const userObj = await User.generateUserObject(savedUser);
