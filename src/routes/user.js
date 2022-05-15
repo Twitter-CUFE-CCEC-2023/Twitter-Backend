@@ -47,6 +47,9 @@ router.get(
         })
         .populate({
           path: "tweetId",
+        })
+        .populate({
+          path: "userId",
         });
 
       if (!result) {
