@@ -8,6 +8,7 @@ const userRoutes = require("./routes/user");
 const tweetRoutes = require("./routes/tweet");
 const timelineRoutes = require("./routes/timeline");
 const authRoutes = require("./routes/auth");
+const mediaRoutes = require("./routes/media");
 
 const app = express();
 const port = 80;
@@ -25,6 +26,7 @@ app.use(userRoutes);
 app.use(tweetRoutes);
 app.use(timelineRoutes);
 app.use(authRoutes);
+app.use(mediaRoutes);
 
 app.listen(port, () => {
   mongoose.connect(
