@@ -577,4 +577,21 @@ router.get("/count-notifications", auth, async (req, res) => {
   }
 });
 
+router.put("/update-username", auth, async (req, res) => {
+try {
+  const userId = req.user._id;
+  const username = req.body.username;
+  const user = await User.findByIdAndUpdate(userId, {
+    username: username,
+  });
+  const gen_user = await User.generateUserObject(user, req.user.username);
+  res.status(200).send({
+    user: gen_user,
+    message: "Username has been updated successfully",
+  });
+} catch (error) {
+  res.status(500).send({ message: "Internal Server Error" });
+}
+});
+
 module.exports = router;
