@@ -13,13 +13,11 @@ const mediaRoutes = require("./routes/media");
 const app = express();
 const port = 80;
 const connectionurl = config.cloudConnectString;
-// const corsOptions = {
-//   origin: '*',
-//   credentials: true,
-// };
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 
 app.use(mediaRoutes);
 app.use(adminRoutes);
