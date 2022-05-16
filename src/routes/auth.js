@@ -307,7 +307,7 @@ router.put("/auth/update-password", auth, async (req, res) => {
   } catch (err) {
     res.status(500).send({
       message:
-        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+        err.toString(),
     });
   }
 });
