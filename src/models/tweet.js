@@ -39,7 +39,7 @@ const TweetSchema = new Schema(
     },
     attachments: [
       {
-        type: Schema.Types.ObjectId,
+        type: String,
         default: [],
         ref: "attachment",
         index: true,
@@ -48,6 +48,7 @@ const TweetSchema = new Schema(
     mentions: [
       {
         type: String,
+        default: [],
       },
     ],
   },
