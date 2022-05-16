@@ -349,7 +349,6 @@ UserSchema.statics.generateUserObject = async function (
       } else {
         userObj.is_followed = false;
       }
-      console.log(userObj);
     }
     return userObj;
   } catch (err) {

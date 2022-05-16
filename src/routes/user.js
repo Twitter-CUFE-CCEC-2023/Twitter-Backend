@@ -421,6 +421,8 @@ router.put(
       "bio",
       "website",
       "media",
+      "profile_picture",
+      "cover_picture"
     ];
     const updates = Object.keys(req.body);
     const isValidOperation = updates.every((update) =>
