@@ -19,7 +19,9 @@ const connectionurl = config.cloudConnectString;
 // };
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "*",
+}));
 
 app.use(mediaRoutes);
 app.use(adminRoutes);
