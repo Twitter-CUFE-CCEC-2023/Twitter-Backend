@@ -404,58 +404,72 @@ router.post("/add-subscription", auth, async (req, res) => {
   }
 });
 
-router.put("/user/update-profile", auth, upload.array('media'), async (req, res) => {
-  const user1 = req.user;
-  const profilePhoto = req.files[0];
-  const coverPhoto = req.files[1];
+router.put(
+  "/user/update-profile",
+  auth,
+  upload.array("media"),
+  async (req, res) => {
+    const user1 = req.user;
 
-  const allowedUpdates = [
-    "name",
-    "birth_date",
-    "location",
-    "bio",
-    "website",
-    "media"
-  ];
-  const updates = Object.keys(req.body);
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
-  );
-  if (!isValidOperation) {
-    invalidUpdates = updates.filter(
-      (update) => !allowedUpdates.includes(update)
+    const profilePhoto = req.files[0];
+    const coverPhoto = req.files[1];
+    console.log(profilePhoto, coverPhoto);
+    const allowedUpdates = [
+      "name",
+      "birth_date",
+      "location",
+      "bio",
+      "website",
+      "media",
+    ];
+    const updates = Object.keys(req.body);
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
     );
-    return res.status(400).send({
-      message:
-        "Invalid updates! " +
-        "You can't change the following: " +
-        invalidUpdates,
-    });
+    if (!isValidOperation) {
+      invalidUpdates = updates.filter(
+        (update) => !allowedUpdates.includes(update)
+      );
+      return res.status(400).send({
+        message:
+          "Invalid updates! " +
+          "You can't change the following: " +
+          invalidUpdates,
+      });
+    }
+    try {
+      if (profilePhoto) {
+        const profilePhotoRes = await uploadMedia(profilePhoto);
+        req.body[
+          "profile_picture"
+        ] = `${config.baseUrl}/media/${profilePhotoRes.Key}`;
+      }
+      if (coverPhoto) {
+        const coverPhotoRes = await uploadMedia(coverPhoto);
+        req.body[
+          "cover_picture"
+        ] = `${config.baseUrl}/media/${coverPhotoRes.Key}`;
+      }
+      const user = await User.findByIdAndUpdate(user1._id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+      const gen_user = await User.generateUserObject(user, req.user.username);
+      validUpdates = updates.filter((update) =>
+        allowedUpdates.includes(update)
+      );
+      res.status(200).send({
+        user: gen_user,
+        message:
+          "User updated successfully " +
+          "The following have been updated: " +
+          validUpdates,
+      });
+    } catch (error) {
+      res.status(500).send(error.toString());
+    }
   }
-  try {
-    const profilePhotoRes = await uploadMedia(profilePhoto);
-    const coverPhotoRes = await uploadMedia(coverPhoto);
-
-    req.body['profile_image_url'] = `${config.baseUrl}/media/${profilePhotoRes.Key}`;
-    req.body['cover_image_url'] = `${config.baseUrl}/media/${coverPhotoRes.Key}`;
-
-    const user = await User.findByIdAndUpdate(user1._id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    const gen_user = await User.generateUserObject(user, req.user.username);
-    validUpdates = updates.filter((update) => allowedUpdates.includes(update));
-    res.status(200).send({
-      user: gen_user,
-      message:
-        "User updated successfully " +
-        "The following have been updated: " +
-        validUpdates,
-    });
-  } catch (error) {
-    res.status(500).send(error.toString());
-  }
-});
+);
 
 router.get("/search/:username", auth, async (req, res) => {
   try {
@@ -579,20 +593,20 @@ router.get("/count-notifications", auth, async (req, res) => {
 });
 
 router.put("/update-username", auth, async (req, res) => {
-try {
-  const userId = req.user._id;
-  const username = req.body.username;
-  const user = await User.findByIdAndUpdate(userId, {
-    username: username,
-  });
-  const gen_user = await User.generateUserObject(user, req.user.username);
-  res.status(200).send({
-    user: gen_user,
-    message: "Username has been updated successfully",
-  });
-} catch (error) {
-  res.status(500).send({ message: "Internal Server Error" });
-}
+  try {
+    const userId = req.user._id;
+    const username = req.body.username;
+    const user = await User.findByIdAndUpdate(userId, {
+      username: username,
+    });
+    const gen_user = await User.generateUserObject(user, req.user.username);
+    res.status(200).send({
+      user: gen_user,
+      message: "Username has been updated successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
 });
 
 module.exports = router;
