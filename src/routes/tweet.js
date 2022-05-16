@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const NotificationType = require("./../../seed-data/constants/notificationType");
 const upload = require("../services/fileUpload");
 const { uploadMedia } = require("../services/s3");
+const config = require("./../config");
 const router = express.Router();
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
@@ -239,8 +240,8 @@ router.post(
       if (req.files) {
         for (let i = 0; i < req.files.length; i++) {
           const result = await uploadMedia(req.files[i]);
-          console.log(result);
-          tweet.attachments.push(result.Key);
+          const url = `${config.baseUrl}/media/${result.Key}`
+          tweet.attachments.push(url);
         }
       }
       console.log(tweet);

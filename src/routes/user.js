@@ -8,6 +8,9 @@ const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
+const upload = require("../services/fileUpload");
+const { uploadMedia } = require("../services/s3");
+const config = require("./../config");
 require("./../models/constants/notificationType");
 
 router.get(
@@ -401,13 +404,14 @@ router.post("/add-subscription", auth, async (req, res) => {
   }
 });
 
-router.put("/user/update-profile", auth, async (req, res) => {
+router.put("/user/update-profile", auth, upload.array('media'), async (req, res) => {
   const user1 = req.user;
+  const profilePhoto = req.files[0];
+  const coverPhoto = req.files[1];
+
   const allowedUpdates = [
     "name",
     "birth_date",
-    "profile_image_url",
-    "cover_image_url",
     "location",
     "bio",
     "website",
@@ -428,6 +432,12 @@ router.put("/user/update-profile", auth, async (req, res) => {
     });
   }
   try {
+    const profilePhotoRes = await uploadMedia(profilePhoto);
+    const coverPhotoRes = await uploadMedia(coverPhoto);
+
+    req.body['profile_image_url'] = `${config.baseUrl}/media/${profilePhotoRes.Key}`;
+    req.body['cover_image_url'] = `${config.baseUrl}/media/${coverPhotoRes.Key}`;
+
     const user = await User.findByIdAndUpdate(user1._id, req.body, {
       new: true,
       runValidators: true,
