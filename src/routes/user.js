@@ -415,6 +415,7 @@ router.put("/user/update-profile", auth, upload.array('media'), async (req, res)
     "location",
     "bio",
     "website",
+    "media"
   ];
   const updates = Object.keys(req.body);
   const isValidOperation = updates.every((update) =>
