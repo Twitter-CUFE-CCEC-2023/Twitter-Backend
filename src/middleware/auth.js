@@ -22,7 +22,7 @@ const auth = async (req, res, next) => {
       await User.updateOne({ _id: user._id }, { $set: { tokens: user.tokens } });
       throw new Error();
     }
-
+    res.set("Access-Control-Allow-Origin", "*");
     req.user = user;
     req.token = token;
     next();
