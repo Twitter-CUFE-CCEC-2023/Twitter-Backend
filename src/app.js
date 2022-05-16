@@ -21,12 +21,12 @@ const corsOptions = {
 app.use(express.json());
 app.use(cors(corsOptions));
 
+app.use(mediaRoutes);
 app.use(adminRoutes);
 app.use(userRoutes);
 app.use(tweetRoutes);
 app.use(timelineRoutes);
 app.use(authRoutes);
-app.use(mediaRoutes);
 
 app.listen(port, () => {
   mongoose.connect(
