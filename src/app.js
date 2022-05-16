@@ -14,7 +14,7 @@ const app = express();
 const port = 80;
 const connectionurl = config.cloudConnectString;
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://www.twittercloneteamone.tk"],
+  origin: ["*"],
   credentials: true,
 };
 
