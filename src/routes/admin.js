@@ -6,6 +6,9 @@ const Like = require("../models/like");
 const UserRole = require("../models/constants/userRole");
 const auth = require("../middleware/auth");
 const router = express.Router();
+const Notification = require("../models/notification");
+const mongoose = require("mongoose");
+const NotificationType = require("./../../seed-data/constants/notificationType");
 
 router.post("/dashboard/ban", auth, async (req, res) => {
   const banuser = new banUser(req.body);
@@ -41,6 +44,20 @@ router.post("/dashboard/ban", auth, async (req, res) => {
       }
 
       banuser.save();
+      
+      await Notification.sendNotification(
+        req.body.userId,
+        "You have recieved a new notification",
+        `This account has been banned from tweeting or retweeting for ${req.body.banDuration} days.\n Reason: ${req.body.reason}`,
+      );
+
+      const notification = new Notification({
+        userId: req.body.userId,
+        content: `This account has been banned from tweeting or retweeting for ${req.body.banDuration} days.\n Reason: ${req.body.reason}`,
+        notificationTypeId: NotificationType.accountUpdate._id,
+      });
+      await notification.save();
+
       res.status(200).send({
         user: user,
         message: "User Banned successfully",
