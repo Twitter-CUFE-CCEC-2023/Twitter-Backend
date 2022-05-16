@@ -294,7 +294,7 @@ router.put("/auth/reset-password", async (req, res) => {
 router.put("/auth/update-password", auth, async (req, res) => {
   try {
     const user = req.user;
-    const verifiedUser = await User.yCreds(user.email, req.body.old_password);
+    const verifiedUser = await User.verifyCreds(user.email, req.body.old_password);
     if (verifiedUser) {
       user.password = req.body.new_password;
       await user.save();
