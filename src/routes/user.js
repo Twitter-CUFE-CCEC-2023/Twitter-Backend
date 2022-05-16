@@ -595,10 +595,35 @@ router.get("/count-notifications", auth, async (req, res) => {
 router.put("/update-username", auth, async (req, res) => {
   try {
     const userId = req.user._id;
+    const oldUsername = req.user.username;
     const username = req.body.username;
     const user = await User.findByIdAndUpdate(userId, {
       username: username,
     });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const userTweets = await Tweet.find({
+      userId: userId,
+    });
+    //update old tweets with new username
+    for (let i = 0; i < userTweets.length; i++) {
+      const tweet = userTweets[i];
+      await Tweet.findByIdAndUpdate(tweet._id, {
+        userName: username,
+      });
+    }
+
+    const userLikes = await Like.find({
+      likerUsername: oldUsername,
+    });
+    for (let i = 0; i < userLikes.length; i++) {
+      const like = userLikes[i];
+      await Like.findByIdAndUpdate(like._id, {
+        likerUsername: username,
+      });
+    }
+
     const gen_user = await User.generateUserObject(user, req.user.username);
     res.status(200).send({
       user: gen_user,
