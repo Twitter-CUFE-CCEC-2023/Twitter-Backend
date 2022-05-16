@@ -25,7 +25,6 @@ const TweetSchema = new Schema(
     },
     content: {
       type: String,
-      required: true,
       trim: true,
       maxLength: 280,
     },

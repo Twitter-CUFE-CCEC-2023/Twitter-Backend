@@ -220,7 +220,7 @@ router.post(
       console.log(req.files);
       const updates = Object.keys(req.body);
 
-      const allowedUpdates = ["content", "replied_to_tweet", "mentions"];
+      const allowedUpdates = ["content", "replied_to_tweet", "mentions", "media"];
       const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
       );
@@ -228,7 +228,7 @@ router.post(
         return res.status(400).send({ message: "Invalid request parameters" });
       }
 
-      if (req.body.content.length > 280 || req.body.content.length == 0) {
+      if (req.body.content.length > 280 || (req.body.content.length == 0 && req.files.length == 0)) {
         return res
           .status(400)
           .send({ message: "Tweet content length is invalid" });
