@@ -18,6 +18,10 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
 
     await Like.deleteMany({ tweetId: req.body.id });
 
+    await Tweet.deleteMany({ parentId: req.body.id});
+
+    await Notification.deleteMany({ tweetId: req.body.id });    
+
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
 
     res.status(200).send({
