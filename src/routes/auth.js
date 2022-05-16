@@ -204,7 +204,6 @@ router.post("/auth/login", async (req, res) => {
     });
   }
 });
-
 router.post("/auth/send-reset-password", async (req, res) => {
   try {
     if (req.body.email_or_username) {

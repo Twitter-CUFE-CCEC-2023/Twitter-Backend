@@ -48,7 +48,7 @@ router.post("/dashboard/ban", auth, async (req, res) => {
       await Notification.sendNotification(
         req.body.userId,
         "You have recieved a new notification",
-        `This account has been banned from tweeting or retweeting for ${req.body.banDuration} days.\n Reason: ${req.body.reason}`,
+        `This account has been banned from tweeting or retweeting until ${req.body.banDuration} days.\n Reason: ${req.body.reason}`,
       );
 
       const notification = new Notification({
@@ -58,8 +58,9 @@ router.post("/dashboard/ban", auth, async (req, res) => {
       });
       await notification.save();
 
+      const userObj = await User.generateUserObject(user);
       res.status(200).send({
-        user: user,
+        user: userObj,
         message: "User Banned successfully",
       });
     } else return res.status(401).send({ message: "You are not authorized" });
