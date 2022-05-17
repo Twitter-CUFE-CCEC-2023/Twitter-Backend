@@ -59,6 +59,30 @@ router.get(
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
       let tweets = undefined;
+      if (req.query.include_replies === "true") {
+        tweets = await Tweet.find({
+          username: req.params.username,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .skip(count * (page - 1))
+          .limit(count);
+      } else {
+        tweets = await Tweet.find({
+          username: req.params.username,
+          $or: [
+            { parentId: null },
+            { $and: [{ parentId: { $exists: true } }, { isRetweeted: true }] },
+          ],
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .skip(count * (page - 1))
+          .limit(count);
+      }
+
       tweets = await Tweet.find({
         username: req.params.username,
         parentId: null,
@@ -348,12 +372,15 @@ router.post("/status/retweet", auth, async (req, res) => {
         .send({ message: "You have already retweeted this tweet" });
     }
 
-    const retweet = new Tweet(tweet);
-    //retweet._id = new mongoose.Types.ObjectId();
-    retweet.userId = user._id;
-    retweet.username = user.username;
-    retweet.parentId = tweet._id;
-    retweet.isRetweeted = true;
+    const retweet = new Tweet({
+      content: tweet.content,
+      userId: user._id,
+      username: user.username,
+      parentId: tweet._id,
+      isRetweeted: true,
+      quoteComment: null,
+    });
+
     const saved = await retweet.save();
     if (!saved) {
       throw new Error();
@@ -377,7 +404,9 @@ router.post("/status/retweet", auth, async (req, res) => {
     }
 
     //Sending notification to the followers
-    const retrievedUser = await User.findById(req.user._id).select("followers -_id");
+    const retrievedUser = await User.findById(req.user._id).select(
+      "followers -_id"
+    );
     const userFollowers = retrievedUser.followers;
     for (let i = 0; i < userFollowers.length; i++) {
       await Notification.sendNotification(

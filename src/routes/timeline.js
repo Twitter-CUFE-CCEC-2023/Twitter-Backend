@@ -23,7 +23,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
     const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
     const usersIds = [req.user._id, ...req.user.followings];
-    const result = await Tweet.find({ userId: { $in: usersIds }, parentId: null})
+    const result = await Tweet.find({ userId: { $in: usersIds }})
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
       .limit(count)
