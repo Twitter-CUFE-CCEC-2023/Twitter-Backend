@@ -90,7 +90,7 @@ router.post("/dashboard/unban", auth, async (req, res) => {
   }
 });
 
-router.get("/dashboard/users", auth, async (req, res) => {
+router.post("/dashboard/users", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["location", "gender", "accessToken", "count", "page"];
   const isValidOperation = updates.every((update) =>
@@ -104,12 +104,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
   const count = req.body.count || 20;
   const page = req.body.page || 1;
   try {
-    if (
-      req.body.location != "" &&
-      req.body.gender != "" &&
-      req.body.location &&
-      req.body.gender
-    ) {
+    if (req.body.location && req.body.gender) {
       let gender = req.body.gender;
       let location = req.body.location;
       user = await User.find({
@@ -119,7 +114,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
-    } else if (req.body.location != "" && req.body.location) {
+    } else if (req.body.location) {
       let location = req.body.location;
       user = await User.find({
         location: location,
@@ -127,7 +122,7 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(count * (page - 1))
         .limit(count);
-    } else if (req.body.gender != "" && req.body.gender) {
+    } else if (req.body.gender) {
       let gender = req.body.gender;
       user = await User.find({
         gender: gender,
@@ -142,24 +137,19 @@ router.get("/dashboard/users", auth, async (req, res) => {
         .limit(count);
     }
 
-    if (
-      req.body.location != "" &&
-      req.body.gender != "" &&
-      req.body.location &&
-      req.body.gender
-    ) {
+    if (req.body.location && req.body.gender) {
       let gender = req.body.gender;
       let location = req.body.location;
       userCount = await User.count({
         location: location,
         gender: gender,
       });
-    } else if (req.body.location != "" && req.body.location) {
+    } else if (req.body.location) {
       let location = req.body.location;
       userCount = await User.count({
         location: location,
       });
-    } else if (req.body.gender != "" && req.body.gender) {
+    } else if (req.body.gender) {
       let gender = req.body.gender;
       userCount = await User.count({
         gender: gender,
@@ -181,9 +171,9 @@ router.get("/dashboard/users", auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Retweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.get("/dashboard/retweets", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+router.post("/dashboard/retweets", auth, async (req, res) => {
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
@@ -191,9 +181,9 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
@@ -407,18 +397,19 @@ router.get("/dashboard/retweets", auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Likes////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.get("/dashboard/likes", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+router.post("/dashboard/likes", auth, async (req, res) => {
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
+  console.log(req.body.start_date);
   try {
     const _idGender = await User.find({
       gender: req.body.gender,
@@ -616,9 +607,9 @@ router.get("/dashboard/likes", auth, async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////Tweets////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.get("/dashboard/tweets", auth, async (req, res) => {
-  let count = null;
-  let avg = null;
+router.post("/dashboard/tweets", auth, async (req, res) => {
+  let count = 0;
+  let avg = 0;
   let now = new Date();
   let lastWeeek = new Date() - 7 * 24 * 60 * 60 * 1000;
   lastWeeek = new Date(lastWeeek);
@@ -626,9 +617,9 @@ router.get("/dashboard/tweets", auth, async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   let diffInTime = null;
   let diffInDays = null;
-  if (req.body.start_date > req.body.end_date) {
-    return res.status(400).send({ error: "Invalid filters!" });
-  }
+  // if (req.body.start_date < req.body.end_date) {
+  //   return res.status(400).send({ error: "Invalid filters!" });
+  // }
   try {
     const _idGender = await User.find({
       gender: req.body.gender,

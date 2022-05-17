@@ -300,7 +300,10 @@ UserSchema.methods.sendVerifyResetEmail = async function (
   return resetPasswordCode;
 };
 
-UserSchema.statics.generateUserObject = async function (user) {
+UserSchema.statics.generateUserObject = async function (
+  user,
+  authorizedUserName = null
+) {
   try {
     const tweetsCount = await tweetModel
       .find({ userId: user._id })
@@ -337,7 +340,17 @@ UserSchema.statics.generateUserObject = async function (user) {
       userObj.banDuration = banInfo.banDuration;
       userObj.permanentBan = banInfo.isPermanent;
     }
-
+    if (authorizedUserName != null) {
+      const authorizedUser = await User.findOne({
+        username: authorizedUserName,
+      });
+      if (authorizedUser && authorizedUser.followings.includes(user._id)) {
+        userObj.is_followed = true;
+      } else {
+        userObj.is_followed = false;
+      }
+      console.log(userObj);
+    }
     return userObj;
   } catch (err) {
     return null;
