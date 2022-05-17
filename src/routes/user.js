@@ -413,16 +413,13 @@ router.put(
 
     const profilePhoto = req.files[0];
     const coverPhoto = req.files[1];
-    console.log(profilePhoto, coverPhoto);
     const allowedUpdates = [
       "name",
       "birth_date",
       "location",
       "bio",
       "website",
-      "media",
-      "profile_picture",
-      "cover_picture",
+      "media"
     ];
     const updates = Object.keys(req.body);
     const isValidOperation = updates.every((update) =>
