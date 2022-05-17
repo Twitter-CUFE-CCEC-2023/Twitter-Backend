@@ -461,7 +461,7 @@ router.get(
           gen_users.push(gen_user);
         }        
       }
-    }
+    
     if (gen_users == 0) {
       return res.status(404).send({ message: "User not found" });
     }
