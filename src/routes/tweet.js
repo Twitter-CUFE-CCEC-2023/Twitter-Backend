@@ -379,6 +379,7 @@ router.post("/status/retweet", auth, async (req, res) => {
       parentId: tweet._id,
       isRetweeted: true,
       quoteComment: null,
+      attachments: tweet.attachments,
     });
 
     const saved = await retweet.save();
