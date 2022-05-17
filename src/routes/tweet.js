@@ -20,9 +20,9 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
 
     await Like.deleteMany({ tweetId: req.body.id });
 
-    await Tweet.deleteMany({ parentId: req.body.id});
+    await Tweet.deleteMany({ parentId: req.body.id });
 
-    await Notification.deleteMany({ tweetId: req.body.id });    
+    await Notification.deleteMany({ tweetId: req.body.id });
 
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
 
@@ -217,10 +217,14 @@ router.post(
   upload.array("media"),
   async (req, res) => {
     try {
-      console.log(req.files);
       const updates = Object.keys(req.body);
 
-      const allowedUpdates = ["content", "replied_to_tweet", "mentions", "media"];
+      const allowedUpdates = [
+        "content",
+        "replied_to_tweet",
+        "mentions",
+        "media",
+      ];
       const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
       );
@@ -228,7 +232,10 @@ router.post(
         return res.status(400).send({ message: "Invalid request parameters" });
       }
 
-      if (req.body.content.length > 280 || (req.body.content.length == 0 && req.files.length == 0)) {
+      if (
+        req.body.content.length > 280 ||
+        (req.body.content.length == 0 && req.files.length == 0)
+      ) {
         return res
           .status(400)
           .send({ message: "Tweet content length is invalid" });
@@ -244,11 +251,10 @@ router.post(
       if (req.files) {
         for (let i = 0; i < req.files.length; i++) {
           const result = await uploadMedia(req.files[i]);
-          const url = `${config.baseUrl}/media/${result.Key}`
+          const url = `${config.baseUrl}/media/${result.Key}`;
           tweet.attachments.push(url);
         }
       }
-      console.log(tweet);
       await tweet.save();
 
       const user = await User.findById(req.user._id).select("followers -_id");
@@ -269,6 +275,24 @@ router.post(
         await notification.save();
       }
 
+      if (tweet.parentId) {
+        const parentTweet = await Tweet.findById(tweet.parentId);
+        if (parentTweet.userId !== req.user._id) {
+          await Notification.sendNotification(
+            userFollowers[i],
+            "You have recieved a new notification",
+            `${req.user.username} has replied to your tweet`
+          );
+          const notification = new Notification({
+            userId: parentTweet.userId,
+            content: `${req.user.username} has replied to your tweet`,
+            relatedUserId: req.user._id,
+            notificationTypeId: NotificationType.reply._id,
+            tweetId: parentTweet._id,
+          });
+          await notification.save();
+        }
+      }
       const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
       res.status(200).send({
         tweet: tweetObj,
