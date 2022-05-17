@@ -100,11 +100,41 @@ router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) 
 
       const tweetObjects = [];
       for (let i = 0; i < tweets.length; i++) {
+
+        console.log(tweets[i].id)
+
+        if (tweets[i] == null)
+          continue;
+
         const tweetObject = await Tweet.getTweetObject(
           tweets[i],
           req.user.username,
           false
         );
+
+        if(tweetObject.is_reply === true)
+        {
+          tweetObject.RelpiedToUser = {};
+          tweetObject.parentTweetID = {};
+          parentTweet = await Tweet.findById(tweets[i].parentId);
+          if(parentTweet != null)
+          {
+            tweetObject.parentTweetID = parentTweet.id;
+            user = await User.findById(
+              parentTweet.userId
+            )
+            .select("-tokens");
+            if(!user)
+            {
+              return res.status(404).send({ message: "User of replied tweet is not found" });
+            }
+            else
+            {
+              tweetObject.RelpiedToUser = user;
+            }
+          }
+        }
+
         if (req.query.include_replies === "true") {
           const tweetObjectWithReplies = await Tweet.getTweetReplies(
             tweetObject,
