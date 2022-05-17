@@ -279,7 +279,7 @@ router.post(
         const parentTweet = await Tweet.findById(tweet.parentId);
         if (parentTweet.userId !== req.user._id) {
           await Notification.sendNotification(
-            userFollowers[i],
+            parentTweet.userId,
             "You have recieved a new notification",
             `${req.user.username} has replied to your tweet`
           );
