@@ -257,24 +257,6 @@ router.post(
       }
       await tweet.save();
 
-      const user = await User.findById(req.user._id).select("followers -_id");
-      const userFollowers = user.followers;
-      for (let i = 0; i < userFollowers.length; i++) {
-        await Notification.sendNotification(
-          userFollowers[i],
-          "You have recieved a new notification",
-          `${req.user.username} has posted a new tweet`
-        );
-        const notification = new Notification({
-          userId: userFollowers[i],
-          content: `${req.user.username} has posted a new tweet`,
-          relatedUserId: req.user._id,
-          notificationTypeId: NotificationType.followingTweet._id,
-          tweetId: tweet._id,
-        });
-        await notification.save();
-      }
-
       if (tweet.parentId) {
         const parentTweet = await Tweet.findById(tweet.parentId);
         if (parentTweet.userId !== req.user._id) {
@@ -288,7 +270,25 @@ router.post(
             content: `${req.user.username} has replied to your tweet`,
             relatedUserId: req.user._id,
             notificationTypeId: NotificationType.reply._id,
-            tweetId: parentTweet._id,
+            tweetId: tweet._id,
+          });
+          await notification.save();
+        }
+      } else {
+        const user = await User.findById(req.user._id).select("followers -_id");
+        const userFollowers = user.followers;
+        for (let i = 0; i < userFollowers.length; i++) {
+          await Notification.sendNotification(
+            userFollowers[i],
+            "You have recieved a new notification",
+            `${req.user.username} has posted a new tweet`
+          );
+          const notification = new Notification({
+            userId: userFollowers[i],
+            content: `${req.user.username} has posted a new tweet`,
+            relatedUserId: req.user._id,
+            notificationTypeId: NotificationType.followingTweet._id,
+            tweetId: tweet._id,
           });
           await notification.save();
         }
