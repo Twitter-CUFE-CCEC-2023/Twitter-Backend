@@ -8,6 +8,9 @@ const Like = require("../models/like");
 const auth = require("../middleware/auth");
 const NotificationSubscription = require("../models/notificationsSub");
 const webPush = require("web-push");
+const upload = require("../services/fileUpload");
+const { uploadMedia } = require("../services/s3");
+const config = require("./../config");
 require("./../models/constants/notificationType");
 
 router.get(
@@ -47,6 +50,9 @@ router.get(
         })
         .populate({
           path: "tweetId",
+        })
+        .populate({
+          path: "userId",
         });
 
       if (!result) {
@@ -216,7 +222,7 @@ router.post("/user/follow", auth, async (req, res) => {
   if (!user2) {
     return res.status(404).send({ error_message: "User not found" });
   }
-  if (user1._id == user2._id) {
+  if (user1._id === user2._id) {
     return res.status(400).send({ error: "You cannot follow yourself" });
   }
   if (user1.followings.includes(user2._id)) {
@@ -398,70 +404,88 @@ router.post("/add-subscription", auth, async (req, res) => {
   }
 });
 
-router.put("/user/update-profile", auth, async (req, res) => {
-  const user1 = req.user;
-  const allowedUpdates = [
-    "name",
-    "birth_date",
-    "profile_image_url",
-    "cover_image_url",
-    "location",
-    "bio",
-    "website",
-  ];
-  const updates = Object.keys(req.body);
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
-  );
-  if (!isValidOperation) {
-    invalidUpdates = updates.filter(
-      (update) => !allowedUpdates.includes(update)
-    );
-    return res.status(400).send({
-      message:
-        "Invalid updates! " +
-        "You can't change the following: " +
-        invalidUpdates,
-    });
-  }
-  try {
-    const user = await User.findByIdAndUpdate(user1._id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    const gen_user = await User.generateUserObject(user, req.user.username);
-    validUpdates = updates.filter((update) => allowedUpdates.includes(update));
-    res.status(200).send({
-      user: gen_user,
-      message:
-        "User updated successfully " +
-        "The following have been updated: " +
-        validUpdates,
-    });
-  } catch (error) {
-    res.status(500).send(error.toString());
-  }
-});
-
-router.get(
-  "/search/:username",
+router.put(
+  "/user/update-profile",
   auth,
+  upload.array("media"),
   async (req, res) => {
+    const user1 = req.user;
+
+    const profilePhoto = req.files[0];
+    const coverPhoto = req.files[1];
+    const allowedUpdates = [
+      "name",
+      "birth_date",
+      "location",
+      "bio",
+      "website",
+      "media"
+    ];
+    const updates = Object.keys(req.body);
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
+    if (!isValidOperation) {
+      invalidUpdates = updates.filter(
+        (update) => !allowedUpdates.includes(update)
+      );
+      return res.status(400).send({
+        message:
+          "Invalid updates! " +
+          "You can't change the following: " +
+          invalidUpdates,
+      });
+    }
     try {
-      const _username = req.params.username;
-      const users = await User.find({ });
-      if (users.length == 0) {
-        return res.status(404).send({ message: "User not found" });
+      if (profilePhoto) {
+        const profilePhotoRes = await uploadMedia(profilePhoto);
+        req.body[
+          "profile_picture"
+        ] = `${config.baseUrl}/media/${profilePhotoRes.Key}`;
       }
-      const gen_users = [];
-      for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-        if (user.username.includes(_username)){
-          const gen_user = await User.generateUserObject(user);
-          gen_users.push(gen_user);
-        }        
+      if (coverPhoto) {
+        const coverPhotoRes = await uploadMedia(coverPhoto);
+        req.body[
+          "cover_picture"
+        ] = `${config.baseUrl}/media/${coverPhotoRes.Key}`;
       }
-    
+      const user = await User.findByIdAndUpdate(user1._id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+      const gen_user = await User.generateUserObject(user, req.user.username);
+      validUpdates = updates.filter((update) =>
+        allowedUpdates.includes(update)
+      );
+      res.status(200).send({
+        user: gen_user,
+        message:
+          "User updated successfully " +
+          "The following have been updated: " +
+          validUpdates,
+      });
+    } catch (error) {
+      res.status(500).send(error.toString());
+    }
+  }
+);
+
+router.get("/search/:username", auth, async (req, res) => {
+  try {
+    const _username = req.params.username;
+    const users = await User.find({});
+    if (users.length == 0) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const gen_users = [];
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      if (user.username.includes(_username)) {
+        const gen_user = await User.generateUserObject(user);
+        gen_users.push(gen_user);
+      }
+    }
+
     if (gen_users == 0) {
       return res.status(404).send({ message: "User not found" });
     }
@@ -478,9 +502,12 @@ router.put("/read-notification", auth, async (req, res) => {
   try {
     const userId = req.user._id;
     const notificationId = req.body.notificationId;
-    const notification = await Notification.findById(notificationId);
-    if (notification.userId != userId) {
-      return res.status(401).send({ message: "Unauthorized" });
+    const notification = await Notification.findOne({
+      _id: notificationId,
+      userId: userId,
+    });
+    if (!notification) {
+      return res.status(404).send({ message: "Notifiction is not found" });
     }
     const notificationRead = await Notification.findByIdAndUpdate(
       notificationId,
@@ -545,6 +572,110 @@ router.get("/get-locations", async (req, res) => {
     });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/count-notifications", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const notificationsCount = await Notification.find({
+      userId: userId,
+      isRead: false,
+    }).count();
+    res.status(200).send({
+      count: notificationsCount,
+      message: "Notification count has been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
+router.put("/update-username", auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const oldUsername = req.user.username;
+    const username = req.body.username;
+    const user = await User.findByIdAndUpdate(userId, {
+      username: username,
+    });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const userTweets = await Tweet.find({
+      userId: userId,
+    });
+    //update old tweets with new username
+    for (let i = 0; i < userTweets.length; i++) {
+      const tweet = userTweets[i];
+      await Tweet.findByIdAndUpdate(tweet._id, {
+        userName: username,
+      });
+    }
+
+    const userLikes = await Like.find({
+      likerUsername: oldUsername,
+    });
+    for (let i = 0; i < userLikes.length; i++) {
+      const like = userLikes[i];
+      await Like.findByIdAndUpdate(like._id, {
+        likerUsername: username,
+      });
+    }
+
+    const gen_user = await User.generateUserObject(user, req.user.username);
+    res.status(200).send({
+      user: gen_user,
+      message: "Username has been updated successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/media/list/:username/:page?/:count?", auth, async (req, res) => {
+  try {
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
+      return res.status(400).send({ message: "Invalid page number" });
+    }
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
+    }
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+
+    const username = req.params.username;
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const userMedia = await Tweet.find({
+      userId: user._id,
+      attachments: { $exists: true, $ne: [] },
+    })
+      .sort({ createdAt: -1 })
+      .skip(count * (page - 1))
+      .limit(count);
+
+    const mediaTweets = [];
+    for (let i = 0; i < userMedia.length; i++) {
+      const tweet = userMedia[i];
+      const tweetObject = await Tweet.getTweetObject(tweet, req.user.username);
+      mediaTweets.push(tweetObject);
+    }
+    res.status(200).send({
+      tweets: mediaTweets,
+      message: "Media tweets have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
   }
 });
 

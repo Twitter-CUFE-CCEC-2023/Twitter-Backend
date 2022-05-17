@@ -5,3 +5,4 @@ exports.googleClientID =
   "894199507999-vb42l34pcp44b2jddb82cd4a1cjusj1u.apps.googleusercontent.com";
 exports.googleClientSecret = "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";
 exports.uploadPath = "./data/";
+exports.baseUrl = "https://backlb.twittercloneteamone.tk";

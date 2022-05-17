@@ -8,18 +8,18 @@ const userRoutes = require("./routes/user");
 const tweetRoutes = require("./routes/tweet");
 const timelineRoutes = require("./routes/timeline");
 const authRoutes = require("./routes/auth");
+const mediaRoutes = require("./routes/media");
 
 const app = express();
 const port = 80;
 const connectionurl = config.cloudConnectString;
-const corsOptions = {
-  origin: ["http://localhost:3000", "https://www.twittercloneteamone.tk"],
-  credentials: true,
-};
 
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: '*',
+}));
 
+app.use(mediaRoutes);
 app.use(adminRoutes);
 app.use(userRoutes);
 app.use(tweetRoutes);

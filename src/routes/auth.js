@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const config = require("../config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const NotificationSubscription = require("../models/notificationsSub");
 
 const router = express.Router();
 
@@ -98,7 +99,7 @@ router.post("/auth/signup", async (req, res) => {
         return res.status(400).send({ error: "User not saved" });
       }
 
-      if (req.body.password) {
+      if (!req.body.password) {
         await user.sendVerifyEmail(user.email, user.verificationCode);
       }
       const userObj = await User.generateUserObject(savedUser);
@@ -113,6 +114,12 @@ router.post("/auth/signup", async (req, res) => {
         const savedUser = await user.save();
         if (!savedUser) {
           return res.status(400).send({ error: "User not saved" });
+        } else {
+          const userObj = await User.generateUserObject(savedUser);
+          res.status(200).send({
+            user: userObj,
+            message: "Sign up is complete and password was added successfully",
+          });
         }
       } else {
         res.status(409).send({ message: "User already exists" });
@@ -122,7 +129,7 @@ router.post("/auth/signup", async (req, res) => {
     if (err.name == "ValidationError") {
       res.status(400).send(err.toString());
     } else {
-      res.status(500).send(err.toString() + "\n" + typeof err);
+      res.status(500).send(err.toString());
     }
   }
 });
@@ -179,6 +186,9 @@ router.post("/auth/login", async (req, res) => {
         { $set: { tokens: user.tokens } }
       );
 
+      //remove all user related notification subs to avoid expired subscriptions
+      await NotificationSubscription.deleteMany({ user: user._id });
+
       const userObj = await User.generateUserObject(user);
       res.status(200).send({
         access_token: token,
@@ -198,7 +208,6 @@ router.post("/auth/login", async (req, res) => {
     });
   }
 });
-
 router.post("/auth/send-reset-password", async (req, res) => {
   try {
     if (req.body.email_or_username) {
@@ -250,7 +259,8 @@ router.put("/auth/reset-password", async (req, res) => {
     if (user) {
       if (
         user.resetPasswordCode == req.body.resetPasswordCode &&
-        user.resetPasswordCodeExpiration > Date.now()
+        user.resetPasswordCodeExpiration > Date.now() &&
+        req.body.password
       ) {
         user.password = req.body.password;
         await user.save();
@@ -259,6 +269,14 @@ router.put("/auth/reset-password", async (req, res) => {
         res
           .status(200)
           .send({ message: "Password has been updated successfully." });
+      } else if (
+        user.resetPasswordCode == req.body.resetPasswordCode &&
+        user.resetPasswordCodeExpiration > Date.now() &&
+        !req.body.password
+      ) {
+        res
+          .status(200)
+          .send({ message: "Verification code is correct." });
       } else {
         res.status(401).send({ message: "The verification code is invalid." });
       }
@@ -279,7 +297,7 @@ router.put("/auth/reset-password", async (req, res) => {
 router.put("/auth/update-password", auth, async (req, res) => {
   try {
     const user = req.user;
-    const verifiedUser = await User.yCreds(user.email, req.body.old_password);
+    const verifiedUser = await User.verifyCreds(user.email, req.body.old_password);
     if (verifiedUser) {
       user.password = req.body.new_password;
       await user.save();
@@ -292,7 +310,7 @@ router.put("/auth/update-password", auth, async (req, res) => {
   } catch (err) {
     res.status(500).send({
       message:
-        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+        err.toString(),
     });
   }
 });

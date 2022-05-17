@@ -63,7 +63,10 @@ NotificationSchema.statics.getNotificationObject = async function (
   }
   if (notification.relatedUserId != null) {
     const User = mongoose.model("user");
-    user = await User.generateUserObject(notification.relatedUserId);
+    user = await User.generateUserObject(
+      notification.relatedUserId,
+      notification.userId.username
+    );
   }
 
   const notificationObject = {
