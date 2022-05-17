@@ -60,7 +60,7 @@ router.get(
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
       let tweets = undefined;
-      tweets = await Tweet.find({ username: req.params.username })
+      tweets = await Tweet.find({ username: req.params.username, parentId: null })
         .sort({
           createdAt: -1,
         })
