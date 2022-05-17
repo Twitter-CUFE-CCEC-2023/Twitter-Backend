@@ -40,8 +40,6 @@ const TweetSchema = new Schema(
       {
         type: String,
         default: [],
-        ref: "attachment",
-        index: true,
       },
     ],
     mentions: [

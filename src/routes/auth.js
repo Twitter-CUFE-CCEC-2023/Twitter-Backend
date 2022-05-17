@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const config = require("../config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const NotificationSubscription = require("../models/notificationsSub");
 
 const router = express.Router();
 
@@ -184,6 +185,9 @@ router.post("/auth/login", async (req, res) => {
         { _id: user._id },
         { $set: { tokens: user.tokens } }
       );
+
+      //remove all user related notification subs to avoid expired subscriptions
+      await NotificationSubscription.deleteMany({ user: user._id });
 
       const userObj = await User.generateUserObject(user);
       res.status(200).send({
