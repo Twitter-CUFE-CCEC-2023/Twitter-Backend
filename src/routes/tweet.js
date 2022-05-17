@@ -35,7 +35,10 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
   }
 });
 
-router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) => {
+router.get(
+  "/status/tweets/list/:username/:page?/:count?",
+  auth,
+  async (req, res) => {
     try {
       if (
         req.params.page != undefined &&
@@ -56,7 +59,10 @@ router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) 
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
       let tweets = undefined;
-      tweets = await Tweet.find({ username: req.params.username, parentId: null })
+      tweets = await Tweet.find({
+        username: req.params.username,
+        parentId: null,
+      })
         .sort({
           createdAt: -1,
         })
@@ -69,11 +75,9 @@ router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) 
 
       const tweetObjects = [];
       for (let i = 0; i < tweets.length; i++) {
+        console.log(tweets[i].id);
 
-        console.log(tweets[i].id)
-
-        if (tweets[i] == null)
-          continue;
+        if (tweets[i] == null) continue;
 
         const tweetObject = await Tweet.getTweetObject(
           tweets[i],
@@ -81,24 +85,18 @@ router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) 
           false
         );
 
-        if(tweetObject.is_reply === true)
-        {
+        if (tweetObject.is_reply === true) {
           tweetObject.RelpiedToUser = {};
           tweetObject.parentTweetID = {};
           parentTweet = await Tweet.findById(tweets[i].parentId);
-          if(parentTweet != null)
-          {
+          if (parentTweet != null) {
             tweetObject.parentTweetID = parentTweet.id;
-            user = await User.findById(
-              parentTweet.userId
-            )
-            .select("-tokens");
-            if(!user)
-            {
-              return res.status(404).send({ message: "User of replied tweet is not found" });
-            }
-            else
-            {
+            user = await User.findById(parentTweet.userId).select("-tokens");
+            if (!user) {
+              return res
+                .status(404)
+                .send({ message: "User of replied tweet is not found" });
+            } else {
               tweetObject.RelpiedToUser = user;
             }
           }
@@ -116,7 +114,7 @@ router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) 
       }
 
       res.status(200).send({
-        tweets: tweetObjects
+        tweets: tweetObjects,
       });
     } catch (error) {
       res.status(500).send(error.toString());
@@ -360,6 +358,43 @@ router.post("/status/retweet", auth, async (req, res) => {
     if (!saved) {
       throw new Error();
     }
+
+    //Sending notification about retweet
+    if (user._id !== tweet.userId) {
+      await Notification.sendNotification(
+        tweet.userId,
+        "You have recieved a new notification",
+        `${user.username} has retweeted your tweet`
+      );
+      const notification = new Notification({
+        userId: tweet.userId,
+        content: `${user.username} has retweeted your tweet`,
+        relatedUserId: user._id,
+        notificationTypeId: NotificationType.retweet._id,
+        tweetId: retweet._id,
+      });
+      await notification.save();
+    }
+
+    //Sending notification to the followers
+    const retrievedUser = await User.findById(req.user._id).select("followers -_id");
+    const userFollowers = retrievedUser.followers;
+    for (let i = 0; i < userFollowers.length; i++) {
+      await Notification.sendNotification(
+        userFollowers[i],
+        "You have recieved a new notification",
+        `${req.user.username} has posted a new tweet`
+      );
+      const notification = new Notification({
+        userId: userFollowers[i],
+        content: `${req.user.username} has posted a new tweet`,
+        relatedUserId: req.user._id,
+        notificationTypeId: NotificationType.followingTweet._id,
+        tweetId: tweet._id,
+      });
+      await notification.save();
+    }
+
     const retweetObject = await Tweet.getTweetObject(retweet, user.username);
     return res
       .status(200)
