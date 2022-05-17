@@ -6,41 +6,10 @@ const auth = require("../middleware/auth");
 const Notification = require("../models/notification");
 const mongoose = require("mongoose");
 const NotificationType = require("./../../seed-data/constants/notificationType");
-const multer = require("multer");
-const path = require("path");
+const upload = require("../services/fileUpload");
+const { uploadMedia } = require("../services/s3");
 const config = require("./../config");
 const router = express.Router();
-
-const maxFileSize = 50 * 1024 * 1024;
-
-const storage = multer.diskStorage({
-  destination: config.uploadPath,
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: maxFileSize },
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
-});
-
-function checkFileType(file, cb) {
-  const filetypes = /jpeg|jpg|png|gif|pdf|docx|doc|ppt|mp4|mpeg/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb("Error: Unsupported file type");
-  }
-}
 
 router.delete("/status/tweet/delete", auth, async (req, res) => {
   try {
@@ -51,9 +20,9 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
 
     await Like.deleteMany({ tweetId: req.body.id });
 
-    await Tweet.deleteMany({ parentId: req.body.id});
+    await Tweet.deleteMany({ parentId: req.body.id });
 
-    await Notification.deleteMany({ tweetId: req.body.id });    
+    await Notification.deleteMany({ tweetId: req.body.id });
 
     const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
 
@@ -87,7 +56,7 @@ router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) 
       const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
       let tweets = undefined;
-      tweets = await Tweet.find({ username: req.params.username })
+      tweets = await Tweet.find({ username: req.params.username, parentId: null })
         .sort({
           createdAt: -1,
         })
@@ -179,8 +148,6 @@ router.post("/status/like", auth, async (req, res) => {
     });
     await like.save();
 
-    console.log(tweet.username);
-    console.log(req.user.username);
     if (tweet.userId !== req.user._id) {
       const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
       await Notification.sendNotification(
@@ -240,70 +207,98 @@ router.delete("/status/unlike", auth, async (req, res) => {
   }
 });
 
-router.post("/status/tweet/post", auth, upload.single('file'),  async (req, res) => {
-  try {
-    console.log(req.file);
+router.post(
+  "/status/tweet/post",
+  auth,
+  upload.array("media"),
+  async (req, res) => {
+    try {
+      const updates = Object.keys(req.body);
 
-    const updates = Object.keys(req.body);
-
-    const allowedUpdates = [
-      "content",
-      "replied_to_tweet",
-      "mentions",
-      "media_urls",
-      "notify",
-    ];
-    const isValidOperation = updates.every((update) =>
-      allowedUpdates.includes(update)
-    );
-    if (!isValidOperation) {
-      return res.status(400).send({ message: "Invalid request parameters" });
-    }
-
-    if (req.body.content.length > 280 || req.body.content.length == 0) {
-      return res
-        .status(400)
-        .send({ message: "Tweet content length is invalid" });
-    }
-
-    const tweet = new Tweet({
-      content: req.body.content,
-      userId: req.user._id,
-      username: req.user.username,
-      parentId: req.body.replied_to_tweet,
-      mentions: req.body.mentions,
-      //attachment_urls	: req.body.urls,
-      //media_ids	: req.body.media_ids,
-    });
-    await tweet.save();
-
-    const user = await User.findById(req.user._id).select("followers -_id");
-    const userFollowers = user.followers;
-    for (let i = 0; i < userFollowers.length; i++) {
-      await Notification.sendNotification(
-        userFollowers[i],
-        "You have recieved a new notification",
-        `${req.user.username} has posted a new tweet`
+      const allowedUpdates = [
+        "content",
+        "replied_to_tweet",
+        "mentions",
+        "media",
+      ];
+      const isValidOperation = updates.every((update) =>
+        allowedUpdates.includes(update)
       );
-      const notification = new Notification({
-        userId: userFollowers[i],
-        content: `${req.user.username} has posted a new tweet`,
-        relatedUserId: req.user._id,
-        notificationTypeId: NotificationType.followingTweet._id,
-        tweetId: tweet._id,
+      if (!isValidOperation) {
+        return res.status(400).send({ message: "Invalid request parameters" });
+      }
+
+      if (
+        req.body.content.length > 280 ||
+        (req.body.content.length == 0 && req.files.length == 0)
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Tweet content length is invalid" });
+      }
+
+      const tweet = new Tweet({
+        content: req.body.content,
+        userId: req.user._id,
+        username: req.user.username,
+        parentId: req.body.replied_to_tweet,
+        mentions: req.body.mentions,
       });
-      await notification.save();
+      if (req.files) {
+        for (let i = 0; i < req.files.length; i++) {
+          const result = await uploadMedia(req.files[i]);
+          const url = `${config.baseUrl}/media/${result.Key}`;
+          tweet.attachments.push(url);
+        }
+      }
+      await tweet.save();
+
+      if (tweet.parentId) {
+        const parentTweet = await Tweet.findById(tweet.parentId);
+        if (parentTweet.userId !== req.user._id) {
+          await Notification.sendNotification(
+            parentTweet.userId,
+            "You have recieved a new notification",
+            `${req.user.username} has replied to your tweet`
+          );
+          const notification = new Notification({
+            userId: parentTweet.userId,
+            content: `${req.user.username} has replied to your tweet`,
+            relatedUserId: req.user._id,
+            notificationTypeId: NotificationType.reply._id,
+            tweetId: tweet._id,
+          });
+          await notification.save();
+        }
+      } else {
+        const user = await User.findById(req.user._id).select("followers -_id");
+        const userFollowers = user.followers;
+        for (let i = 0; i < userFollowers.length; i++) {
+          await Notification.sendNotification(
+            userFollowers[i],
+            "You have recieved a new notification",
+            `${req.user.username} has posted a new tweet`
+          );
+          const notification = new Notification({
+            userId: userFollowers[i],
+            content: `${req.user.username} has posted a new tweet`,
+            relatedUserId: req.user._id,
+            notificationTypeId: NotificationType.followingTweet._id,
+            tweetId: tweet._id,
+          });
+          await notification.save();
+        }
+      }
+      const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
+      res.status(200).send({
+        tweet: tweetObj,
+        message: "Tweet posted successfully",
+      });
+    } catch (error) {
+      res.status(500).send(error.toString());
     }
-    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
-    res.status(200).send({
-      tweet: tweetObj,
-      message: "Tweet posted successfully",
-      path: req.file.path
-    });
-  } catch (error) {
-    res.status(500).send(error.toString());
   }
-});
+);
 
 router.post("/status/retweet", auth, async (req, res) => {
   try {
@@ -344,24 +339,35 @@ router.post("/status/retweet", auth, async (req, res) => {
   }
 });
 
-router.get("/status/retweeters/:id/:page/:count",auth,async(req, res) => {
-  try{
-    if ( req.params.page != undefined && (isNaN(req.params.page) || req.params.page <= 0) ) {
+router.get("/status/retweeters/:id/:page/:count", auth, async (req, res) => {
+  try {
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
       return res.status(400).send({ message: "Invalid page number" });
     }
-    if ( (isNaN(req.params.count) || req.params.count <= 0) && req.params.count != undefined ) {
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
       return res.status(400).send({ message: "Invalid count per page number" });
     }
-    const count =  req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
     const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
-    retweets = await Tweet.find({parentId: req.params.id, isRetweeted : true, quoteComment : null})
-              .select("userId")
-              .sort({
-                createdAt: -1,
-              })
-              .skip(count * (page - 1))
-              .limit(count);
+    retweets = await Tweet.find({
+      parentId: req.params.id,
+      isRetweeted: true,
+      quoteComment: null,
+    })
+      .select("userId")
+      .sort({
+        createdAt: -1,
+      })
+      .skip(count * (page - 1))
+      .limit(count);
 
     if (!retweets) {
       return res.status(404).send({ message: "Invalid Tweet Id" });
@@ -369,41 +375,42 @@ router.get("/status/retweeters/:id/:page/:count",auth,async(req, res) => {
 
     retweeters = [];
 
-    for (i = 0; i < retweets.length; i++)
-    {
-      user = await User.findById(retweets[i].userId)
-      retweeters.push(await User.findById(retweets[i].userId))
+    for (i = 0; i < retweets.length; i++) {
+      user = await User.findById(retweets[i].userId);
+      retweeters.push(await User.findById(retweets[i].userId));
     }
-    res.status(200).send({ 
+    res.status(200).send({
       retweeters: retweeters,
-      message: "Retweeters have been retrieved successfully"
+      message: "Retweeters have been retrieved successfully",
     });
-
-  } catch(e){
+  } catch (e) {
     return res.status(500).send({ message: "Internal Server Error" });
   }
-})
+});
 
-router.delete("/status/unretweet", auth, async(req, res) => {
-  try{
-    tweetExist = await Tweet.findOne({ _id : req.body.id, isRetweeted : true, quoteComment : null})
-  
-    if(!tweetExist)
-    {
-      return res.status(400).send({ message: "tweet doesn't exist or not a retweet" });
+router.delete("/status/unretweet", auth, async (req, res) => {
+  try {
+    tweetExist = await Tweet.findOne({
+      _id: req.body.id,
+      isRetweeted: true,
+      quoteComment: null,
+    });
+
+    if (!tweetExist) {
+      return res
+        .status(400)
+        .send({ message: "tweet doesn't exist or not a retweet" });
     }
 
-    await Tweet.findByIdAndDelete(req.body.id)
+    await Tweet.findByIdAndDelete(req.body.id);
 
     res.status(200).send({
-      tweet : tweetExist,
-      message: "tweet has been Unretweeted successfully"
+      tweet: tweetExist,
+      message: "tweet has been Unretweeted successfully",
     });
-
-  }
-  catch (e){
+  } catch (e) {
     return res.status(500).send({ message: "Internal Server Error" });
   }
-})
+});
 
 module.exports = router;

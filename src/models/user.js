@@ -283,7 +283,7 @@ UserSchema.methods.sendVerifyResetEmail = async function (
   resetPasswordCode
 ) {
   const mailOptions = {
-    from: "smtp.mailtrap.io",
+    from: "noreply@twittcloneteamone.xyz",
     to: email,
     subject: "Password reset email",
     text:
@@ -349,7 +349,6 @@ UserSchema.statics.generateUserObject = async function (
       } else {
         userObj.is_followed = false;
       }
-      console.log(userObj);
     }
     return userObj;
   } catch (err) {
