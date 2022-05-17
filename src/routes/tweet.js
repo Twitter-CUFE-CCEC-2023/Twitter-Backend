@@ -35,11 +35,7 @@ router.delete("/status/tweet/delete", auth, async (req, res) => {
   }
 });
 
-router.get(
-  "/status/tweets/list/:username/:page?/:count?",
-
-  auth,
-  async (req, res) => {
+router.get("/status/tweets/list/:username/:page?/:count?",auth,async (req, res) => {
     try {
       if (
         req.params.page != undefined &&
@@ -90,7 +86,7 @@ router.get(
       }
 
       res.status(200).send({
-        tweets: tweetObjects,
+        tweets: tweetObjects
       });
     } catch (error) {
       res.status(500).send(error.toString());
