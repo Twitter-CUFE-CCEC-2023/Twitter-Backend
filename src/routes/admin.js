@@ -44,16 +44,16 @@ router.post("/dashboard/ban", auth, async (req, res) => {
       }
 
       banuser.save();
+      const message = req.body.isPermanent
+        ? `This account has been banned permanently from tweeting or retweeting. \n Reason: ${req.body.reason}`
+        : `This account has been banned from tweeting or retweeting until ${new Date(req.body.banDuration).toDateString()}.\n Reason: ${req.body.reason}`;
 
       await Notification.sendNotification(
         req.body.userId,
         "You have recieved a new notification",
-        `This account has been banned from tweeting or retweeting until ${req.body.banDuration} days.\n Reason: ${req.body.reason}`
+        message
       );
 
-      const message = req.body.isPermanent
-        ? `This account has been banned permanently from tweeting or retweeting. \n Reason: ${req.body.reason}`
-        : `This account has been banned from tweeting or retweeting until ${new Date(req.body.banDuration).toDateString()} days.\n Reason: ${req.body.reason}`;
       const notification = new Notification({
         userId: req.body.userId,
         content: message,
