@@ -422,7 +422,7 @@ router.put(
       "website",
       "media",
       "profile_picture",
-      "cover_picture"
+      "cover_picture",
     ];
     const updates = Object.keys(req.body);
     const isValidOperation = updates.every((update) =>
@@ -633,6 +633,52 @@ router.put("/update-username", auth, async (req, res) => {
     });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/media/list/:username/:page?/:count?", auth, async (req, res) => {
+  try {
+    if (
+      req.params.page != undefined &&
+      (isNaN(req.params.page) || req.params.page <= 0)
+    ) {
+      return res.status(400).send({ message: "Invalid page number" });
+    }
+    if (
+      (isNaN(req.params.count) || req.params.count <= 0) &&
+      req.params.count != undefined
+    ) {
+      return res.status(400).send({ message: "Invalid count per page number" });
+    }
+    const count =
+      req.params.count != undefined ? parseInt(req.params.count) : 10;
+    const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
+
+    const username = req.params.username;
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const userMedia = await Tweet.find({
+      userId: user._id,
+      attachments: { $exists: true, $ne: [] },
+    })
+      .sort({ createdAt: -1 })
+      .skip(count * (page - 1))
+      .limit(count);
+
+    const mediaTweets = [];
+    for (let i = 0; i < userMedia.length; i++) {
+      const tweet = userMedia[i];
+      const tweetObject = await Tweet.getTweetObject(tweet, req.user.username);
+      mediaTweets.push(tweetObject);
+    }
+    res.status(200).send({
+      tweets: mediaTweets,
+      message: "Media tweets have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error.toString());
   }
 });
 
