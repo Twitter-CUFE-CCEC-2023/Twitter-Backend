@@ -371,7 +371,7 @@ router.post("/status/retweet", auth, async (req, res) => {
         content: `${user.username} has retweeted your tweet`,
         relatedUserId: user._id,
         notificationTypeId: NotificationType.retweet._id,
-        tweetId: retweet._id,
+        tweetId: tweet._id,
       });
       await notification.save();
     }
