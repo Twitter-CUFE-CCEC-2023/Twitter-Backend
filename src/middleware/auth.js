@@ -16,12 +16,17 @@ const auth = async (req, res, next) => {
     }
     //get all expired tokens
     const expiredTokens = user.tokens.filter(
-      (token) => token.token_expiration_date < Date.now()
+      (token) => token.token_expiration_date <= Date.now()
     );
-    //remove expired tokens
+
+    //Remove expired tokens
     expiredTokens.forEach((token) => {
       user.tokens = user.tokens.filter((t) => t.token !== token.token);
     });
+    user = await User.updateOne(
+      { _id: user._id },
+      { $set: { tokens: user.tokens } }
+    ,{ new: true });
 
     const tokenExpirationDate = user.tokens.filter((x) => x.token === token)[0]
       .token_expiration_date;
