@@ -28,15 +28,11 @@ const auth = async (req, res, next) => {
       { $set: { tokens: user.tokens } }
     ,{ new: true });
 
-    const tokenExpirationDate = user.tokens.filter((x) => x.token === token)[0]
-      .token_expiration_date;
-
-    if (tokenExpirationDate < Date.now()) {
-      user.tokens = user.tokens.filter((x) => x.token !== token);
-      await User.updateOne(
-        { _id: user._id },
-        { $set: { tokens: user.tokens } }
-      );
+    //check if token is present in user tokens
+    const tokenExists = user.tokens.find(
+      (token) => token.token === token
+    );
+    if(!tokenExists){
       throw new Error();
     }
     res.set("Access-Control-Allow-Origin", "*");
