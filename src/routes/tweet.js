@@ -83,16 +83,6 @@ router.get(
           .limit(count);
       }
 
-      tweets = await Tweet.find({
-        username: req.params.username,
-        parentId: null,
-      })
-        .sort({
-          createdAt: -1,
-        })
-        .skip(count * (page - 1))
-        .limit(count);
-
       if (!tweets) {
         return res.status(404).send({ message: "Invalid username" });
       }
