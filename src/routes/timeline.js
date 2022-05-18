@@ -27,7 +27,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
       userId: { $in: usersIds },
       $or: [
         { parentId: null },
-        { $and: [{ parentId: { exists: true } }, { isRetweeted: true }] },
+        { $and: [{ parentId: { $ne:null } }, { isRetweeted: true }] },
       ],
     })
       .sort({ createdAt: -1 })
@@ -43,7 +43,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
     }
     res.status(200).send({ tweets: tweets });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(error.toString());
   }
 });
 

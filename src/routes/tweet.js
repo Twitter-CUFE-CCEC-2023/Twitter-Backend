@@ -73,7 +73,7 @@ router.get(
           username: req.params.username,
           $or: [
             { parentId: null },
-            { $and: [{ parentId: { $exists: true } }, { isRetweeted: true }] },
+            { $and: [{ parentId: { $ne: null } }, { isRetweeted: true }] },
           ],
         })
           .sort({
