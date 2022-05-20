@@ -45,6 +45,10 @@ const TweetSchema = new Schema(
         index: true,
       },
     ],
+    gif: {
+      type: String,
+      default: null,
+    },
     mentions: [
       {
         type: String,
