@@ -42,8 +42,9 @@ const TweetSchema = new Schema(
         default: [],
       },
     ],
-    gifs: {
+    gif: {
       type: String,
+      default: "",
     },
     mentions: [
       {
@@ -116,7 +117,7 @@ TweetSchema.statics.getTweetObject = async function (
     quote_comment: quotedTweet != null ? quotedTweet.quoteComment : null,
     mentions: tweet.mentions,
     media: tweet.attachments,
-    gifs: tweet.gifs,
+    gif: tweet.gif,
     created_at: tweet.createdAt,
   };
   return tweetInfo;

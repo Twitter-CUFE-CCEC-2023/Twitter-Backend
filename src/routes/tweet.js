@@ -262,7 +262,7 @@ router.post(
         "replied_to_tweet",
         "mentions",
         "media",
-        "gifs"
+        "gif"
       ];
       const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
@@ -273,7 +273,7 @@ router.post(
 
       if (
         req.body.content.length > 280 ||
-        (req.body.content.length == 0 && req.files.length == 0)
+        (req.body.content.length == 0 && req.files.length == 0 && req.body.gif == "")
       ) {
         return res
           .status(400)
@@ -286,7 +286,7 @@ router.post(
         username: req.user.username,
         parentId: req.body.replied_to_tweet,
         mentions: req.body.mentions,
-        gifs: req.body.gifs
+        gif: req.body.gif
       });
       if (req.files) {
         for (let i = 0; i < req.files.length; i++) {
@@ -372,7 +372,7 @@ router.post("/status/retweet", auth, async (req, res) => {
       isRetweeted: true,
       quoteComment: null,
       attachments: tweet.attachments,
-      gifs: tweet.gifs
+      gif: tweet.gif
     });
 
     const saved = await retweet.save();
