@@ -111,16 +111,24 @@ router.get(
         .select("followers -_id")
         .populate({
           path: "followers",
-        })
-        .skip(count * (page - 1))
-        .limit(count);
+        });
 
       if (!userFollowers) {
         return res.status(404).send({ message: "Followers not found" });
       }
 
+      const endList =
+        userFollowers.followers.length < count * page
+          ? userFollowers.followers.length
+          : count * page;
+
+      const followersList = userFollowers.followers.slice(
+        count * (page - 1),
+        endList
+      );
+
       const followers = [];
-      for (let i = 0; i < userFollowers.followers.length; i++) {
+      for (let i = 0; i < followersList.length; i++) {
         const userFollower = await User.generateUserObject(
           userFollowers.followers[i],
           req.user.username
@@ -172,18 +180,24 @@ router.get(
         .select("followings -_id")
         .populate({
           path: "followings",
-        })
-        .skip(count * (page - 1))
-        .limit(count);
-
+        });
       if (!userFollowings) {
         return res.status(404).send({ message: "Followings not found" });
       }
 
+      const endList =
+        userFollowings.followings.length < count * page
+          ? userFollowings.followings.length
+          : count * page;
+      const followingsList = userFollowings.followings.slice(
+        count * (page - 1),
+        endList
+      );
+
       const followings = [];
-      for (let i = 0; i < userFollowings.followings.length; i++) {
+      for (let i = 0; i < followingsList.length; i++) {
         const userFollowing = await User.generateUserObject(
-          userFollowings.followings[i],
+          followingsList[i],
           req.user.username
         );
         followings.push(userFollowing);
@@ -419,7 +433,7 @@ router.put(
       "location",
       "bio",
       "website",
-      "media"
+      "media",
     ];
     const updates = Object.keys(req.body);
     const isValidOperation = updates.every((update) =>
