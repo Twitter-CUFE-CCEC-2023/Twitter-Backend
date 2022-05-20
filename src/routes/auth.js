@@ -5,6 +5,7 @@ const config = require("../config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const NotificationSubscription = require("../models/notificationsSub");
+const session = require("express-session");
 
 const router = express.Router();
 
@@ -42,12 +43,24 @@ router.get(
   })
 );
 
+router.use(
+  session({
+    secret: "twittcloneteamone",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+router.post("auth/gauth", async (req, res) => {
+  res.status(200).send(req.session.res);
+  req.session.destroy();
+});
+
 router.get(
   "/auth/google/callback",
 
   passport.authenticate("google", { session: false }),
   async (req, res) => {
-    console.log("Google Auth.");
     try {
       const user = new User(req.user);
       if (user) {
@@ -75,6 +88,12 @@ router.get(
           token_expiration_date: authTokenInfo["token_expiration_date"],
           message: "User logged in successfully",
         });
+        req.session.res = {
+          access_token: token,
+          user: userObj,
+          token_expiration_date: authTokenInfo["token_expiration_date"],
+          message: "User logged in successfully",
+        };
       } else {
         res
           .status(401)
