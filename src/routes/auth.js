@@ -82,24 +82,32 @@ router.get(
         );
 
         const userObj = await User.generateUserObject(user);
-        res.status(200).send({
-          access_token: token,
-          user: userObj,
-          token_expiration_date: authTokenInfo["token_expiration_date"],
-          message: "User logged in successfully",
-        });
+        req.session.status = 200;
         req.session.res = {
           access_token: token,
           user: userObj,
           token_expiration_date: authTokenInfo["token_expiration_date"],
           message: "User logged in successfully",
         };
+        res.status(200).send({
+          access_token: token,
+          user: userObj,
+          token_expiration_date: authTokenInfo["token_expiration_date"],
+          message: "User logged in successfully",
+        });
       } else {
+        req.session.status = 401;
+        req.session.res = { message: "The enetered credentials are invalid." };
         res
           .status(401)
           .send({ message: "The enetered credentials are invalid." });
       }
     } catch (err) {
+      req.session.status = 500;
+      req.session.res = {
+        message:
+          "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+      };
       res.status(500).send({
         message:
           "The server encountered an unexpected condition which prevented it from fulfilling the request.",
