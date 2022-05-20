@@ -189,9 +189,9 @@ router.post("/status/like", auth, async (req, res) => {
       userId: req.user._id,
     });
     await like.save();
+    const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
 
-    if (tweet.userId !== req.user._id) {
-      const tweetObj = await Tweet.getTweetObject(tweet, req.user.username);
+    if (!tweet.userId.equals(req.user._id)) {
       await Notification.sendNotification(
         tweetObj.user.id,
         "You have recieved a new notification",
@@ -378,7 +378,7 @@ router.post("/status/retweet", auth, async (req, res) => {
     }
 
     //Sending notification about retweet
-    if (user._id !== tweet.userId) {
+    if (!tweet.userId.equals(user._id)) {
       await Notification.sendNotification(
         tweet.userId,
         "You have recieved a new notification",
