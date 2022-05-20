@@ -335,6 +335,7 @@ UserSchema.statics.generateUserObject = async function (
       isVerified: user.isVerified,
       month_day_access: user.monthDayBirthAccessId.name,
       year_access: user.yearBirthAccessId.name,
+      craeted_at: user.createdAt,
     };
     if (banInfo) {
       userObj.banDuration = banInfo.banDuration;
