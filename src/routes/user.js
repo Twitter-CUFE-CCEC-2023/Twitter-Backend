@@ -610,21 +610,37 @@ router.put("/update-username", auth, async (req, res) => {
     const userId = req.user._id;
     const oldUsername = req.user.username;
     const username = req.body.username;
-    const user = await User.findByIdAndUpdate(userId, {
-      username: username,
-    });
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        username: username,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
     if (!user) {
       return res.status(404).send({ message: "User not found" });
     }
     const userTweets = await Tweet.find({
       userId: userId,
     });
+
     //update old tweets with new username
     for (let i = 0; i < userTweets.length; i++) {
       const tweet = userTweets[i];
-      await Tweet.findByIdAndUpdate(tweet._id, {
-        userName: username,
-      });
+      const newTweet = await Tweet.findByIdAndUpdate(
+        tweet._id,
+        {
+          username: username,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
     }
 
     const userLikes = await Like.find({
@@ -632,7 +648,7 @@ router.put("/update-username", auth, async (req, res) => {
     });
     for (let i = 0; i < userLikes.length; i++) {
       const like = userLikes[i];
-      await Like.findByIdAndUpdate(like._id, {
+      const newLike = await Like.findByIdAndUpdate(like._id, {
         likerUsername: username,
       });
     }
