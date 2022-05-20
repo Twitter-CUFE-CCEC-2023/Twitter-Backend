@@ -98,9 +98,9 @@ router.get(
       } else {
         req.session.status = 401;
         req.session.res = { message: "The enetered credentials are invalid." };
-        res
-          .status(401)
-          .send({ message: "The enetered credentials are invalid." });
+        // res
+        //   .status(401)
+        //   .send({ message: "The enetered credentials are invalid." });
       }
     } catch (err) {
       req.session.status = 500;
@@ -113,6 +113,9 @@ router.get(
           "The server encountered an unexpected condition which prevented it from fulfilling the request.",
       });
     }
+    res.redirect(
+      "https://www.twittercloneteamone.tk/auth/google/GoogleRedirect"
+    );
   }
 );
 
