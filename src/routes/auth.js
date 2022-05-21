@@ -96,7 +96,7 @@ router.get(
         //   message: "User logged in successfully",
         // });
         res.redirect(
-          "https://www.twittercloneteamone.tk/auth/google/GoogleRedirect"
+          "https://www.twittercloneteamone.tk/GoogleRedirect"
         );
       } else {
         req.session.status = 401;
@@ -105,7 +105,7 @@ router.get(
         //   .status(401)
         //   .send({ message: "The enetered credentials are invalid." });
         res.redirect(
-          "https://www.twittercloneteamone.tk/auth/google/GoogleRedirect"
+          "https://www.twittercloneteamone.tk/GoogleRedirect"
         );
       }
     } catch (err) {
