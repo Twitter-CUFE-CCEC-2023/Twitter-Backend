@@ -46,12 +46,14 @@ router.get(
 router.use(
   session({
     secret: "twittcloneteamone",
+    path: "/",
+    domain: "twittercloneteamone.tk",
     resave: true,
     saveUninitialized: true,
   })
 );
 
-router.post("auth/gauth", async (req, res) => {
+router.post("/auth/gauth", async (req, res) => {
   res.status(200).send(req.session.res);
   req.session.destroy();
 });
