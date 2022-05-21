@@ -46,7 +46,8 @@ router.get(
 router.use(
   session({
     secret: "twittcloneteamone",
-    domain: ".twittercloneteamone.tk"
+    domain: ".twittercloneteamone.tk",
+    path: "/",
     resave: true,
     saveUninitialized: false,
   })
