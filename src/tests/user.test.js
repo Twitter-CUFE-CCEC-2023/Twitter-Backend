@@ -407,6 +407,29 @@ test("Should return error for unauthanticated users", async () => {
 
 //***************************************update user profile */
 
+test("Should return error when update user profile for unauthanticated users", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "ahmed.elgarf@gmail.com",
+        username: "ahmedelgarf94",
+        password: "password123",
+        name: "Ahmed Elgarf",
+        gender: "male",
+        birth_date: "1999-04-10T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "ahmedelgarf94", password: "password123" })
+        .expect(200);
+    const user = await getUser("ahmedelgarf94");
+    const response = await request(app)
+        .put("/user/update-profile")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send({
+            name: "Ammar Yasser eng",
+        })
+        .expect(200);
+});
 
 
 
