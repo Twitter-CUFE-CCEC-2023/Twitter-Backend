@@ -46,8 +46,8 @@ const tweet1 = {
 }
 
 const tweet2 = {
-    username: "zikaaaaaa",
-    userId: userOneId,
+    username: "elgarf",
+    userId: userTwoId,
     parentId: id,
     isRetweeted: true,
     content: "I am the second tweet"
@@ -108,7 +108,8 @@ beforeEach(async () => {
     await new User(userTwo).save();
     await new User(userThree).save();
     await Tweets.deleteMany({});
-    
+    await new Tweets(tweet1).save();
+    await new Tweets(tweet2).save();
 });
 
 /*test('getting a tweet and the writing user from the tweet id', async()=>{
@@ -195,6 +196,60 @@ test("posting a tweet", async()=>{
     .set("Authorization", "Bearer " + user.tokens[0].token)
     .send({
         content: "this is a new tweet"
+    })
+    .expect(200);
+})
+
+test("retweet a tweet test", async()=>{
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findById(id);
+
+    const response = await request(app)
+        .post('/status/retweet')
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send({
+            id: tweet.id
+        })
+        .expect(200);
+})
+
+test("get tweet retweeters", async()=>{
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findOne({isRetweeted : true});
+
+    const response = await request(app)
+    .get('/status/retweeters/'+ tweet.id +'/1/5')
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .expect(200);
+})
+
+test("unretweet a tweet test", async()=>{
+    const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findOne({isRetweeted : true});
+
+    const response = await request(app)
+    .delete("/status/unretweet")
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({ 
+        id: tweet.id
     })
     .expect(200);
 })
