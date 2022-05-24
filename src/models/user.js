@@ -7,6 +7,8 @@ const tweetModel = require("./tweet");
 const likeModel = require("./like");
 const banUserModel = require("./banUser");
 const transporter = require("../services/email");
+const generator = require("generate-password");
+const genUsername = require("unique-username-generator");
 require("./constants/birthInformationAccess");
 require("./constants/userRole");
 
@@ -38,17 +40,14 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
       minLength: 8,
       trim: true,
     },
     birth_date: {
       type: Date,
-      required: true,
     },
     gender: {
       type: String,
-      required: true,
     },
     phone_number: {
       type: String,
@@ -162,6 +161,30 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
+UserSchema.statics.googleAuth = async function (profile) {
+  let user = await await User.findOne({ email: user.username }).populate(
+    "roleId"
+  );
+  if (!user) {
+    user = new User();
+    user.username = genUsername.generateUsername(profile._json.email, 3, 14);
+    user.email = profile._json.email;
+    user.name = profile._json.name;
+    user.isVerified = true;
+    user.profile_picture = profile._json.picture;
+    user.password = generator.generate({
+      length: 16,
+      numbers: true,
+      symbols: true,
+      strict: true,
+    });
+    await user.save();
+    return await User.findOne({ email: user.username }).populate("roleId");
+  } else {
+    return user;
+  }
+};
+
 UserSchema.statics.checkConflict = async function (email) {
   const user = await User.findOne({ email });
   if (user) {
@@ -174,16 +197,7 @@ UserSchema.statics.checkConflict = async function (email) {
 UserSchema.statics.verifyCreds = async function (username_email, password) {
   const user = await User.findOne({
     $or: [{ email: username_email }, { username: username_email }],
-  })
-    .populate({ path: "roleId", select: "name" })
-    .populate({
-      path: "monthDayBirthAccessId",
-      select: "name",
-    })
-    .populate({
-      path: "yearBirthAccessId",
-      select: "name",
-    });
+  }).populate("roleId");
 
   if (
     user &&
@@ -269,7 +283,7 @@ UserSchema.methods.sendVerifyResetEmail = async function (
   resetPasswordCode
 ) {
   const mailOptions = {
-    from: "smtp.mailtrap.io",
+    from: "noreply@twittcloneteamone.xyz",
     to: email,
     subject: "Password reset email",
     text:
@@ -286,7 +300,10 @@ UserSchema.methods.sendVerifyResetEmail = async function (
   return resetPasswordCode;
 };
 
-UserSchema.statics.generateUserObject = async function (user) {
+UserSchema.statics.generateUserObject = async function (
+  user,
+  authorizedUserName = null
+) {
   try {
     const tweetsCount = await tweetModel
       .find({ userId: user._id })
@@ -323,7 +340,16 @@ UserSchema.statics.generateUserObject = async function (user) {
       userObj.banDuration = banInfo.banDuration;
       userObj.permanentBan = banInfo.isPermanent;
     }
-
+    if (authorizedUserName != null) {
+      const authorizedUser = await User.findOne({
+        username: authorizedUserName,
+      });
+      if (authorizedUser && authorizedUser.followings.includes(user._id)) {
+        userObj.is_followed = true;
+      } else {
+        userObj.is_followed = false;
+      }
+    }
     return userObj;
   } catch (err) {
     return null;

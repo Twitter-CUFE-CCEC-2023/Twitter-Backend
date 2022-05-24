@@ -25,7 +25,6 @@ const TweetSchema = new Schema(
     },
     content: {
       type: String,
-      required: true,
       trim: true,
       maxLength: 280,
     },
@@ -39,15 +38,14 @@ const TweetSchema = new Schema(
     },
     attachments: [
       {
-        type: Schema.Types.ObjectId,
+        type: String,
         default: [],
-        ref: "attachment",
-        index: true,
       },
     ],
     mentions: [
       {
         type: String,
+        default: [],
       },
     ],
   },
@@ -97,7 +95,7 @@ TweetSchema.statics.getTweetObject = async function (
   if (withUserInfo) {
     const User = mongoose.model("user");
     const user = await User.findOne({ username: tweet.username });
-    userObject = await User.generateUserObject(user);
+    userObject = await User.generateUserObject(user, username);
   }
 
   const tweetInfo = {
@@ -108,11 +106,11 @@ TweetSchema.statics.getTweetObject = async function (
     retweets_count: retweetsCount,
     replies_count: repliesCount,
     quotes_count: quotesCount,
-    is_liked: likedTweet ? true : false,
-    is_retweeted: retweetedTweet ? true : false,
+    is_liked: likedTweet != null ? true : false,
+    is_retweeted: retweetedTweet != null ? true : false,
     is_quoted: quotedTweet ? true : false,
-    is_reply: tweet.parentId ? true : false,
-    quote_comment: quotedTweet ? quotedTweet.quoteComment : null,
+    is_reply: tweet.parentId != null ? true : false,
+    quote_comment: quotedTweet != null ? quotedTweet.quoteComment : null,
     mentions: tweet.mentions,
     media: tweet.attachments,
     created_at: tweet.createdAt,
@@ -121,11 +119,11 @@ TweetSchema.statics.getTweetObject = async function (
 };
 
 TweetSchema.statics.getTweetReplies = async function (tweet, username) {
-  const replyTweets = await Tweet.find({ parentId: tweet.id });
+  const replyTweets = await Tweet.find({ parentId: tweet.id, isRetweeted: false });
   tweet.replies = [];
   for (let i = 0; i < replyTweets.length; i++) {
-    const tweet = replyTweets[i];
-    const tweetObject = await Tweet.getTweetObject(tweet, username);
+    const tweetReply = replyTweets[i];
+    const tweetObject = await Tweet.getTweetObject(tweetReply, username);
     tweet.replies.push(tweetObject);
   }
   return tweet;

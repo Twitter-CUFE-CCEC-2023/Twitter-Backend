@@ -10,7 +10,7 @@ const BanUserSchema = new Schema(
       ref: "user",
     },
     banDuration: {
-      type: Number,
+      type: Date,
       required: true,
     },
     reason: {

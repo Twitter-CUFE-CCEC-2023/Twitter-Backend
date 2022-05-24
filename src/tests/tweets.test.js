@@ -5,6 +5,10 @@ const config = require("../config");
 const Tweets = require("../models/tweet");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const jwt = require("jsonwebtoken");
+const notificationModel = require("./../models/notification.js");
+require("dotenv").config();
+
 
 const connectionurl = config.testConnectionString;
 
@@ -88,15 +92,6 @@ const userThree = {
     isVerified: true
 }
 
-
-beforeEach(async () => {
-    await User.deleteMany({});
-    await new User(userOne).save();
-    await Tweets.deleteMany({});
-    await new Tweets(tweet1).save()
-    await new Tweets(tweet2).save()
-});
-
 async function getUser(username_email) {
     const user = await User.find({
         $or: [{ email: username_email }, { username: username_email }],
@@ -107,6 +102,14 @@ async function getUser(username_email) {
         return null;
     }
 };
+beforeEach(async () => {
+    await User.deleteMany({});
+    await new User(userOne).save();
+    await new User(userTwo).save();
+    await new User(userThree).save();
+    await Tweets.deleteMany({});
+    
+});
 
 /*test('getting a tweet and the writing user from the tweet id', async()=>{
     await request(app).get('/status/tweet/' + id).send({}).expect(200)
@@ -120,9 +123,9 @@ test('deleting a tweet', async()=>{
     await request(app).delete('/status/tweet/delete').send({
         id:id
     }).expect(200)
-})*/
-
-test("Should like a tweet", async () => {
+})
+*/
+test("Should give error for like a tweet", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -134,13 +137,14 @@ test("Should like a tweet", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id
+                tweetId: new mongoose.Types.ObjectId(),
+                likerUsername: user.username
             }
         )
-        .expect(200);
+        .expect(404);
 });
 
-test("Should unlike a tweet", async () => {
+test("Should give error for unlike a tweet", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -152,17 +156,45 @@ test("Should unlike a tweet", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id
+                tweetId: new mongoose.Types.ObjectId(),
+                likerUsername: user.username
             }
         )
-        .expect(200);
+        .expect(404);
         const unfollow = await request(app)
-        .post("/status/unlike")
+        .delete("/status/unlike")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: tweet1._id
+                tweetId: new mongoose.Types.ObjectId(),
+                likerUsername: user.username
             }
         )
-        .expect(200);
+        .expect(400);
 });
+test("posting a tweet", async()=>{
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+
+    const user = await getUser("MostafaA");
+
+    const response = await request(app)
+    .post('/status/tweet/post')
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({
+        content: "this is a new tweet"
+    })
+    .expect(200);
+})

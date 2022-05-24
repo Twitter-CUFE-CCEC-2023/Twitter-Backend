@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 
 const connectionurl = config.testConnectionString;
 
-async function getUser  (username_email) {
+getUser = async function (username_email) {
   const user = await User.find({
     $or: [{ email: username_email }, { username: username_email }],
   });
@@ -43,6 +43,16 @@ afterAll(() => {
 
 test("Test: normal user signup", async () => {
   const response = await request(app)
+    .post("/auth/signup")
+    .send({
+      email: "mostafa.abdelbrr@hotmail.com",
+      username: "MostafaA",
+      password: "",
+      name: "Mostafa Abdelbrr",
+      gender: "male",
+      birth_date: "2000-01-01T00:00:00.000Z",
+    })
+  const response2 = await request(app)
     .post("/auth/signup")
     .send({
       email: "mostafa.abdelbrr@hotmail.com",
@@ -157,7 +167,7 @@ test("Test: user verification.", async () => {
   const signup = await request(app).post("/auth/signup").send({
     email: "mostafa.abdelbrr@hotmail.com",
     username: "MostafaA",
-    password: "myPassw@ord123",
+    password: "",
     name: "Mostafa Abdelbrr",
     gender: "male",
     birth_date: "2000-01-01T00:00:00.000Z",
@@ -165,7 +175,10 @@ test("Test: user verification.", async () => {
   const user = await getUser("MostafaA");
   const response = await request(app)
     .put("/auth/verify-credentials")
-    .send({ id: user._id, verificationCode: user.verificationCode })
+    .send({
+      email_or_username: "MostafaA",
+      verificationCode: user.verificationCode,
+    })
     .expect(200);
 });
 
@@ -181,7 +194,10 @@ test("Test: user verification - Check DB.", async () => {
   const user = await getUser("MostafaA");
   const response = await request(app)
     .put("/auth/verify-credentials")
-    .send({ id: user._id, verificationCode: user.verificationCode });
+    .send({
+      email_or_username: "MostafaA",
+      verificationCode: user.verificationCode,
+    });
   const verifiedUser = await getUser("MostafaA");
   expect(verifiedUser.isVerified).toBe(true);
 });
@@ -198,7 +214,7 @@ test("Test: user verification with wrong verification code.", async () => {
   const user = await getUser("MostafaA");
   const response = await request(app)
     .put("/auth/verify-credentials")
-    .send({ id: user._id, verificationCode: "-1" })
+    .send({ email_or_username: "MostafaA", verificationCode: "-1" })
     .expect(401);
 });
 
@@ -214,7 +230,7 @@ test("Test: user verification with wrong verification code - Check DB.", async (
   const user = await getUser("MostafaA");
   const response = await request(app)
     .put("/auth/verify-credentials")
-    .send({ id: user._id, verificationCode: "-1" });
+    .send({ email_or_username: "MostafaA", verificationCode: "-1" });
   const verifiedUser = await getUser("MostafaA");
   expect(verifiedUser.isVerified).toBe(false);
 });
@@ -231,7 +247,7 @@ test("Test: user verification with missing data.", async () => {
   const user = await getUser("MostafaA");
   const response = await request(app)
     .put("/auth/verify-credentials")
-    .send({ id: "", verificationCode: "" })
+    .send({ email_or_username: "", verificationCode: "" })
     .expect(400);
 });
 
@@ -247,7 +263,10 @@ test("Test: user login with username.", async () => {
   const user = await getUser("MostafaA");
   const verification = await request(app)
     .put("/auth/verify-credentials")
-    .send({ id: user._id, verificationCode: user.verificationCode });
+    .send({
+      email_or_username: "MostafaA",
+      verificationCode: user.verificationCode,
+    });
   const response = await request(app)
     .post("/auth/login")
     .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
@@ -264,9 +283,10 @@ test("Test: user login with email.", async () => {
     birth_date: "2000-01-01T00:00:00.000Z",
   });
   const user = await getUser("MostafaA");
-  const verification = await request(app)
-    .put("/auth/verify-credentials")
-    .send({ id: user._id, verificationCode: user.verificationCode });
+  const verification = await request(app).put("/auth/verify-credentials").send({
+    email_or_username: "MostafaA",
+    verificationCode: user.verificationCode,
+  });
   const response = await request(app)
     .post("/auth/login")
     .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
@@ -289,7 +309,6 @@ test("Test: user login without verification.", async () => {
     .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
     .expect(401);
 });
-
 
 test("Test: user login with missing data", async () => {
   // jest.setTimeout(10000);

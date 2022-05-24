@@ -102,10 +102,6 @@ beforeEach(async () => {
 });
 
 
-
-
-
-
 test("Testing that no user is found with this username", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
@@ -203,7 +199,7 @@ test("Testing that no user is found with this username", async () => {
         .expect(404);
 });
 
-test("Should get notifications list", async () => {
+test("Should get tweets in home timeline", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -211,13 +207,27 @@ test("Should get notifications list", async () => {
 
     const user = await getUser(userOne.username);
     const response = await request(app)
-        .get("/notifications/list/1/2")
+        .get("/home/1/2")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send({})
         .expect(200);
 });
+//3
+/*test("Should get notifications list", async () => {
+  const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
 
-test("Should follow user", async () => {
+  const user = await getUser(userOne.username);
+  const response = await request(app)
+    .get("/notifications/list/1/2")
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({})
+    .expect(200);
+});*/
+//2
+/*test("Should follow user", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
         username: "MostafaA",
@@ -241,7 +251,7 @@ test("Should follow user", async () => {
             }
         )
         .expect(200);
-});
+});*/
 test("Should give error message when the user is invalid", async () => {
     const login = await request(app)
         .post("/auth/login")
@@ -259,7 +269,8 @@ test("Should give error message when the user is invalid", async () => {
         )
         .expect(404);
 });
-test("Should unfollow user", async () => {
+//1
+/*test("Should unfollow user", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -284,12 +295,147 @@ test("Should unfollow user", async () => {
             }
         )
         .expect(200);
-});
-/*test("Testing when sending Invalid ID", async () => {
-    const response = await request(app)
-        .get("/notifications/list")
-        .send({
-            userId: "5e9f8f9f8b70b6ccc7a22cdf",
-        })
-        .expect(500);
 });*/
+test("Should get user information", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+    const user = await getUser("MostafaA");
+    const response = await request(app)
+        .get("/info/" + userThree.username)
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(200);
+});
+test("Should return error for unvalid user", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "mostafa.abdelbrr@hotmail.com",
+        username: "MostafaA",
+        password: "myPassw@ord123",
+        name: "Mostafa Abdelbrr",
+        gender: "male",
+        birth_date: "2000-01-01T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .expect(200);
+    const user = await getUser("MostafaA");
+    const response = await request(app)
+        .get("/info/" + new mongoose.Types.ObjectId())
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(404);
+});
+
+//********************Search tests */
+test("Should return not found for invalid username", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "ahmed.elgarf@gmail.com",
+        username: "ahmedelgarf94",
+        password: "password123",
+        name: "Ahmed Elgarf",
+        gender: "male",
+        birth_date: "1999-04-10T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "ahmedelgarf94", password: "password123" })
+        .expect(200);
+    const user = await getUser("ahmedelgarf94");
+    const response = await request(app)
+        .get("/search/:invalidusername")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(404);
+});
+
+test("Should return all users with username", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "ahmed.elgarf@gmail.com",
+        username: "ahmedelgarf94",
+        password: "password123",
+        name: "Ahmed Elgarf",
+        gender: "male",
+        birth_date: "1999-04-10T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "ahmedelgarf94", password: "password123" })
+        .expect(200);
+    const user = await getUser("ahmedelgarf94");
+    const response = await request(app)
+        .get("/search/"+userThree.username)
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send()
+        .expect(200);
+});
+
+test("Should return error for unauthanticated users", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "ahmed.elgarf@gmail.com",
+        username: "ahmedelgarf94",
+        password: "password123",
+        name: "Ahmed Elgarf",
+        gender: "male",
+        birth_date: "1999-04-10T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+
+    const user = await getUser("ahmedelgarf94");
+    const response = await request(app)
+        .get("/search/"+userThree.username)
+        .send()
+        .expect(401);
+});
+
+
+//-************************************
+
+//***************************************update user profile */
+
+test("Should return error when update user profile for unauthanticated users", async () => {
+    const signup = await request(app).post("/auth/signup").send({
+        email: "ahmed.elgarf@gmail.com",
+        username: "ahmedelgarf94",
+        password: "password123",
+        name: "Ahmed Elgarf",
+        gender: "male",
+        birth_date: "1999-04-10T00:00:00.000Z",
+        isVerified: true
+    }).expect(200);
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: "ahmedelgarf94", password: "password123" })
+        .expect(200);
+    const user = await getUser("ahmedelgarf94");
+    const response = await request(app)
+        .put("/user/update-profile")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send({
+            name: "Ammar Yasser eng",
+        })
+        .expect(200);
+});
+
+
+
+
+
+
+
+
+//******************************************************************************** */

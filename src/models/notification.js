@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const webPush = require("web-push");
+const NotificationSub = require("./notificationsSub");
+
 require("./user");
 require("./tweet");
 
@@ -52,11 +55,18 @@ NotificationSchema.statics.getNotificationObject = async function (
 
   if (notification.tweetId != null) {
     const Tweet = mongoose.model("tweet");
-    tweet = await Tweet.getTweetObject(notification.tweetId, notification.userId.username, false);
+    tweet = await Tweet.getTweetObject(
+      notification.tweetId,
+      notification.userId.username,
+      false
+    );
   }
   if (notification.relatedUserId != null) {
     const User = mongoose.model("user");
-    user = await User.generateUserObject(notification.relatedUserId);
+    user = await User.generateUserObject(
+      notification.relatedUserId,
+      notification.userId.username
+    );
   }
 
   const notificationObject = {
@@ -69,6 +79,36 @@ NotificationSchema.statics.getNotificationObject = async function (
     created_at: notification.createdAt,
   };
   return notificationObject;
+};
+
+NotificationSchema.statics.sendNotification = async function (
+  userId,
+  title,
+  body
+) {
+  const subs = await NotificationSub.find({ userId: userId });
+  if (!subs) {
+    return null;
+  }
+  const payload = {
+    title: title,
+    body: body,
+  };
+  for (let i = 0; i < subs.length; i++) {
+    const options = {
+      vapidDetails: {
+        subject: "mailto:noreply@twittcloneteamone.xyz",
+        publicKey: subs[i].publicKey,
+        privateKey: subs[i].privateKey,
+      },
+    };
+
+    webPush.sendNotification(
+      subs[i].subscription,
+      JSON.stringify(payload),
+      options
+    );
+  }
 };
 
 const Notification = mongoose.model("notification", NotificationSchema);
