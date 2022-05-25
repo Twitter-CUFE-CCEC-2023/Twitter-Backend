@@ -128,18 +128,19 @@ test('deleting a tweet', async()=>{
 */
 test("Should give error for like a tweet", async () => {
     const login = await request(app)
-        .post("/auth/login")
-        .send({ email_or_username: userOne.email, password: userOne.password })
-        .expect(200);
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
 
     const user = await getUser(userOne.username);
+    const tweet = await Tweets.findById(id);
+
     const response = await request(app)
         .post("/status/like")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                tweetId: new mongoose.Types.ObjectId(),
-                likerUsername: user.username
+                id: new mongoose.Types.ObjectId()
             }
         )
         .expect(404);
@@ -252,4 +253,93 @@ test("unretweet a tweet test", async()=>{
         id: tweet.id
     })
     .expect(200);
+})
+
+test("unauthorized retweet a tweet test", async()=>{
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findById(id);
+
+    const response = await request(app)
+        .post('/status/retweet')
+        .send({
+            id: tweet.id
+        })
+        .expect(401);
+})
+
+test("unauthorized get tweet retweeters", async()=>{
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findOne({isRetweeted : true});
+
+    const response = await request(app)
+    .get('/status/retweeters/'+ tweet.id +'/1/5')
+    .expect(401);
+})
+
+test("unauthorized unretweet a tweet test", async()=>{
+    const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findOne({isRetweeted : true});
+
+    const response = await request(app)
+    .delete("/status/unretweet")
+    .send({ 
+        id: tweet.id
+    })
+    .expect(401);
+})
+
+test("retweet a tweet for a non existing tweet test", async()=>{
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findById(id);
+
+    const response = await request(app)
+        .post('/status/retweet')
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send({
+            id: new mongoose.Types.ObjectId()
+        })
+        .expect(404);
+})
+
+test("unretweet a non existing tweet test", async()=>{
+    const login = await request(app)
+    .post("/auth/login")
+    .send({ email_or_username: userOne.email, password: userOne.password })
+    .expect(200);
+
+    const user = await getUser(userOne.username);
+
+    const tweet = await Tweets.findOne({isRetweeted : true});
+
+    const response = await request(app)
+    .delete("/status/unretweet")
+    .set("Authorization", "Bearer " + user.tokens[0].token)
+    .send({ 
+        id: new mongoose.Types.ObjectId()
+    })
+    .expect(400);
 })
