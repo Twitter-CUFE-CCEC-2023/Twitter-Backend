@@ -1,3 +1,4 @@
+const { compareSync } = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
@@ -16,32 +17,35 @@ const auth = async (req, res, next) => {
     }
     //get all expired tokens
     const expiredTokens = user.tokens.filter(
-      (token) => token.token_expiration_date < Date.now()
+      (token) => token.token_expiration_date <= Date.now()
     );
-    //remove expired tokens
+
+    const oldTokens = user.tokens;
+    //Remove expired tokens
     expiredTokens.forEach((token) => {
       user.tokens = user.tokens.filter((t) => t.token !== token.token);
     });
-
-    const tokenExpirationDate = user.tokens.filter((x) => x.token === token)[0]
-      .token_expiration_date;
-
-    if (tokenExpirationDate < Date.now()) {
-      user.tokens = user.tokens.filter((x) => x.token !== token);
-      await User.updateOne(
+    let userSend = user;
+    if (oldTokens.length !== user.tokens.length) {
+      const newUser = await User.updateOne(
         { _id: user._id },
-        { $set: { tokens: user.tokens } }
+        { $set: { tokens: user.tokens } },
+        { new: true }
       );
-      throw new Error();
+
+      //check if token is present in user tokens
+      const tokenExists = newUser.tokens.includes((token) => token.token === token);
+      if (!tokenExists) {
+        throw new Error();
+      }
+      userSend = newUser;
     }
     res.set("Access-Control-Allow-Origin", "*");
-    req.user = user;
+    req.user = userSend;
     req.token = token;
     next();
   } catch (e) {
-    res
-      .status(401)
-      .send({ message: "User is not authenticated or invalid token" });
+    res.status(401).send({ message: e.toString() });
   }
 };
 

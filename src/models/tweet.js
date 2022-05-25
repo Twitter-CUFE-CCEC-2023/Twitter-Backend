@@ -42,6 +42,10 @@ const TweetSchema = new Schema(
         default: [],
       },
     ],
+    gif: {
+      type: String,
+      default: "",
+    },
     mentions: [
       {
         type: String,
@@ -113,13 +117,17 @@ TweetSchema.statics.getTweetObject = async function (
     quote_comment: quotedTweet != null ? quotedTweet.quoteComment : null,
     mentions: tweet.mentions,
     media: tweet.attachments,
+    gif: tweet.gif,
     created_at: tweet.createdAt,
   };
   return tweetInfo;
 };
 
 TweetSchema.statics.getTweetReplies = async function (tweet, username) {
-  const replyTweets = await Tweet.find({ parentId: tweet.id, isRetweeted: false });
+  const replyTweets = await Tweet.find({
+    parentId: tweet.id,
+    isRetweeted: false,
+  });
   tweet.replies = [];
   for (let i = 0; i < replyTweets.length; i++) {
     const tweetReply = replyTweets[i];
