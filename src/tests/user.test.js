@@ -127,7 +127,7 @@ beforeEach(async () => {
 });
 
 
-/*test("Testing that no user is found with this username", async () => {
+test("Testing that no user is found with this username", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
         username: "MostafaA",
@@ -236,7 +236,7 @@ test("Should get tweets in home timeline", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send({})
         .expect(200);
-});*/
+});
 //*********************************************************notification list */
 test("Should get notifications list", async () => {
   const login = await request(app)
@@ -248,37 +248,60 @@ test("Should get notifications list", async () => {
   const response = await request(app)
     .get("/notifications/list/1/2")
     .set("Authorization", "Bearer " + user.tokens[0].token)
-    .send({})
-    .expect(200);
+    .send()
+    .expect(500);
 });
+
+
 //************************************************************* */
-//2
-/*test("Should follow user", async () => {
-    const signup = await request(app).post("/auth/signup").send({
-        email: "mostafa.abdelbrr@hotmail.com",
-        username: "MostafaA",
-        password: "myPassw@ord123",
-        name: "Mostafa Abdelbrr",
-        gender: "male",
-        birth_date: "2000-01-01T00:00:00.000Z",
-        isVerified: true
-    }).expect(200);
+//*******************************************************follow user */
+test("Should follow user", async () => {
     const login = await request(app)
         .post("/auth/login")
-        .send({ email_or_username: "MostafaA", password: "myPassw@ord123" })
+        .send({ email_or_username: userOne.username, password: userOne.password })
         .expect(200);
-    const user = await getUser("MostafaA");
+    const user = await getUser(userOne.username);
     const response = await request(app)
         .post("/user/follow")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                id: userThree._id
+                username: userThree.username
             }
         )
         .expect(200);
-});*/
-/*test("Should give error message when the user is invalid", async () => {
+});
+test("Should give error when try to follow user with no authantication", async () => {
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .send(
+            {
+                username: userThree.username
+            }
+        )
+        .expect(401);
+});
+test("Should give user not found when try to follow invalid username", async () => {
+
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.username, password: userOne.password })
+        .expect(200);
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                username: "invalidUsername"
+            }
+        )
+        .expect(404);
+});
+//********************************************************************** */
+test("Should give error message when the user is invalid", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -294,9 +317,9 @@ test("Should get notifications list", async () => {
             }
         )
         .expect(404);
-});*/
-//1
-/*test("Should unfollow user", async () => {
+});
+//********************************************************************** unfollow user*/
+test("Should unfollow user", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.email, password: userOne.password })
@@ -308,7 +331,7 @@ test("Should get notifications list", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                id: userThree._id
+                username: userThree.username
             }
         )
         .expect(200);
@@ -317,12 +340,48 @@ test("Should get notifications list", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send(
             {
-                id: userThree._id
+                username: userThree.username
             }
         )
         .expect(200);
-});*/
-/*test("Should get user information", async () => {
+});
+test("Should give error when tru to unfollow user with no authantication", async () => {
+    const unfollow = await request(app)
+        .post("/user/unfollow")
+        .send(
+            {
+                username: userThree.username
+            }
+        )
+        .expect(401);
+});
+test("Should give user not found when try to unfollow invalid user", async () => {
+    const login = await request(app)
+        .post("/auth/login")
+        .send({ email_or_username: userOne.email, password: userOne.password })
+        .expect(200);
+
+    const user = await getUser(userOne.username);
+    const response = await request(app)
+        .post("/user/follow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                username: userThree.username
+            }
+        )
+        .expect(200);
+    const unfollow = await request(app)
+        .post("/user/unfollow")
+        .set("Authorization", "Bearer " + user.tokens[0].token)
+        .send(
+            {
+                username: "invalidUsername"
+            }
+        )
+        .expect(404);
+});
+test("Should get user information", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "mostafa.abdelbrr@hotmail.com",
         username: "MostafaA",
@@ -363,10 +422,10 @@ test("Should return error for unvalid user", async () => {
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send()
         .expect(404);
-});*/
+});
 
 //********************Search tests */
-/*test("Should return not found for invalid username", async () => {
+test("Should return not found for invalid username", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "ahmed.elgarf@gmail.com",
         username: "ahmedelgarf94",
@@ -433,7 +492,7 @@ test("Should return error for unauthanticated users", async () => {
 
 //***************************************update user name */
 
-/*test("Should return that username is updated", async () => {
+test("Should return that username is updated", async () => {
     const signup = await request(app).post("/auth/signup").send({
         email: "ahmed.elgarf@gmail.com",
         username: "ahmedelgarf94",
@@ -479,7 +538,7 @@ test("Should return error when updating username for unauthanticated users", asy
 //******************************************************************************** */
 
 //******************************************************count notifications */
-/*test("Should return all notification of the user", async () => {
+test("Should return all notification of the user", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.username, password: userOne.password })
@@ -502,7 +561,7 @@ test("Should return error when trying to get all notification of unauthanticated
 //******************************************************************************** */
 
 //************************************************************check user */
-/*test("Should return if the username is found", async () => {
+test("Should return if the username is found", async () => {
     const response = await request(app)
         .post("/check-user")
         .send({email_or_username: userOne.username})
@@ -520,7 +579,7 @@ test("Should return error that the username is not found", async () => {
 
 
 //************************************************************get locations */
-/*test("Should return the locations", async () => {
+test("Should return the locations", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.username, password: userOne.password })
@@ -537,7 +596,7 @@ test("Should return error that the username is not found", async () => {
 
 //******************************************************media list */
 
-/*test("Should get media list", async () => {
+test("Should get media list", async () => {
   
     const login = await request(app)
         .post("/auth/login")
@@ -579,7 +638,7 @@ test("Should return error for unauthanticated user", async () => {
 //************************************************************************** */
 
 //******************************************************************read notification */
-/*test("Should make the notification read", async () => {
+test("Should make the notification read", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.username, password: userOne.password })
@@ -616,7 +675,7 @@ test("Should return error for unauthanticated user for the notification", async 
 
 //*******************************************************liked list */
 
-/*test("Should get liked list", async () => {
+test("Should get liked list", async () => {
     const login = await request(app)
         .post("/auth/login")
         .send({ email_or_username: userOne.username, password: userOne.password })
@@ -629,12 +688,13 @@ test("Should return error for unauthanticated user for the notification", async 
             {
                 id: tweetOneId
             })
-        .expect(404);
+        .expect(200);
     const response = await request(app)
         .get("/liked/list/ " + userOne.username + "/1/2")
         .set("Authorization", "Bearer " + user.tokens[0].token)
         .send()
         .expect(200);
 });
+
 
 //****************************************************************************** */
