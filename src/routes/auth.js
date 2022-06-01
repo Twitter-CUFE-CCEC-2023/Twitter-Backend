@@ -5,12 +5,13 @@ const config = require("../config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const NotificationSubscription = require("../models/notificationsSub");
-const session = require("express-session");
+const cookieParser = require("cookie-parser");
 
 const router = express.Router();
 
 module.exports = router;
 
+router.use(cookieParser("twittercloneteamone"));
 router.use(passport.initialize());
 // router.use(passport.session());
 
@@ -43,21 +44,6 @@ router.get(
   })
 );
 
-router.use(
-  session({
-    secret: "twittcloneteamone",
-    domain: ".twittercloneteamone.tk",
-    path: "/",
-    resave: true,
-    saveUninitialized: false,
-  })
-);
-
-router.post("/auth/gauth", async (req, res) => {
-  res.status(200).send(req.session.res);
-  req.session.destroy();
-});
-
 router.get(
   "/auth/google/callback",
 
@@ -84,38 +70,39 @@ router.get(
         );
 
         const userObj = await User.generateUserObject(user);
-        req.session.status = 200;
-        req.session.res = {
-          access_token: token,
-          user: userObj,
-          token_expiration_date: authTokenInfo["token_expiration_date"],
-          message: "User logged in successfully",
-        };
-        // res.status(200).send({
-        //   access_token: token,
-        //   user: userObj,
-        //   token_expiration_date: authTokenInfo["token_expiration_date"],
-        //   message: "User logged in successfully",
-        // });
-        res.redirect(
-          "https://www.twittercloneteamone.tk/GoogleRedirect"
+        res.cookie(
+          "res",
+          {
+            access_token: token,
+            user: userObj,
+            token_expiration_date: authTokenInfo["token_expiration_date"],
+            message: "User logged in successfully",
+            status: 200,
+          },
+          { domain: ".twittercloneteamone.tk" }
         );
+        res.redirect("http://localhost:3000/GoogleRedirect");
       } else {
-        req.session.status = 401;
-        req.session.res = { message: "The enetered credentials are invalid." };
-        // res
-        //   .status(401)
-        //   .send({ message: "The enetered credentials are invalid." });
-        res.redirect(
-          "https://www.twittercloneteamone.tk/GoogleRedirect"
+        req.cookie(
+          "res",
+          {
+            status: 401,
+            message: "The enetered credentials are invalid.",
+          },
+          { domain: ".twittercloneteamone.tk" }
         );
+        res.redirect("http://localhost:3000/GoogleRedirect");
       }
     } catch (err) {
-      req.session.status = 500;
-      req.session.res = {
-        message:
-          "The server encountered an unexpected condition which prevented it from fulfilling the request.",
-      };
+      req.cookie(
+        "res",
+        {
+          status: 500,
+          message:
+            "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+        },
+        { domain: ".twittercloneteamone.tk" }
+      );
       res.status(500).send({
         message:
           "The server encountered an unexpected condition which prevented it from fulfilling the request.",
