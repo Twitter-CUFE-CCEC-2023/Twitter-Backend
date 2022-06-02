@@ -23,7 +23,7 @@
     "mongoose-data-seed": "^2.1.6",
     "multer": "^1.4.4",
     "nodemailer": "^6.7.3",
-    "npm": "^8.6.0",
+    "npm": "^8.11.0",
     "passport": "^0.5.2",
     "passport-google-oauth20": "^2.0.0",
     "test": "^0.6.0",
