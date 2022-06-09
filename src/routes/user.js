@@ -236,7 +236,7 @@ router.post("/user/follow", auth, async (req, res) => {
   if (!user2) {
     return res.status(404).send({ error_message: "User not found" });
   }
-  if (user1._id === user2._id) {
+  if (user1._id.toString() == user2._id.toString()) {
     return res.status(400).send({ error: "You cannot follow yourself" });
   }
   if (user1.followings.includes(user2._id)) {
