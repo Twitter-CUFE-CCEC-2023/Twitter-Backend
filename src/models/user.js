@@ -162,27 +162,30 @@ UserSchema.pre("save", async function (next) {
 });
 
 UserSchema.statics.googleAuth = async function (profile) {
-  let user = await await User.findOne({ email: user.username }).populate(
-    "roleId"
-  );
-  if (!user) {
-    user = new User();
-    user.username = genUsername.generateUsername(profile._json.email, 3, 14);
-    user.email = profile._json.email;
-    user.name = profile._json.name;
-    user.isVerified = true;
-    user.profile_picture = profile._json.picture;
-    user.password = generator.generate({
-      length: 16,
-      numbers: true,
-      symbols: true,
-      strict: true,
-    });
-    await user.save();
-    return await User.findOne({ email: user.username }).populate("roleId");
-  } else {
-    return user;
+  try {
+    let user = await User.findOne({ email: profile._json.email });
+    if (!user) {
+      user = new User();
+      user.username = genUsername.generateUsername(profile._json.email, 3, 14);
+      user.email = profile._json.email;
+      user.name = profile._json.name;
+      user.isVerified = true;
+      user.profile_picture = profile._json.picture;
+      user.password = generator.generate({
+        length: 16,
+        numbers: true,
+        symbols: true,
+        strict: true,
+      });
+      await user.save();
+      return await User.findOne({ email: user.username });
+    } else {
+      return user;
+    }
+  } catch (err) {
+    console.log(err);
   }
+    
 };
 
 UserSchema.statics.checkConflict = async function (email) {
@@ -335,6 +338,7 @@ UserSchema.statics.generateUserObject = async function (
       isVerified: user.isVerified,
       month_day_access: user.monthDayBirthAccessId.name,
       year_access: user.yearBirthAccessId.name,
+      craeted_at: user.createdAt,
     };
     if (banInfo) {
       userObj.banDuration = banInfo.banDuration;

@@ -23,7 +23,13 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
     const page = req.params.page != undefined ? parseInt(req.params.page) : 1;
 
     const usersIds = [req.user._id, ...req.user.followings];
-    const result = await Tweet.find({ userId: { $in: usersIds }, parentId: null})
+    const result = await Tweet.find({
+      userId: { $in: usersIds },
+      $or: [
+        { parentId: null },
+        { $and: [{ parentId: { $ne:null } }, { isRetweeted: true }] },
+      ],
+    })
       .sort({ createdAt: -1 })
       .skip(count * (page - 1))
       .limit(count)
@@ -37,7 +43,7 @@ router.get("/home/:page?/:count?", auth, async (req, res) => {
     }
     res.status(200).send({ tweets: tweets });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(error.toString());
   }
 });
 

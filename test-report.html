@@ -1,0 +1,300 @@
+<html><head><meta charset="utf-8"/><title>Your test suite</title><style type="text/css">html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+body {
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+}
+#jesthtml-content {
+  margin: 0 auto;
+  max-width: 70rem;
+}
+header {
+  display: flex;
+  align-items: center;
+}
+#title {
+  margin: 0;
+  flex-grow: 1;
+}
+#logo {
+  height: 4rem;
+}
+#timestamp {
+  color: #777;
+  margin-top: 0.5rem;
+}
+
+/** SUMMARY */
+#summary {
+  color: #333;
+  margin: 2rem 0;
+  display: flex;
+  font-family: monospace;
+  font-size: 1rem;
+}
+#summary > div {
+  margin-right: 2rem;
+  background: #eee;
+  padding: 1rem;
+  min-width: 15rem;
+}
+#summary > div:last-child {
+  margin-right: 0;
+}
+@media only screen and (max-width: 720px) {
+  #summary {
+    flex-direction: column;
+  }
+  #summary > div {
+    margin-right: 0;
+    margin-top: 2rem;
+  }
+  #summary > div:first-child {
+    margin-top: 0;
+  }
+}
+
+.summary-total {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.summary-passed {
+  color: #4f8a10;
+  border-left: 0.4rem solid #4f8a10;
+  padding-left: 0.5rem;
+}
+.summary-failed,
+.summary-obsolete-snapshots {
+  color: #d8000c;
+  border-left: 0.4rem solid #d8000c;
+  padding-left: 0.5rem;
+}
+.summary-pending {
+  color: #9f6000;
+  border-left: 0.4rem solid #9f6000;
+  padding-left: 0.5rem;
+}
+.summary-empty {
+  color: #999;
+  border-left: 0.4rem solid #999;
+}
+
+.test-result {
+  padding: 1rem;
+  margin-bottom: 0.25rem;
+}
+.test-result:last-child {
+  border: 0;
+}
+.test-result.passed {
+  background-color: #dff2bf;
+  color: #4f8a10;
+}
+.test-result.failed {
+  background-color: #ffbaba;
+  color: #d8000c;
+}
+.test-result.pending {
+  background-color: #ffdf61;
+  color: #9f6000;
+}
+
+.test-info {
+  display: flex;
+  justify-content: space-between;
+}
+.test-suitename {
+  width: 20%;
+  text-align: left;
+  font-weight: bold;
+  word-break: break-word;
+}
+.test-title {
+  width: 40%;
+  text-align: left;
+  font-style: italic;
+}
+.test-status {
+  width: 20%;
+  text-align: right;
+}
+.test-duration {
+  width: 10%;
+  text-align: right;
+  font-size: 0.75rem;
+}
+
+.failureMessages {
+  padding: 0 1rem;
+  margin-top: 1rem;
+  border-top: 1px dashed #d8000c;
+}
+.failureMessages.suiteFailure {
+  border-top: none;
+}
+.failureMsg {
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+
+.suite-container {
+  margin-bottom: 2rem;
+}
+.suite-info {
+  padding: 1rem;
+  background-color: #eee;
+  color: #777;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+.suite-info .suite-path {
+  word-break: break-all;
+  flex-grow: 1;
+  font-family: monospace;
+  font-size: 1rem;
+}
+.suite-info .suite-time {
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.75rem;
+}
+.suite-info .suite-time.warn {
+  background-color: #d8000c;
+  color: #fff;
+}
+
+/* CONSOLE LOGS */
+.suite-consolelog {
+  margin-bottom: 0.25rem;
+  padding: 1rem;
+  background-color: #efefef;
+}
+.suite-consolelog-header {
+  font-weight: bold;
+}
+.suite-consolelog-item {
+  padding: 0.5rem;
+}
+.suite-consolelog-item pre {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.suite-consolelog-item-origin {
+  color: #777;
+  font-weight: bold;
+}
+.suite-consolelog-item-message {
+  color: #000;
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+
+/* OBSOLETE SNAPSHOTS */
+.suite-obsolete-snapshots {
+  margin-bottom: 0.25rem;
+  padding: 1rem;
+  background-color: #ffbaba;
+  color: #d8000c;
+}
+.suite-obsolete-snapshots-header {
+  font-weight: bold;
+}
+.suite-obsolete-snapshots-item {
+  padding: 0.5rem;
+}
+.suite-obsolete-snapshots-item pre {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.suite-obsolete-snapshots-item-message {
+  color: #000;
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+</style></head><body><div id="jesthtml-content"><header><h1 id="title">Your test suite</h1></header><div id="metadata-container"><div id="timestamp">Started: 2022-05-25 02:54:22</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (4)</div><div class="summary-passed">2 passed</div><div class="summary-failed">2 failed</div><div class="summary-pending summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (70)</div><div class="summary-passed">63 passed</div><div class="summary-failed">7 failed</div><div class="summary-pending summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><div class="suite-info"><div class="suite-path">D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\auth.test.js</div><div class="suite-time warn">27.905s</div></div><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: normal user signup</div><div class="test-status">passed</div><div class="test-duration">1.444s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: conflict user signup</div><div class="test-status">passed</div><div class="test-duration">0.655s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user signup with missing data</div><div class="test-status">passed</div><div class="test-duration">0.053s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: request resending verification code with username.</div><div class="test-status">passed</div><div class="test-duration">0.752s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: request resending verification code with email.</div><div class="test-status">passed</div><div class="test-duration">0.741s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: request resending verification code with wrong data.</div><div class="test-status">passed</div><div class="test-duration">0.708s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: request resending verification code with missing data.</div><div class="test-status">passed</div><div class="test-duration">0.607s</div></div></div><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user verification.</div><div class="test-status">failed</div><div class="test-duration">0.058s</div></div><div class="failureMessages"> <pre class="failureMsg">TypeError: Cannot read properties of null (reading 'verificationCode')
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\auth.test.js:180:30)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)</pre></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user verification - Check DB.</div><div class="test-status">passed</div><div class="test-duration">0.824s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user verification with wrong verification code.</div><div class="test-status">passed</div><div class="test-duration">0.722s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user verification with wrong verification code - Check DB.</div><div class="test-status">passed</div><div class="test-duration">0.645s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user verification with missing data.</div><div class="test-status">passed</div><div class="test-duration">0.665s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user login with username.</div><div class="test-status">passed</div><div class="test-duration">1.391s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user login with email.</div><div class="test-status">passed</div><div class="test-duration">1.449s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user login without verification.</div><div class="test-status">passed</div><div class="test-duration">1.393s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user login with missing data</div><div class="test-status">passed</div><div class="test-duration">0.772s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user login with wrong passwrod</div><div class="test-status">passed</div><div class="test-duration">1.32s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test password reset request with username.</div><div class="test-status">passed</div><div class="test-duration">0.673s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test password reset request with email.</div><div class="test-status">passed</div><div class="test-duration">0.744s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test password reset request with incorrect data.</div><div class="test-status">passed</div><div class="test-duration">0.046s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test password reset request with incomplete data.</div><div class="test-status">passed</div><div class="test-duration">0.033s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user password reset with username.</div><div class="test-status">passed</div><div class="test-duration">1.373s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user password reset with email.</div><div class="test-status">passed</div><div class="test-duration">1.473s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user password reset with wrong reset code.</div><div class="test-status">passed</div><div class="test-duration">0.849s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user password reset with missing credentials.</div><div class="test-status">passed</div><div class="test-duration">0.745s</div></div></div><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: update user password.</div><div class="test-status">failed</div><div class="test-duration">1.273s</div></div><div class="failureMessages"> <pre class="failureMsg">TypeError: Cannot read properties of undefined (reading 'token')
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\auth.test.js:508:54)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)</pre></div></div><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: update user password - check password in DB.</div><div class="test-status">failed</div><div class="test-duration">1.346s</div></div><div class="failureMessages"> <pre class="failureMsg">TypeError: Cannot read properties of undefined (reading 'token')
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\auth.test.js:532:54)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)</pre></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user password update without login.</div><div class="test-status">passed</div><div class="test-duration">0.03s</div></div></div><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Test: user password update with missing data.</div><div class="test-status">failed</div><div class="test-duration">1.292s</div></div><div class="failureMessages"> <pre class="failureMsg">TypeError: Cannot read properties of undefined (reading 'token')
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\auth.test.js:567:54)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)</pre></div></div></div></div><div id="suite-2" class="suite-container"><div class="suite-info"><div class="suite-path">D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\user.test.js</div><div class="suite-time warn">82.615s</div></div><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Testing that no user is found with this username</div><div class="test-status">passed</div><div class="test-duration">4.008s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get followers list</div><div class="test-status">passed</div><div class="test-duration">3.11s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get following list</div><div class="test-status">passed</div><div class="test-duration">3.071s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Testing that no user is found with this username</div><div class="test-status">passed</div><div class="test-duration">2.754s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get tweets in home timeline</div><div class="test-status">passed</div><div class="test-duration">2.761s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get notifications list</div><div class="test-status">passed</div><div class="test-duration">2.857s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should follow user</div><div class="test-status">passed</div><div class="test-duration">2.585s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give error when try to follow user with no authantication</div><div class="test-status">passed</div><div class="test-duration">1.674s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give user not found when try to follow invalid username</div><div class="test-status">passed</div><div class="test-duration">2.518s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give error message when the user is invalid</div><div class="test-status">passed</div><div class="test-duration">2.585s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should unfollow user</div><div class="test-status">passed</div><div class="test-duration">2.555s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give error when tru to unfollow user with no authantication</div><div class="test-status">passed</div><div class="test-duration">1.83s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give user not found when try to unfollow invalid user</div><div class="test-status">passed</div><div class="test-duration">2.479s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get user information</div><div class="test-status">passed</div><div class="test-duration">2.787s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error for unvalid user</div><div class="test-status">passed</div><div class="test-duration">2.84s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return not found for invalid username</div><div class="test-status">passed</div><div class="test-duration">2.947s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return all users with username</div><div class="test-status">passed</div><div class="test-duration">3.188s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error for unauthanticated users</div><div class="test-status">passed</div><div class="test-duration">2.409s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return that username is updated</div><div class="test-status">passed</div><div class="test-duration">3.153s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error when updating username for unauthanticated users</div><div class="test-status">passed</div><div class="test-duration">2.371s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return all notification of the user</div><div class="test-status">passed</div><div class="test-duration">2.233s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error when trying to get all notification of unauthanticated user</div><div class="test-status">passed</div><div class="test-duration">1.809s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return if the username is found</div><div class="test-status">passed</div><div class="test-duration">1.918s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error that the username is not found</div><div class="test-status">passed</div><div class="test-duration">1.653s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return the locations</div><div class="test-status">passed</div><div class="test-duration">2.121s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get media list</div><div class="test-status">passed</div><div class="test-duration">2.457s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return not found user</div><div class="test-status">passed</div><div class="test-duration">2.419s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error for unauthanticated user</div><div class="test-status">passed</div><div class="test-duration">1.911s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should make the notification read</div><div class="test-status">passed</div><div class="test-duration">2.767s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return user not found for the notification</div><div class="test-status">passed</div><div class="test-duration">2.426s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should return error for unauthanticated user for the notification</div><div class="test-status">passed</div><div class="test-duration">1.823s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should get liked list</div><div class="test-status">passed</div><div class="test-duration">2.603s</div></div></div></div></div><div id="suite-3" class="suite-container"><div class="suite-info"><div class="suite-path">D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\tweets.test.js</div><div class="suite-time warn">17.865s</div></div><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give error for like a tweet</div><div class="test-status">passed</div><div class="test-duration">2.888s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">Should give error for unlike a tweet</div><div class="test-status">passed</div><div class="test-duration">2.502s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">posting a tweet</div><div class="test-status">passed</div><div class="test-duration">3.079s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">retweet a tweet test</div><div class="test-status">passed</div><div class="test-duration">2.631s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">get tweet retweeters</div><div class="test-status">passed</div><div class="test-duration">2.55s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">unretweet a tweet test</div><div class="test-status">passed</div><div class="test-duration">2.53s</div></div></div></div></div><div id="suite-4" class="suite-container"><div class="suite-info"><div class="suite-path">D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\admin_dashboard.test.js</div><div class="suite-time">4.987s</div></div><div class="suite-tests"><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">get a user by loactaion</div><div class="test-status">failed</div><div class="test-duration">1.449s</div></div><div class="failureMessages"> <pre class="failureMsg">Error: expected 200 "OK", got 404 "Not Found"
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\admin_dashboard.test.js:62:8)
+    at Promise.then.completed (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\utils.js:391:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\utils.js:316:10)
+    at _callCircusTest (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\run.js:218:40)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at _runTest (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\run.js:155:3)
+----
+    at Test._assertStatus (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:252:14)
+    at D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:306:17
+    at Test._assertFunction (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:285:13)
+    at Test.assert (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:164:23)
+    at Server.localAssert (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:120:14)
+    at Object.onceWrapper (node:events:639:28)
+    at Server.emit (node:events:520:28)
+    at Server.emit (node:domain:475:12)
+    at emitCloseNT (node:net:1677:8)
+    at processTicksAndRejections (node:internal/process/task_queues:82:21)</pre></div></div><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">ban user</div><div class="test-status">failed</div><div class="test-duration">1.045s</div></div><div class="failureMessages"> <pre class="failureMsg">Error: expected 200 "OK", got 401 "Unauthorized"
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\admin_dashboard.test.js:71:8)
+    at Promise.then.completed (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\utils.js:391:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\utils.js:316:10)
+    at _callCircusTest (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\run.js:218:40)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at _runTest (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\run.js:155:3)
+----
+    at Test._assertStatus (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:252:14)
+    at D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:306:17
+    at Test._assertFunction (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:285:13)
+    at Test.assert (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:164:23)
+    at Server.localAssert (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:120:14)
+    at Object.onceWrapper (node:events:639:28)
+    at Server.emit (node:events:520:28)
+    at Server.emit (node:domain:475:12)
+    at emitCloseNT (node:net:1677:8)
+    at processTicksAndRejections (node:internal/process/task_queues:82:21)</pre></div></div><div class="test-result failed"><div class="test-info"><div class="test-suitename"> </div><div class="test-title">unban user</div><div class="test-status">failed</div><div class="test-duration">1.179s</div></div><div class="failureMessages"> <pre class="failureMsg">Error: expected 200 "OK", got 401 "Unauthorized"
+    at Object.&lt;anonymous&gt; (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\src\tests\admin_dashboard.test.js:77:8)
+    at Promise.then.completed (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\utils.js:391:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\utils.js:316:10)
+    at _callCircusTest (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\run.js:218:40)
+    at runMicrotasks (&lt;anonymous&gt;)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at _runTest (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\jest-circus\build\run.js:155:3)
+----
+    at Test._assertStatus (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:252:14)
+    at D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:306:17
+    at Test._assertFunction (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:285:13)
+    at Test.assert (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:164:23)
+    at Server.localAssert (D:\Ahmed Elgarf\Spring 2022\SoftWare\Project\Twitter-Backend\node_modules\supertest\lib\test.js:120:14)
+    at Object.onceWrapper (node:events:639:28)
+    at Server.emit (node:events:520:28)
+    at Server.emit (node:domain:475:12)
+    at emitCloseNT (node:net:1677:8)
+    at processTicksAndRejections (node:internal/process/task_queues:82:21)</pre></div></div></div></div></div></body></html>

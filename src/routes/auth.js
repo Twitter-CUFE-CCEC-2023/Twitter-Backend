@@ -5,11 +5,13 @@ const config = require("../config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const NotificationSubscription = require("../models/notificationsSub");
+const cookieParser = require("cookie-parser");
 
 const router = express.Router();
 
 module.exports = router;
 
+router.use(cookieParser("twittercloneteamone"));
 router.use(passport.initialize());
 // router.use(passport.session());
 
@@ -47,7 +49,6 @@ router.get(
 
   passport.authenticate("google", { session: false }),
   async (req, res) => {
-    console.log("Google Auth.");
     try {
       const user = new User(req.user);
       if (user) {
@@ -69,18 +70,39 @@ router.get(
         );
 
         const userObj = await User.generateUserObject(user);
-        res.status(200).send({
-          access_token: token,
-          user: userObj,
-          token_expiration_date: authTokenInfo["token_expiration_date"],
-          message: "User logged in successfully",
-        });
+        res.cookie(
+          "res",
+          {
+            access_token: token,
+            user: userObj,
+            token_expiration_date: authTokenInfo["token_expiration_date"],
+            message: "User logged in successfully",
+            status: 200,
+          },
+          { domain: ".twittercloneteamone.tk" }
+        );
+        res.redirect("http://localhost:3000/GoogleRedirect");
       } else {
-        res
-          .status(401)
-          .send({ message: "The enetered credentials are invalid." });
+        req.cookie(
+          "res",
+          {
+            status: 401,
+            message: "The enetered credentials are invalid.",
+          },
+          { domain: ".twittercloneteamone.tk" }
+        );
+        res.redirect("http://localhost:3000/GoogleRedirect");
       }
     } catch (err) {
+      req.cookie(
+        "res",
+        {
+          status: 500,
+          message:
+            "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+        },
+        { domain: ".twittercloneteamone.tk" }
+      );
       res.status(500).send({
         message:
           "The server encountered an unexpected condition which prevented it from fulfilling the request.",
