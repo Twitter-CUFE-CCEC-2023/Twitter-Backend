@@ -34,7 +34,7 @@ jobs:
         cache: 'npm'   
     - run: npm ci
     - run: CI=false npm run build --if-present
-    - run: CI=false npm test --coverage #coomented to avoid errors that can prevent deployment
+    - run: CI=false npm run test --coverage #coomented to avoid errors that can prevent deployment
   #tests:
   #   runs-on: ubuntu-latest
   #   steps:
